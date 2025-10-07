@@ -44,6 +44,8 @@
   --grey-8: #220701;
   --grey-9: #000;
   --grey-0-a7: rgba(252,237,237,0.7);
+  --grey-0-a5: rgba(252,237,237,0.5);
+  --grey-0-a3: rgba(252,237,237,0.3);
   --grey-1-a0: rgba(250,237,246,0);
   --grey-1-a7: rgba(250,237,246,0.7);
   --grey-1-a5: rgba(250,237,246,0.5);
@@ -54,6 +56,7 @@
   --grey-9-a5: rgba(0,0,0,0.5);
   --grey-9-a3: rgba(0,0,0,0.3);
   --grey-9-a1: rgba(0,0,0,0.1);
+  --grey-2-a6: rgba(240,221,234,0.6);
   --grey-2-a0: rgba(240,221,234,0);
   --color-pink-light-old: #ffe6fa;
   --color-pink-light: rgba(255,230,250,0.72);
@@ -124,6 +127,8 @@
   --grey-8: #e4a5e9;
   --grey-9: #f5decf;
   --grey-0-a7: rgba(33,0,17,0.7);
+  --grey-0-a5: rgba(33,0,17,0.5);
+  --grey-0-a3: rgba(33,0,17,0.3);
   --grey-1-a7: rgba(39,23,31,0.7);
   --grey-1-a5: rgba(39,23,31,0.5);
   --grey-1-a3: rgba(39,23,31,0.3);
@@ -133,6 +138,7 @@
   --grey-9-a3: rgba(245,222,207,0.3);
   --grey-9-a1: rgba(245,222,207,0.1);
   --grey-6-a2: rgba(198,162,142,0.2);
+  --grey-2-a6: rgba(43,2,56,0);
   --grey-2-a0: rgba(43,2,56,0);
   --color-pink-light: #322d31;
   --color-cyan-light: #2d3230;
@@ -4051,6 +4057,56 @@ use.stop-animation {
   margin: 0;
   display: flex;
   max-height: 2rem;
+}
+:root {
+/* Font Size */
+  --waline-font-size: 16px;
+/* Regular color */
+  --waline-white: var(--grey-0);
+  --waline-light-grey: var(--grey-5); /* 浅灰变深一点 */
+  --waline-dark-grey: var(--grey-7); /* 深灰紫更明显 */
+/* Theme Color */
+  --waline-theme-color: var(--color-purple);
+  --waline-active-color: var(--color-pink);
+/* Layout Color */
+  --waline-color: var(--grey-7); /* 主文字颜色，明显一点 */
+  --waline-bg-color: var(--grey-1); /* 背景改为 grey-1 */
+  --waline-bg-color-light: var(--grey-0-a7);
+  --waline-bg-color-hover: var(--grey-2-a6);
+  --waline-border-color: var(--grey-5);
+  --waline-disable-bg-color: var(--grey-0-a3);
+  --waline-disable-color: var(--grey-4);
+  --waline-code-bg-color: var(--grey-6);
+/* Special Color */
+  --waline-bq-color: var(--grey-3);
+/* Avatar */
+  --waline-avatar-size: 3.25rem;
+  --waline-m-avatar-size: calc(var(--waline-avatar-size) * 9 / 13);
+/* Badge */
+  --waline-badge-color: var(--color-blue);
+  --waline-badge-font-size: 0.775em;
+/* Information */
+  --waline-info-bg-color: var(--grey-2);
+  --waline-info-color: var(--grey-5);
+  --waline-info-font-size: 0.625em;
+/* Render choice */
+  --waline-border: 1px solid var(--waline-border-color);
+  --waline-avatar-radius: 50%;
+  --waline-box-shadow: none;
+}
+[data-theme="dark"]:root {
+  --waline-white: var(--grey-9);
+  --waline-light-grey: var(--grey-6);
+  --waline-dark-grey: var(--grey-5);
+  --waline-color: var(--grey-7); /* 更明显的文字颜色 */
+  --waline-bg-color: var(--grey-1);
+  --waline-bg-color-light: var(--grey-1-a3);
+  --waline-border-color: var(--grey-6-a2);
+  --waline-disable-bg-color: var(--grey-1-a3);
+  --waline-disable-color: var(--grey-4);
+  --waline-bq-color: var(--grey-3-a6);
+  --waline-info-bg-color: var(--grey-2);
+  --waline-info-color: var(--grey-6);
 }
 .katex,
 .katex-display {

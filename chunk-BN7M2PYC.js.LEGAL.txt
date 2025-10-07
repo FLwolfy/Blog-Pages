@@ -34,11 +34,3 @@ vue/dist/vue.runtime.esm-bundler.js:
   * (c) 2018-present Yuxi (Evan) You and Vue contributors
   * @license MIT
   **/
-
-shokax-uikit/dist/codeblock/codeblock.js:
-  /**
-  * @vue/shared v3.5.18
-  * (c) 2018-present Yuxi (Evan) You and Vue contributors
-  * @license MIT
-  **/
-  /*! #__NO_SIDE_EFFECTS__ */
