@@ -6128,20 +6128,26 @@ span.label {
   color: var(--primary-color) !important;
 }
 .osu-container {
-  height: 30rem; /* 可自行调整 */
-  width: 100%;
-  background: var(--grey-1);
-  position: relative;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: calc(100vw - 7rem);
+  min-height: 70%;
+  max-height: 100vw;
+  transform: translate(-50%, -80%); /* 初始上移一点 */
+  z-index: 999;
+  background: var(--grey-1-a5);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   overflow: hidden;
   display: block;
-  border-radius: 1rem; /* 圆角，可自行调整大小 */
-  box-shadow: 0 0.25rem 0.75rem var(--box-bg-shadow); /* 阴影，可调整偏移和透明度 */
-/* 响应式 */
+  border: 2px solid var(--grey-3);
+  border-radius: 1rem;
+  box-shadow: 0 0.25rem 0.75rem var(--box-bg-shadow);
+  transition: opacity 0.6s ease, transform 0.6s ease;
 }
-@media (max-width: 820px) {
-  .osu-container {
-    height: 50rem;
-  }
+.osu-container .osu-container.show {
+  opacity: 1;
 }
 .osu-container::before {
   content: '';
@@ -6185,7 +6191,7 @@ span.label {
   transform-origin: left center; /* 左边缘中间 */
   transition: transform 0.2s, opacity 0.2s;
   width: 90%;
-  height: 7.5rem;
+  height: 9rem;
   display: flex;
   align-items: center; /* 垂直居中 */
   justify-content: flex-start; /* 左对齐 */
@@ -6296,13 +6302,14 @@ span.label {
   height: 1.2rem;
   margin-left: auto;
   align-items: center;
+  color: var(--grey-5);
 }
 .track-content .track-meta-container .meta {
   white-space: nowrap; /* 不允许换行 */
   overflow: hidden; /* 超出隐藏 */
 }
 .track-content .track-meta-container .meta .item {
-  padding: 0;
+  margin-left: 0.5rem;
   font-size: 0.75rem;
   line-height: 1.2rem;
 }
@@ -6416,11 +6423,13 @@ span.label {
   align-items: center;
   text-align: center;
   justify-content: center;
+  color: var(--grey-5);
 }
 .track-info-meta .meta {
   line-height: 0.9rem;
 }
 .track-info-meta .meta .item {
+  margin-left: 0.5rem;
   padding: 0;
   font-size: 0.75rem;
 }
