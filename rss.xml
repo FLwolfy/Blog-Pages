@@ -1,0 +1,438 @@
+<?xml version="1.0"?>
+<rss version="2.0">
+    <channel>
+        <title>FLwolfy&#39;s Blog</title>
+        <subtitle>寄蜉蝣于天地 · 渺沧海之一粟</subtitle>
+        <icon>https://blog.flwolfy.xyz/assets/favicon.ico</icon>
+        <link>https://blog.flwolfy.xyz</link>
+        <author>
+          <name>FLwolfy</name>
+        </author>
+        <description>编程、游戏、动漫爱好者！</description>
+        <language>zh-CN</language>
+        <pubDate>Tue, 16 Sep 2025 16:00:00 +0000</pubDate>
+        <lastBuildDate>Tue, 16 Sep 2025 16:00:00 +0000</lastBuildDate>
+        <item>
+            <guid isPermalink="true">https://blog.flwolfy.xyz/2025/09/16/game/review/wothn-review/</guid>
+            <title>《魔法使之夜》通关感想【更新中...】</title>
+            <link>https://blog.flwolfy.xyz/2025/09/16/game/review/wothn-review/</link>
+            <category term="游戏" scheme="https://blog.flwolfy.xyz/categories/game/" />
+            <category term="观后感" scheme="https://blog.flwolfy.xyz/categories/game/review/" />
+            <category term="型月" scheme="https://blog.flwolfy.xyz/tags/type-moon/" />
+            <category term="杂谈" scheme="https://blog.flwolfy.xyz/tags/misc/" />
+            <pubDate>Tue, 16 Sep 2025 16:00:00 +0000</pubDate>
+            <description><![CDATA[ &lt;h1 id=&#34;阅读前须知&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#阅读前须知&#34;&gt;#&lt;/a&gt; 阅读前须知&lt;/h1&gt;
+&lt;blockquote&gt;
+&lt;ul&gt;
+&lt;li&gt;本篇感想含有剧透内容，请未通关《魔法使之夜》的读者谨慎观看！&lt;/li&gt;
+&lt;li&gt;此感想纯作者主观感受，部分内容参考了 Bilibili 上的赏析内容，融合了我自身的观点。如果有任何观点引起你的反感，请无视～&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&#34;引言-intro&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#引言-intro&#34;&gt;#&lt;/a&gt; 引言 | Intro&lt;/h2&gt;
+&lt;p&gt;《魔法使之夜》作为型月 TYPE-MOON 的代表作之一，以其独特的世界观和深刻的人物刻画吸引了大量玩家和读者（包括我）。本文将从苍崎青子、久远寺有珠和静希草十郎三位主角的性格特点、情感关系以及他们在故事中的角色定位等方面进行深入分析，探讨他们如何在复杂的情感纠葛中展现出各自的独特魅力。&lt;/p&gt;
+&lt;h2 id=&#34;后续&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#后续&#34;&gt;#&lt;/a&gt; 后续&lt;/h2&gt;
+&lt;p&gt;正在更新中...&lt;/p&gt;
+ ]]></description>
+        </item>
+        <item>
+            <guid isPermalink="true">https://blog.flwolfy.xyz/2025/06/20/game/guide/lucario-guide/</guid>
+            <title>路卡利欧全方位教程</title>
+            <link>https://blog.flwolfy.xyz/2025/06/20/game/guide/lucario-guide/</link>
+            <category term="游戏" scheme="https://blog.flwolfy.xyz/categories/game/" />
+            <category term="攻略" scheme="https://blog.flwolfy.xyz/categories/game/guide/" />
+            <category term="任斗" scheme="https://blog.flwolfy.xyz/tags/ssbu/" />
+            <category term="宝可梦" scheme="https://blog.flwolfy.xyz/tags/pokemon/" />
+            <category term="攻略" scheme="https://blog.flwolfy.xyz/tags/tutorial/" />
+            <pubDate>Fri, 20 Jun 2025 16:00:00 +0000</pubDate>
+            <description><![CDATA[ &lt;h1 id=&#34;前言和申明&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#前言和申明&#34;&gt;#&lt;/a&gt; 前言和申明&lt;/h1&gt;
+&lt;blockquote&gt;
+&lt;ul&gt;
+&lt;li&gt;本指南旨在帮助准备练习《任天堂明星大乱斗—特别版》中路卡利欧的玩家了解路卡利欧的整体定位与玩法思路，并充当一个查阅百科的作用。该指南要求玩家对大乱斗中各类术语有一定了解。我将常见问题整理成清晰的结构，方便查阅与学习。&lt;/li&gt;
+&lt;li&gt;本资料的内容整合参考国外大佬 &lt;em&gt;NewBae&lt;/em&gt; 的路卡利欧教学与我自己对于路卡职业选手研究，并融合了我自身对路卡角色的实战经验。本文章内相关影像素材部分来自 &lt;em&gt;Ultimate Frame Data&lt;/em&gt; 、 &lt;em&gt;Smash Wiki&lt;/em&gt; 等网站。&lt;/li&gt;
+&lt;li&gt;若有建议、疑问或补充，欢迎通过邮件联系我 &lt;em&gt;FLwolfy&lt;/em&gt;，也欢迎各位加入任天堂明星大乱斗路卡利欧国内角色QQ群：1007101846。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&#34;招式技能与帧数-moves&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#招式技能与帧数-moves&#34;&gt;#&lt;/a&gt; 招式技能与帧数 | Moves&lt;/h2&gt;
+&lt;p&gt;路卡利欧在大乱斗5代并不算是优秀角色，人人都有早期击杀的时代让路卡利欧非常难以保留高波导并生存。不过路卡利欧还是有一些帧数相对优秀的的招式，并且由于波导的机制，大部分对手不敢让路卡利欧获得高波导，这导致对手在跟路卡利欧立回时总是容易凹或急从而露出破绽。路卡利欧玩家要做的是熟悉各种安全招和帧数，并以最大化收益来翻盘。&lt;/p&gt;
+&lt;h3 id=&#34;地面招式-grounds&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#地面招式-grounds&#34;&gt;#&lt;/a&gt; 地面招式 | Grounds&lt;/h3&gt;
+&lt;p&gt;路卡利欧的地面招式在整个大乱斗环境中不算优秀，特别是在 DLC 出了之后（万恶的DLC）。所以路卡利欧的地面招式用起来需要谨慎。由于路卡利欧在地面具有优秀的移速，同对手立回并用地面招接近是不错的进攻手段。同时不少地面招式都是良好的连招起手，可以在立回阶段尝试摸起手。&lt;/p&gt;
+&lt;h4 id=&#34;轻攻击-jab&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#轻攻击-jab&#34;&gt;#&lt;/a&gt; 轻攻击 | Jab&lt;/h4&gt;
+&lt;p&gt;路卡利欧的 Jab 虽然是 &lt;code&gt;5帧&lt;/code&gt; 起手，理论上可以用来抢招，但判定小整体性能偏弱，不具备压制力或稳定性，因此在实战中不算实用，并不推荐作为常规的脱连手段使用。它更重要的作用在于作为 Jablock 连招的起手去获得大收益。&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;&lt;img loading=&#34;lazy&#34; src=&#34;/assets/post/lucario-guide/LucarioJab1.gif&#34; alt=&#34;Lucario Jab 1&#34; /&gt;&lt;/th&gt;
+&lt;th&gt;&lt;img loading=&#34;lazy&#34; src=&#34;/assets/post/lucario-guide/LucarioJab2.gif&#34; alt=&#34;Lucario Jab 2&#34; /&gt;&lt;/th&gt;
+&lt;th&gt;&lt;img loading=&#34;lazy&#34; src=&#34;/assets/post/lucario-guide/LucarioJab3.gif&#34; alt=&#34;Lucario Jab 3&#34; /&gt;&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;/table&gt;
+&lt;h4 id=&#34;冲刺攻击-da&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#冲刺攻击-da&#34;&gt;#&lt;/a&gt; 冲刺攻击 | DA&lt;/h4&gt;
+&lt;p&gt;路卡利欧的 DA 动作是向前铲踢，有着不错的 &lt;code&gt;7帧&lt;/code&gt; 启动帧数，是一个不错的追击突进距离和，因此可以在许多场合作为突进爆发技使用，用于打断节奏抑或是连招终结都是不错的选择。但是，DA 的动作结束后硬直较长，无法快速跟进，没有后续连招。若不安全打点（不穿盾）被盾住容易遭到却反，因此不能频繁滥用。&lt;/p&gt;
+&lt;p&gt;需要特别注意的有两点：DA 在近打点是可以&lt;strong&gt;穿盾&lt;/strong&gt;的，较为安全，可以作为一种出其不意的接近手段；DA 的攻击判定前期是甜点判定，具备非常优秀的击飞能力。若能在自身中高波导时命中甜点，是个不错的击杀确认。&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;&lt;img loading=&#34;lazy&#34; src=&#34;/assets/post/lucario-guide/LucarioDashAttack.gif&#34; alt=&#34;Lucario Dash Attack&#34; /&gt;&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;/table&gt;
+&lt;h4 id=&#34;横强攻击-横t&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#横强攻击-横t&#34;&gt;#&lt;/a&gt; 横强攻击 | 横T&lt;/h4&gt;
+&lt;p&gt;路卡利欧的横T是多段攻击，有两段判定，分别在第 &lt;code&gt;12帧&lt;/code&gt; 和第 &lt;code&gt;15帧&lt;/code&gt; 发动，攻击有脱节，是个非常好用的攻击手段。在立回的时候，可以用横T的安全打点摸盾来接近，这远比直接DA要来的安全且可靠；在追击的时候，可以&lt;strong&gt;滑步横T&lt;/strong&gt;来追受身，即便是被盾住有着 &lt;code&gt;-16帧&lt;/code&gt; 的不利，如果是安全打点，对手是不好惩罚的。&lt;/p&gt;
+&lt;p&gt;值得注意的是，路卡的横T有着斜向上和斜向下两个额外角度：斜上横T可以抓对手跳或者落地；斜下横T可以用来守边抓对手&lt;strong&gt;两帧&lt;/strong&gt;，守边技巧在后面会具体提到。&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;&lt;img loading=&#34;lazy&#34; src=&#34;/assets/post/lucario-guide/LucarioFTilt.gif&#34; alt=&#34;Lucario Forward Tilt&#34; /&gt;&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;/table&gt;
+&lt;h4 id=&#34;上强攻击-上t&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#上强攻击-上t&#34;&gt;#&lt;/a&gt; 上强攻击 | 上T&lt;/h4&gt;
+&lt;p&gt;路卡利欧的上T是一个从身后到身前的全身踢，身后判定早，只有 &lt;code&gt;6帧&lt;/code&gt; 启动前摇，是个优秀的对空技能，特别适合拦截一些需要跳切入的角色。身前（后段）判定的上T能与空前和空上形成连招，所以适合用来作为连招起手和读翻滚；身后（前段）判定的上T在自身低波导和对手低百分比的情况下可以真连转身&lt;strong&gt;锚点抓&lt;/strong&gt;，可以接上抓的后续。&lt;/p&gt;
+&lt;p&gt;需要注意，上T不论是身后还是身前打点打盾都非常不安全（才不是史蒂夫），即便是高波导也有着 &lt;code&gt;-18帧&lt;/code&gt; 的打盾，所以谨慎使用。&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;&lt;img loading=&#34;lazy&#34; src=&#34;/assets/post/lucario-guide/LucarioUTilt.gif&#34; alt=&#34;Lucario Up Tilt&#34; /&gt;&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;/table&gt;
+&lt;h4 id=&#34;下强攻击-下t&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#下强攻击-下t&#34;&gt;#&lt;/a&gt; 下强攻击 | 下T&lt;/h4&gt;
+&lt;p&gt;路卡利欧的下T是一个向下伸脚铲的动作，启动帧数为 &lt;code&gt;7帧&lt;/code&gt; ，出招后摇不大，有&lt;strong&gt;推盾&lt;/strong&gt;，适合用于牵制与触发对手反应。打盾时，根据波导量的不同，盾击后硬直分别为 &lt;code&gt;-9帧&lt;/code&gt; 、&lt;code&gt;-7帧&lt;/code&gt; 、&lt;code&gt;-5帧&lt;/code&gt; ，中高波导远端打点相对安全，不易被盾反或反击。与横T类似，下T也是一个良好的接近手段，可以在冲刺中迅速打出，用来试探对手防御、压制空间。&lt;/p&gt;
+&lt;p&gt;此外，在对手低百分比时下T可以接抓和 DA ，在自身高波导时可以接空后确，是一个不错的连招起手技。&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;&lt;img loading=&#34;lazy&#34; src=&#34;/assets/post/lucario-guide/LucarioDTilt.gif&#34; alt=&#34;Lucario Down Tilt&#34; /&gt;&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;/table&gt;
+&lt;h4 id=&#34;横猛击-横s&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#横猛击-横s&#34;&gt;#&lt;/a&gt; 横猛击 | 横S&lt;/h4&gt;
+&lt;p&gt;路卡利欧的横S会使得自己先后仰再向前猛击，有时候这个后仰会躲过一些短抓或是近距离招。横S是其主要的击杀手段之一。横S启动为 &lt;code&gt;19帧&lt;/code&gt; ，在高波导状态下打盾为 &lt;code&gt;-19帧&lt;/code&gt; 且具备明显&lt;strong&gt;推盾&lt;/strong&gt;效果，即使在防御状态下也难以反击，相对安全。&lt;/p&gt;
+&lt;p&gt;路卡利欧很需要读对手的习惯，该招作为硬读手段之一可以实现非常早期的击杀，是个极具威胁性的压制武器。不少玩家将此招视为“路卡利欧的核心技能”，但需提醒：横S虽强，但过度凹会被读。横S作为强大的mix手段是路卡利欧的魅力技能之一。&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;&lt;img loading=&#34;lazy&#34; src=&#34;/assets/post/lucario-guide/LucarioFSmash.gif&#34; alt=&#34;Lucario Forward Smash&#34; /&gt;&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;/table&gt;
+&lt;h4 id=&#34;上猛击-上s&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#上猛击-上s&#34;&gt;#&lt;/a&gt; 上猛击 | 上S&lt;/h4&gt;
+&lt;p&gt;路卡利欧的上S是路卡利欧发动&lt;strong&gt;最快&lt;/strong&gt;的猛击技，具有两段判定：第一段 &lt;code&gt;15帧&lt;/code&gt; 发动，攻击出现在身体两侧；第二段 &lt;code&gt;19帧&lt;/code&gt; 发动，攻击出现在身体上方。整体出招快速，适合用作不安全打盾后的确反手段，抑或是读对手的跳和滚。&lt;/p&gt;
+&lt;p&gt;在实战中，上S也可配合波导球取消（&lt;strong&gt;ASC&lt;/strong&gt;）进行确认连段，形成高效率击杀组合，后续会对 ASC 连招进行详述。&lt;/p&gt;
+&lt;p&gt;但需要注意的是，上S打盾是不安全的，反复硬读容易被抓反或大硬直惩罚。因此上S不应无脑出，而是作为一个击杀的mix手段。&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;&lt;img loading=&#34;lazy&#34; src=&#34;/assets/post/lucario-guide/LucarioUSmash.gif&#34; alt=&#34;Lucario Up Smash&#34; /&gt;&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;/table&gt;
+&lt;h4 id=&#34;下猛击-下s&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#下猛击-下s&#34;&gt;#&lt;/a&gt; 下猛击 | 下S&lt;/h4&gt;
+&lt;p&gt;路卡利欧的下S是往两侧发射波导攻击，发动较快 &lt;code&gt;16帧&lt;/code&gt; 发动。这招相较于横S具有没有那么强的击飞，但它更加适合用来读两侧的内外受身。特别的，可以翻滚上版后衔接下S来进行出其不意的击杀，但是不能凹，更多是用来作为覆盖的手段。&lt;/p&gt;
+&lt;p&gt;在实战中，下S同上S类似也可配合波导球取消（&lt;strong&gt;ASC&lt;/strong&gt;）进行确认连段，后续会对 ASC 连招进行详述。同时，下S也是最稳定的 &lt;strong&gt;Jablock&lt;/strong&gt; 连招终结，是真连且输入空窗期和力度较都不错，&lt;strong&gt;Jablock&lt;/strong&gt; 系列连招会在后面进阶教学中提到。&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;&lt;img loading=&#34;lazy&#34; src=&#34;/assets/post/lucario-guide/LucarioDSmash.gif&#34; alt=&#34;Lucario Down Smash&#34; /&gt;&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;/table&gt;
+&lt;hr /&gt;
+&lt;h3 id=&#34;空中招式-aerials&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#空中招式-aerials&#34;&gt;#&lt;/a&gt; 空中招式 | Aerials&lt;/h3&gt;
+&lt;p&gt;路卡利欧的空招是相对优秀的，特别是他的空N，实在太安全。再加上路卡利欧的空中高移速，使得路卡利欧能够像鬼一样在空中飘来飘去。路卡利欧的空招是不错的接近和压迫手段，通过像“泥鳅”一样的来回移动，迫使对手出现破绽。&lt;/p&gt;
+&lt;h4 id=&#34;空中普通攻击-空n&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#空中普通攻击-空n&#34;&gt;#&lt;/a&gt; 空中普通攻击 | 空N&lt;/h4&gt;
+&lt;p&gt;路卡利欧的空N是他的主要&lt;strong&gt;立回招&lt;/strong&gt;，有句话说得好，如果你不用空N，那你就没玩到路卡的精髓。空N有两段判定，发动不算快，分别在第 &lt;code&gt;10帧&lt;/code&gt; 和 &lt;code&gt;18帧&lt;/code&gt; 发动，所以不能作为空中抢招使用。空N打盾非常安全，在低波导只有 &lt;code&gt;-2帧&lt;/code&gt; ，在高波导甚至是 &lt;code&gt;0帧&lt;/code&gt;，且速降可以触发自动取消，这使得路卡利欧的空N落地和空N摸盾是他的主要移动。空N还可以用来对喜欢在板子上盾的对手进行削盾，迫使他们做出选择。&lt;/p&gt;
+&lt;p&gt;空N在自身波导足够和对手百分比不高的情况下会触发&lt;strong&gt;受身择&lt;/strong&gt;，记得在前期通过空N去立回时去熟悉对手的受身习惯，这对于后续的早期击杀翻盘至关重要。&lt;/p&gt;
+&lt;p&gt;空N在低百分比可以接上T、下T和抓，这是路卡利欧低百分比的主要连招；背身的空N对空还可以连空后进行确认。具体的连招在后续连招部分会提到。&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;&lt;img loading=&#34;lazy&#34; src=&#34;/assets/post/lucario-guide/LucarioNAir.gif&#34; alt=&#34;Lucario Neutral Air&#34; /&gt;&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;/table&gt;
+&lt;h4 id=&#34;空中前攻击-空前&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#空中前攻击-空前&#34;&gt;#&lt;/a&gt; 空中前攻击 | 空前&lt;/h4&gt;
+&lt;p&gt;路卡利欧的空前是向前踢一段，这招是路卡发动第二快的空招，只要 &lt;code&gt;7帧&lt;/code&gt; 发动，可以用来抢招。由于发动快，空前可以作为连招起手和抓跳。空前的后摇较小，可以作为被击飞时候的快速恢复。&lt;/p&gt;
+&lt;p&gt;空前的击飞很小，是路卡利欧的主要&lt;strong&gt;连招技&lt;/strong&gt;，空N、上T、空前自身都可以连上空前，上投和下投也可以连上空前（下投需要对手 &lt;strong&gt;DI&lt;/strong&gt; 配合）。在特定百分比下，落地空前可以真连空后进行击杀确认。&lt;/p&gt;
+&lt;p&gt;需要注意的是，空前摸盾是没空N那么安全的，即便是高波导下也有 &lt;code&gt;-5帧&lt;/code&gt; 的对盾惩罚，会被有防备的对手确反，所以在摸空前连招或是落地确认的时候，要控好距离，也不能滥用。&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;&lt;img loading=&#34;lazy&#34; src=&#34;/assets/post/lucario-guide/LucarioFAir.gif&#34; alt=&#34;Lucario Forward Air&#34; /&gt;&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;/table&gt;
+&lt;h4 id=&#34;空中后攻击-空后&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#空中后攻击-空后&#34;&gt;#&lt;/a&gt; 空中后攻击 | 空后&lt;/h4&gt;
+&lt;p&gt;路卡利欧的空后俗称“空中横S”，由此可见其力道之大。空后是路卡利欧发动最慢的空招，需要 &lt;code&gt;13帧&lt;/code&gt; ，但碍于他的力道之恐怖，多数人不敢贸然惩罚或抓前摇。空后是路卡利欧的主要击杀手段之一，又帅又强，在高波导情况下，空后范围大且对盾 &lt;code&gt;-7帧&lt;/code&gt; ，所以动量拉的好的话摸盾相对安全。在波导足够之后，可以尝试进行空后读跳抑或是跳到背身进行空后的确认击杀。&lt;/p&gt;
+&lt;p&gt;在实战中，波导球取消（&lt;strong&gt;ASC&lt;/strong&gt;）接空后是路卡利欧标志性的确认连段，但要注意，这个连招不一定真，对使用者的时机把握和双方的百分比有要求，更稳妥的办法是 ASC 接 ASC 接空后，这个在后续连招会提到。&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;&lt;img loading=&#34;lazy&#34; src=&#34;/assets/post/lucario-guide/LucarioBAir.gif&#34; alt=&#34;Lucario Back Air&#34; /&gt;&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;/table&gt;
+&lt;h4 id=&#34;空中上攻击-空上&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#空中上攻击-空上&#34;&gt;#&lt;/a&gt; 空中上攻击 | 空上&lt;/h4&gt;
+&lt;p&gt;路卡利欧的空上我认为是他&lt;strong&gt;最强&lt;/strong&gt;的单招确认招，其良好的 &lt;code&gt;10帧&lt;/code&gt; 发动速度、优秀的力度、隐蔽的前摇，使得空上在中高百分比是最强的摸击杀招。在众多的路卡击杀手段中，空上读跳击杀是其非常优秀且常见的手段之一。&lt;/p&gt;
+&lt;p&gt;空上还是一个连招终结技，低百分比的空前连招可以接空上结束连招；高百分比可以通过上T接空上来确认击杀。特殊地，当对手内 DI 的时候，可以通过下投接空上在对手中百分比时进行击杀。&lt;/p&gt;
+&lt;p&gt;落地空上是一个不错的摸击杀动作，但要注意，空上的发动早期落地会造成较大的后摇，需要稍微滞后一点再速降。落地空上不论是酸点击中还是甜点击中都能确认，酸点空上可以真连接上空上。不过需要注意的一点是，空上对盾是不安全的，有着 &lt;code&gt;-10/-9帧&lt;/code&gt; 的对盾惩罚，所以落地空上可以作为mix手段，不要滥用。&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;&lt;img loading=&#34;lazy&#34; src=&#34;/assets/post/lucario-guide/LucarioUAir.gif&#34; alt=&#34;Lucario Up Air&#34; /&gt;&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;/table&gt;
+&lt;h4 id=&#34;空中下攻击-空下&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#空中下攻击-空下&#34;&gt;#&lt;/a&gt; 空中下攻击 | 空下&lt;/h4&gt;
+&lt;p&gt;路卡利欧的空下非常优秀，并且能够衍生出很多择和惩罚。空下发动快且有两段判定，分别在 &lt;code&gt;4帧&lt;/code&gt; 和 &lt;code&gt;11帧&lt;/code&gt; 发动，这使得空下出盾或是踩头空下出盾成为路卡的主要出盾惩罚方式。空下有着不小的脱节且持续时间长，可以用作抓&lt;strong&gt;两帧&lt;/strong&gt;的招。&lt;/p&gt;
+&lt;p&gt;空下在非击飞状态时会重置路卡利欧的垂直动量，这点使得空下可以作为落地辅助的滞空手段；而空下在击飞状态时则不会重置路卡利欧的垂直动量，这时候可以通过&lt;strong&gt;缓冲二段跳&lt;/strong&gt;空下的方式，实现路卡利欧向上动量的空下，这点在敌人追击的时候很有用，因为相较于传统二段跳脱连，下方多出的脱节攻击判定能够提供更多的保护。&lt;/p&gt;
+&lt;p&gt;空下一取消是空下的特色技，一般是通过贴地空下加下拉动量实现。空下一取消能够衔接上任何一种连招起手（真不真待确认），也可以接上横B进行击杀确认，是一个非常帅气的击杀确认。此外，空下一取消还是路卡利欧特殊的最速上板技——空下上板（&lt;strong&gt;Dair Landing&lt;/strong&gt;）的前提条件，在空中特定的时机触发空下能够使得路卡利欧只打出空下一并落在板子上，这比传统的波纹上板（&lt;strong&gt;Wave Landing&lt;/strong&gt;）还要快 &lt;code&gt;12帧&lt;/code&gt; ，这使得路卡利欧能够给对手提供的板上压力非常之大。&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;&lt;img loading=&#34;lazy&#34; src=&#34;/assets/post/lucario-guide/LucarioDAir.gif&#34; alt=&#34;Lucario Down Air&#34; /&gt;&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;/table&gt;
+&lt;hr /&gt;
+&lt;h3 id=&#34;必杀技-specials&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#必杀技-specials&#34;&gt;#&lt;/a&gt; 必杀技 | Specials&lt;/h3&gt;
+&lt;p&gt;路卡利欧的必杀技整体都不错且具有特色，如果是其他角色换过来的话需要适应，特别是上B回场。B类技能在实战中更多是用作驱离对手和控制立回的工具。尽管路卡利欧是个拳脚角色，但由于波导的特性，在中高波导时，路卡利欧还是要保持好距离以更有效地利用波导来给对手提供压力。&lt;/p&gt;
+&lt;h4 id=&#34;波导弹-普b&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#波导弹-普b&#34;&gt;#&lt;/a&gt; 波导弹 | 普B&lt;/h4&gt;
+&lt;p&gt;路卡利欧的普B是蓄力波导弹，再按一次普B或是蓄满波导之后按普B会将波导球发射出去。这招在远距离施压时非常实用，也可以用来妨碍对手的回场，普B可以说是路卡利欧的主要立回道具。普B的蓄力状态是有伤害判定的，第一下的伤害判定需要 &lt;code&gt;9帧&lt;/code&gt; 发动，后续会每 &lt;code&gt;6帧&lt;/code&gt; 追加一次伤害判定。随着波导量的不同，伤害判定的范围会变大，但需要注意的是，蓄满后的波导弹回比看起来要小一圈，因此操作时要小心判断。&lt;/p&gt;
+&lt;p&gt;普B从零蓄满总共需要 &lt;code&gt;99帧&lt;/code&gt; ，蓄满力了之后发射则需要 &lt;code&gt;17帧&lt;/code&gt; 。在高波导下，波导球削盾效果很强，而且有 &lt;code&gt;8帧&lt;/code&gt; 的盾僵，是个很强的飞行道具。值得注意的是，高波导的满蓄的波导球可以抵消并穿透大多数道具（类似于萨姆斯的满蓄炮），可以以此作为打道具角的接近手段。此外，在波导足够的情况下，波导球的伤害判定范围可以覆盖挂边（类似于萨姆斯的守边炮），所以当对手持续挂边时，可以发波导球来确认。&lt;/p&gt;
+&lt;p&gt;此外，波导球蓄力过程中可以通过在 &lt;code&gt;4帧&lt;/code&gt; 内快弹盾来取消蓄力，也可以靠跳取消蓄力，这分别对应着 &lt;strong&gt;CSC（Charge Shield Cancel）&lt;/strong&gt; 和 &lt;strong&gt;CJC（Charge Jump Cancel）&lt;/strong&gt; 。这些技巧可以用于移动或诱导对手操作，这些技巧会在后面的技巧部分详细说明。&lt;/p&gt;
+&lt;p&gt;普B还有个非常重要的技巧是用于&lt;strong&gt;B反派生（B-Reverses）&lt;/strong&gt;。路卡利欧的空速优势使得它可以灵活的靠B反以及其他的B反派生来改变自身动量来迷惑对手。B反派生能够带来很多进阶技巧和击杀尝试，这个会在后面的技巧篇和立回篇具体详细展开。&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;&lt;img loading=&#34;lazy&#34; src=&#34;/assets/post/lucario-guide/LucarioNB.gif&#34; alt=&#34;Lucario Neutral B&#34; /&gt;&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;/table&gt;
+&lt;h4 id=&#34;发劲-横b&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#发劲-横b&#34;&gt;#&lt;/a&gt; 发劲 | 横B&lt;/h4&gt;
+&lt;p&gt;路卡利欧的横B是向前喷一长距离的波导，有非常大的脱节判定，但是发射的波导是&lt;strong&gt;道具&lt;/strong&gt;判定，会被带有反射机制的当身惩罚。横B发动为 &lt;code&gt;24帧&lt;/code&gt; ，后摇为 &lt;code&gt;38帧&lt;/code&gt; ，算是一个慢招，发空会被大惩罚。&lt;/p&gt;
+&lt;p&gt;横B也是一个&lt;strong&gt;指令投&lt;/strong&gt;，在地面上是发动后的第 &lt;code&gt;9帧&lt;/code&gt; 会触发抓判定，会对被抓到的对手造成强大的伤害和击飞，所以横B也是路卡利欧的一个强大击杀mix选项。横B的指令投是可以&lt;strong&gt;战斧&lt;/strong&gt;输入的，在即将落地前预先输入横B会在落地时立刻抓到对手。横B的抓判定主要用于与普B波导球的辅助立回，通过你的道具迫使对手开盾，然后用指令抓狠狠惩罚或击杀。&lt;/p&gt;
+&lt;p&gt;此外，横B的喷波判定也是一个强大的守边工具，特别是在对手知道你的波导球没有蓄满的时候，场外发射横B能够得到意想不到的击杀；另外，在高波导下，横B的喷波判定是可以覆盖&lt;strong&gt;两帧&lt;/strong&gt;的，尽管没那么实用，但也可以用作在未蓄波导球时守边的思路之一。&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;&lt;img loading=&#34;lazy&#34; src=&#34;/assets/post/lucario-guide/LucarioFB.gif&#34; alt=&#34;Lucario Force Palm&#34; /&gt;&lt;/th&gt;
+&lt;th&gt;&lt;img loading=&#34;lazy&#34; src=&#34;/assets/post/lucario-guide/LucarioFBGrab.gif&#34; alt=&#34;Lucario Force Palm (Grab)&#34; /&gt;&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;/table&gt;
+&lt;h4 id=&#34;神速-上b&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#神速-上b&#34;&gt;#&lt;/a&gt; 神速 | 上B&lt;/h4&gt;
+&lt;p&gt;路卡利欧的上B是他的主要回场技能之一，飞行距离根据自身的波导量有关：波导越强，飞行距离越远。上B发动前摇很长，有足足 &lt;code&gt;46帧&lt;/code&gt;，并且需要在发动几帧内决定飞行的初速度方向（具体多少帧待定）。在发动后的 &lt;code&gt;15帧&lt;/code&gt; 内，路卡利欧的飞行方向可以额外稍微调整一些，取决于输入方向与初始飞行方向的夹角大小。上B如果是在空中结束，后摇为 &lt;code&gt;40帧&lt;/code&gt;；在地面上结束后摇则为 &lt;code&gt;28帧&lt;/code&gt; 。上B的后段是带有攻击判定的，且范围比路卡自身稍大，可以对过一些非脱节判定。需要注意的是，路卡利欧的上B直接抓边必定&lt;strong&gt;露头&lt;/strong&gt;，所以直接抓边不一定是最好的回场选择。&lt;/p&gt;
+&lt;p&gt;上B在冲刺阶段（非末段）可以通过撞击场地的地面、墙壁、或是边缘分别做出不同动作：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;地面：撞击地面的同时会产生攻击判定，玩家可以通过控制左或者右来选择攻击的击飞方向，这有利于迷惑对手的&lt;strong&gt;DI&lt;/strong&gt;。撞击地面后，上B会大幅减少后摇并且带有落地取消，所以撞击地面的高位回场比传统高位回场要安全的多。&lt;/li&gt;
+&lt;li&gt;墙壁：撞击墙壁并不会造成攻击判定，而是会让路卡利欧进入“&lt;strong&gt;贴墙（Wall Cling）&lt;/strong&gt;”状态，之后路卡利欧可以根据对手做出不同反应，抑或是使用踢墙跳衍生，这些会在后面的进阶教学中详细展开。&lt;/li&gt;
+&lt;li&gt;边缘：这里的边缘指的是类似&lt;strong&gt;终点&lt;/strong&gt;的侧斜边缘。撞击边缘的同时也会产生攻击判定，有效利用这点可以&lt;strong&gt;三角陨&lt;/strong&gt;前来守边的对手。如果撞击距离正确的话路卡利欧会弹墙之后抓边，这比直接飞向边缘要滞后一点，并且不会露头，可以用作mix的回场手段之一。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;有趣的是，路卡利欧的贴地上B在特定地图（目前已知&lt;strong&gt;PS2&lt;/strong&gt;）是可以进行特殊的&lt;strong&gt;神速抢边（Extreme Hogging）&lt;/strong&gt;。具体操作如下：左侧抢边需要贴地上B之后立刻输入“下↓”方向；右侧抢边则是贴地上B之后立刻输入“右下↘”方向，之后再&amp;quot;左下↙&amp;quot;。左右两侧操作不一样，且路卡利欧抢边不是特别实用，慎用。&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;&lt;img loading=&#34;lazy&#34; src=&#34;/assets/post/lucario-guide/LucarioUB.gif&#34; alt=&#34;Lucario Extreme Speed&#34; /&gt;&lt;/th&gt;
+&lt;th&gt;&lt;img loading=&#34;lazy&#34; src=&#34;/assets/post/lucario-guide/LucarioUBHit.gif&#34; alt=&#34;Lucario Extreme Speed (Hit)&#34; /&gt;&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;/table&gt;
+&lt;h4 id=&#34;影子分身-下b&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#影子分身-下b&#34;&gt;#&lt;/a&gt; 影子分身 | 下B&lt;/h4&gt;
+&lt;p&gt;路卡利欧的下B是&lt;strong&gt;当身&lt;/strong&gt;。此当身全身覆盖，只需要 &lt;code&gt;5帧&lt;/code&gt; 发动，持续至第 &lt;code&gt;24帧&lt;/code&gt;，共计 &lt;code&gt;20帧&lt;/code&gt; 有效时间，并在第 &lt;code&gt;4帧&lt;/code&gt; 带有&lt;strong&gt;无形帧&lt;/strong&gt;，总体是个相对优秀的当身技能，可以用作逃脱对手伪连的手段之一。需要注意的是，如果当身没中，路卡利欧会有着长达 &lt;code&gt;46帧&lt;/code&gt; 的无法操作的后摇，会被大惩罚，所以不能凹当身，更多是用作出其不意的脱连或是守边。&lt;/p&gt;
+&lt;p&gt;下B当身被命中后，路卡利欧会消失并在 &lt;code&gt;8帧&lt;/code&gt; 后从当身目标的两侧踢入，所以当身是不适用于那些快速的位移攻击判定的（例如&lt;strong&gt;露琪娜的上B、克劳德的limit上B、GW的上B&lt;/strong&gt;等）。玩家是可以通过按住“左”或者“右”来操作路卡利欧的&lt;strong&gt;水平&lt;/strong&gt;踢击方向（类似忍蛙，但没有垂直方向）。踢击过程全程拥有无形帧，但后续的飞出是有形的，所以要当心那种判定非常硬且持续帧长的攻击。&lt;/p&gt;
+&lt;p&gt;值得注意的是，路卡利欧的当身带有&lt;strong&gt;追踪&lt;/strong&gt;机制，如果路卡利欧踢的是对手，则会追踪被踢的部位；如果路卡利欧踢的是道具，则会进入两段判定：一是这个道具还是否属于对手；二是这个道具是否在它所属对手的一定范围内。这个追踪机制对付诸如林克的回旋镖、村民的弹弓有奇效。&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;&lt;img loading=&#34;lazy&#34; src=&#34;/assets/post/lucario-guide/LucarioDB.gif&#34; alt=&#34;Lucario Double Team&#34; /&gt;&lt;/th&gt;
+&lt;th&gt;&lt;img loading=&#34;lazy&#34; src=&#34;/assets/post/lucario-guide/LucarioDBHit.gif&#34; alt=&#34;Lucario Double Team (Hit)&#34; /&gt;&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;/table&gt;
+&lt;hr /&gt;
+&lt;h3 id=&#34;抓和投技-grabs-throws&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#抓和投技-grabs-throws&#34;&gt;#&lt;/a&gt; 抓和投技 | Grabs &amp;amp; Throws&lt;/h3&gt;
+&lt;p&gt;路卡利欧的抓和投技在大乱斗中算是中规中矩。不近不远的抓、高波导下的投杀、和连招起手的投技，让路卡利欧的抓在立回中颇具实用价值。路卡利欧的投的收益也很有意思：以上投追求连招收益，以前后投追求受身择和场地主导权、以下投为Mix击杀招，各有各的用处。在实战中用好路卡利欧的投是路卡玩家必须掌握的技能。&lt;/p&gt;
+&lt;h4 id=&#34;抓技-抓&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#抓技-抓&#34;&gt;#&lt;/a&gt; 抓技 | 抓&lt;/h4&gt;
+&lt;p&gt;路卡利欧的普通抓、冲刺抓、&lt;strong&gt;锚点抓&lt;/strong&gt;分别需要 &lt;code&gt;7帧&lt;/code&gt; 、&lt;code&gt;10帧&lt;/code&gt; 、&lt;code&gt;11帧&lt;/code&gt; 发动，不算快，且距离较近，抓空的话后摇分别为 &lt;code&gt;39帧&lt;/code&gt; 、&lt;code&gt;46帧&lt;/code&gt; 、&lt;code&gt;42帧&lt;/code&gt; ，同时，路卡利欧的锚点抓并没有比普通的转身抓在距离上有太多的优势，所以路卡利欧的抓并不算优秀。不过需要注意到的是，路卡利欧的抓能够带来很多连招和收益，所以通过波导球的压制迫使对手出盾后去抓是一个不错的拿收益的方式。&lt;/p&gt;
+&lt;p&gt;由于路卡利欧的空招最速出盾是空下出盾为 &lt;code&gt;7帧&lt;/code&gt; ，所以出盾抓算是路卡利欧第二个比较能用的&lt;strong&gt;出盾招&lt;/strong&gt;了。但也正是因为路卡利欧的抓能够拿到不少收益，谨慎的对手都会使用安全招摸盾或是穿盾打盾，甚至有对手会骗你出盾抓，所以在使用出盾抓的时候需谨慎，懂得正确惩罚时机才是王道。&lt;/p&gt;
+&lt;p&gt;特别的，许多连招能够衔接上抓，简单的例子有：低百分比的速降空N下T接抓；或是 &lt;strong&gt;ASC&lt;/strong&gt; 后接转身原地抓。这些都是不错的摸抓方式，详细的连招会在后面展开。&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;&lt;img loading=&#34;lazy&#34; src=&#34;/assets/post/lucario-guide/LucarioGrab.gif&#34; alt=&#34;Lucario Grab&#34; /&gt;&lt;/th&gt;
+&lt;th&gt;&lt;img loading=&#34;lazy&#34; src=&#34;/assets/post/lucario-guide/LucarioDashGrab.gif&#34; alt=&#34;Lucario Dash Grab&#34; /&gt;&lt;/th&gt;
+&lt;th&gt;&lt;img loading=&#34;lazy&#34; src=&#34;/assets/post/lucario-guide/LucarioPivotGrab.gif&#34; alt=&#34;Lucario Pivot Grab&#34; /&gt;&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;/table&gt;
+&lt;h4 id=&#34;向前投技-前投&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#向前投技-前投&#34;&gt;#&lt;/a&gt; 向前投技 | 前投&lt;/h4&gt;
+&lt;p&gt;路卡利欧的前投主要用来驱逐，没有能直接接上的连招，也不能用来击杀。前投的主要用处是在板边的时候用来扔出板创造守边优势轮，由于路卡的守边还算出色，前投算是路卡在板边才比较常用的一个投技。&lt;/p&gt;
+&lt;h4 id=&#34;向后投技-后投&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#向后投技-后投&#34;&gt;#&lt;/a&gt; 向后投技 | 后投&lt;/h4&gt;
+&lt;p&gt;路卡利欧的后投类似它的前投，没有能直接接上的连招。不过，在对手中低百分比的时候，路卡利欧的后投能够强制创造受身择，可以根据对手习惯选择 &lt;strong&gt;Jablock&lt;/strong&gt; 展开、 DA 追击、波导球追击、或是 Smash 攻击（一般来说，DA 的追击较为稳定）。在路卡利欧自身高波导的情况下，路卡利欧的后投是可以确认击杀的。在板边对手大概在 &lt;code&gt;130%&lt;/code&gt; 的百分比左右就可以击杀了，详细要看体重和板边距离。&lt;/p&gt;
+&lt;h4 id=&#34;向上投技-上投&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#向上投技-上投&#34;&gt;#&lt;/a&gt; 向上投技 | 上投&lt;/h4&gt;
+&lt;p&gt;路卡利欧的上投算是他最重要的投技之一，是非常重要的连招起手投。在对手低百分比，上投可以接上以空前起手的连招；在对手中百分比时，上投可以接上空上，在特定百分比和波导量区间，上投接空上可以作为击杀确认。不过，在对手百分比过高时，上投则不再作为一个优秀投选项，此时用前投或者后投驱逐场地是更好的选择。&lt;/p&gt;
+&lt;h4 id=&#34;向下投技-下投&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#向下投技-下投&#34;&gt;#&lt;/a&gt; 向下投技 | 下投&lt;/h4&gt;
+&lt;p&gt;路卡利欧的下投（在曾经）算是他最没用的投技之一，低百分比虽然能够接上空前拓展，但是稳定性不如上投，会被对手&lt;strong&gt;外DI&lt;/strong&gt;逃出从而连不上任何连招。不过，在对手&lt;strong&gt;内DI&lt;/strong&gt;的前提下，且路卡自身高波导时，下投接空上成为了路卡利欧的一个可选早期击杀选项。所以，在板边抓到对手之后，可以mix前投和下投来扰乱对手的DI，从而使得&lt;strong&gt;下投空上&lt;/strong&gt;成为一个有效且不错的击杀确认。&lt;/p&gt;
+&lt;hr /&gt;
+&lt;h2 id=&#34;后续&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#后续&#34;&gt;#&lt;/a&gt; 后续&lt;/h2&gt;
+&lt;p&gt;这边路卡利欧的大部分攻击招式和帧数就算写完了。但这不代表路卡利欧的教学在此结束。后续将会持续更新包括但不限于：基础连段、进阶连段、板与受身择、立回思路、技巧练习等，敬请期待～&lt;/p&gt;
+ ]]></description>
+        </item>
+        <item>
+            <guid isPermalink="true">https://blog.flwolfy.xyz/2025/05/26/anime/pilgrimage/sg-visit/</guid>
+            <title>《命运石之门》圣地巡礼</title>
+            <link>https://blog.flwolfy.xyz/2025/05/26/anime/pilgrimage/sg-visit/</link>
+            <category term="动漫" scheme="https://blog.flwolfy.xyz/categories/anime/" />
+            <category term="圣地巡礼" scheme="https://blog.flwolfy.xyz/categories/anime/pilgrimage/" />
+            <category term="旅游" scheme="https://blog.flwolfy.xyz/tags/travel/" />
+            <category term="秋叶原" scheme="https://blog.flwolfy.xyz/tags/akihabara/" />
+            <pubDate>Mon, 26 May 2025 16:00:00 +0000</pubDate>
+            <description><![CDATA[ &lt;h1 id=&#34;图片所有权声明&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#图片所有权声明&#34;&gt;#&lt;/a&gt; 图片所有权声明&lt;/h1&gt;
+&lt;blockquote&gt;
+&lt;ul&gt;
+&lt;li&gt;大部分实景图片为本人及朋友（已授权）拍摄，未经允许请勿使用！&lt;/li&gt;
+&lt;li&gt;动漫内部图片均为原片截图以及B站“圣地巡礼”专栏导览图，如果这侵犯了你的著作权，请立即联系我，我会删除。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&#34;引言-intro&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#引言-intro&#34;&gt;#&lt;/a&gt; 引言 | Intro&lt;/h2&gt;
+&lt;p&gt;今年5月去了一趟日本东京旅游，作为二次元圈内人，必须去一趟秋叶原买各种谷子。同时秋叶原作为大名鼎鼎的“石头门”取景地，本人作为石头门厨必须要进行一波圣地巡礼啦。跟我一起说：一切都是命运石之门的选择！&lt;/p&gt;
+&lt;p&gt;虽然秋叶原本身其实不大，但本人和朋友逛各家谷子店花了非常久的时间，基本上也是收获满满，不过圣地打卡也就反倒变成了买谷之余做的事情了哈哈。本人打卡的地方除了参考动漫中的地点，也有部分几个是根据游戏内出现的画面进行相同角度的拍摄。不过本人的拍摄技术有限，拍的不好见谅啦～&lt;/p&gt;
+&lt;h2 id=&#34;圣地巡礼打卡图-travel-photos&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#圣地巡礼打卡图-travel-photos&#34;&gt;#&lt;/a&gt; 圣地巡礼打卡图 | Travel Photos&lt;/h2&gt;
+&lt;p&gt;PS: 取景原图均来自《命运石之门》、《命运石之门：0》，其余实拍图均为本人实际到场拍摄。&lt;/p&gt;
+&lt;h3 id=&#34;jr秋叶原站&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#jr秋叶原站&#34;&gt;#&lt;/a&gt; JR秋叶原站&lt;/h3&gt;
+&lt;p&gt;这里是一切梦开始的地方，秋叶原车站真的很大（虽然感觉不如上海虹桥站哈哈），走出来那种一片二次元氛围扑面而来的感觉真的很爽～&lt;/p&gt;
+&lt;table :=&#34;&#34; class=&#34;medium-imgs&#34;&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;&lt;img loading=&#34;lazy&#34; src=&#34;/assets/post/sg-visit/AkihabaraStation.jpg&#34; alt=&#34;Akihabara Station&#34; /&gt;&lt;/th&gt;
+&lt;th&gt;&lt;img loading=&#34;lazy&#34; src=&#34;/assets/post/sg-visit/AkihabaraStationVisit.jpg&#34; alt=&#34;Akihabara Station Visit&#34; /&gt;&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;/table&gt;
+&lt;h3 id=&#34;广播会馆&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#广播会馆&#34;&gt;#&lt;/a&gt; 广播会馆&lt;/h3&gt;
+&lt;p&gt;这里是牧濑红莉栖的&lt;s&gt;葬身之地&lt;/s&gt;，现实生活中这里是一个重要的买谷子的地方，不过有一说一这里的谷子比其他地方贵很多，而且品种基本都是一些当季潮漫，也就可能因为石头门比较特殊，所以有一些石头门的谷子还在售卖。&lt;/p&gt;
+&lt;table :=&#34;&#34; class=&#34;medium-imgs&#34;&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;&lt;img loading=&#34;lazy&#34; src=&#34;/assets/post/sg-visit/Boardcast.jpg&#34; alt=&#34;Boardcast&#34; /&gt;&lt;/th&gt;
+&lt;th&gt;&lt;img loading=&#34;lazy&#34; src=&#34;/assets/post/sg-visit/BoardcastVisit.jpg&#34; alt=&#34;Boardcast Visit&#34; /&gt;&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;/table&gt;
+&lt;h3 id=&#34;神田ふわあい桥&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#神田ふわあい桥&#34;&gt;#&lt;/a&gt; 神田ふわあい桥&lt;/h3&gt;
+&lt;p&gt;这张图是本人本次秋叶原之行最满意的拍摄图。不论是但是的天气还是时间都非常合适，正好对应原作动漫里桥上那种朦胧氛围。&lt;/p&gt;
+&lt;table :=&#34;&#34; class=&#34;medium-imgs&#34;&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;&lt;img loading=&#34;lazy&#34; src=&#34;/assets/post/sg-visit/Bridge.jpg&#34; alt=&#34;Bridge&#34; /&gt;&lt;/th&gt;
+&lt;th&gt;&lt;img loading=&#34;lazy&#34; src=&#34;/assets/post/sg-visit/BridgeVisit.jpg&#34; alt=&#34;Bridge Visit&#34; /&gt;&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;/table&gt;
+&lt;h3 id=&#34;神田ふわあい桥前斜坡&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#神田ふわあい桥前斜坡&#34;&gt;#&lt;/a&gt; 神田ふわあい桥前斜坡&lt;/h3&gt;
+&lt;p&gt;这个斜坡前是冈部伦太郎为了拯救真有理不断循环的开端，这个场景虽然很好见到，不过由于这个桥现在使用率很高，很难找到时机等没人的时候拍摄。不过日本人都挺有礼貌的，我在拍摄的时候，有一些上班族宁可停下来等我拍完。&lt;/p&gt;
+&lt;table :=&#34;&#34; class=&#34;medium-imgs&#34;&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;&lt;img loading=&#34;lazy&#34; src=&#34;/assets/post/sg-visit/Slope.jpg&#34; alt=&#34;Slope&#34; /&gt;&lt;/th&gt;
+&lt;th&gt;&lt;img loading=&#34;lazy&#34; src=&#34;/assets/post/sg-visit/SlopeVisit.jpg&#34; alt=&#34;Slope Visit&#34; /&gt;&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;/table&gt;
+&lt;h3 id=&#34;菲利斯-nyan2-女仆咖啡厅&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#菲利斯-nyan2-女仆咖啡厅&#34;&gt;#&lt;/a&gt; 菲利斯 Nyan² 女仆咖啡厅&lt;/h3&gt;
+&lt;p&gt;这也是动漫里一个非常重要的地方，是真有理和菲利斯打工的女仆咖啡厅。本人没有实际进去，但是从外面看去好像已经不是女仆咖啡厅了（有点可惜），不过招牌还在，打卡还是ok的～&lt;/p&gt;
+&lt;table :=&#34;&#34; class=&#34;medium-imgs&#34;&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;&lt;img loading=&#34;lazy&#34; src=&#34;/assets/post/sg-visit/Nyan2.jpg&#34; alt=&#34;Nyan2&#34; /&gt;&lt;/th&gt;
+&lt;th&gt;&lt;img loading=&#34;lazy&#34; src=&#34;/assets/post/sg-visit/Nyan2Visit.jpg&#34; alt=&#34;Nyan2 Visit&#34; /&gt;&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;/table&gt;
+&lt;h3 id=&#34;柳森神社&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#柳森神社&#34;&gt;#&lt;/a&gt; 柳森神社&lt;/h3&gt;
+&lt;p&gt;这里动漫里应该是叫做“柳林神社”，是原作琉华子的家，实际比动漫里要小很多，而且一般时间都是不让人进去的。本人也只能在外面简单拍摄，不做过多打扰...&lt;/p&gt;
+&lt;table :=&#34;&#34; class=&#34;medium-imgs&#34;&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;&lt;img loading=&#34;lazy&#34; src=&#34;/assets/post/sg-visit/Temple.jpg&#34; alt=&#34;Temple&#34; /&gt;&lt;/th&gt;
+&lt;th&gt;&lt;img loading=&#34;lazy&#34; src=&#34;/assets/post/sg-visit/TempleVisit.jpg&#34; alt=&#34;Temple Visit&#34; /&gt;&lt;/th&gt;
+&lt;th&gt;&lt;img loading=&#34;lazy&#34; src=&#34;/assets/post/sg-visit/TempleVisit2.jpg&#34; alt=&#34;Temple Visit 2&#34; /&gt;&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;/table&gt;
+&lt;h3 id=&#34;秋叶原十字场&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#秋叶原十字场&#34;&gt;#&lt;/a&gt; 秋叶原十字场&lt;/h3&gt;
+&lt;p&gt;这个是天桥上面，就是当时牧濑红莉栖点醒冈部伦太郎去撤回 DMail 拯救真有理的地点，非常令人印象深刻，地点是在秋叶原车站的正对面。这里也是上班族来往很密集的地方，不过原作游戏中这里就是人来人往的，也符合设定。&lt;/p&gt;
+&lt;table :=&#34;&#34; class=&#34;medium-imgs&#34;&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;&lt;img loading=&#34;lazy&#34; src=&#34;/assets/post/sg-visit/CrossField.jpg&#34; alt=&#34;CrossField&#34; /&gt;&lt;/th&gt;
+&lt;th&gt;&lt;img loading=&#34;lazy&#34; src=&#34;/assets/post/sg-visit/CrossFieldVisit.jpg&#34; alt=&#34;CrossField Visit&#34; /&gt;&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;/table&gt;
+&lt;h3 id=&#34;udx-大楼&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#udx-大楼&#34;&gt;#&lt;/a&gt; UDX 大楼&lt;/h3&gt;
+&lt;p&gt;这个大楼的楼顶就是动漫里牧濑红莉栖住的酒店。这个大楼作为秋叶原地标之一也是很显眼的存在，它在动漫里也是反复出现作为地标。&lt;/p&gt;
+&lt;table :=&#34;&#34; class=&#34;medium-imgs&#34;&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;&lt;img loading=&#34;lazy&#34; src=&#34;/assets/post/sg-visit/UDX.jpg&#34; alt=&#34;UDX&#34; /&gt;&lt;/th&gt;
+&lt;th&gt;&lt;img loading=&#34;lazy&#34; src=&#34;/assets/post/sg-visit/UDXVisit.jpg&#34; alt=&#34;UDX Visit&#34; /&gt;&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;/table&gt;
+&lt;h3 id=&#34;西池袋公园&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#西池袋公园&#34;&gt;#&lt;/a&gt; 西池袋公园&lt;/h3&gt;
+&lt;p&gt;西池袋公园是《命运石之门：0》第2集结尾，冈部伦太郎和真由理一起散步的地方。这里也是牧濑红莉栖和冈部伦太郎谈心的地方，红莉栖在这里公园的滑梯上与伦太郎讲述自己童年的故事和与父亲的关系，是个很重要的地点（就是比较隐蔽不好找哈哈）。&lt;/p&gt;
+&lt;table :=&#34;&#34; class=&#34;medium-imgs&#34;&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;&lt;img loading=&#34;lazy&#34; src=&#34;/assets/post/sg-visit/Park.jpg&#34; alt=&#34;Park&#34; /&gt;&lt;/th&gt;
+&lt;th&gt;&lt;img loading=&#34;lazy&#34; src=&#34;/assets/post/sg-visit/ParkVisit.jpg&#34; alt=&#34;Temple Visit&#34; /&gt;&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;/table&gt;
+&lt;h2 id=&#34;番外和其他-others&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#番外和其他-others&#34;&gt;#&lt;/a&gt; 番外和其他 | Others&lt;/h2&gt;
+&lt;p&gt;除了这次打卡，本人在秋叶原也买了很多吧唧和谷子，同时也吃了非常多种类的美食（本人最爱日式猪排饭哈哈，吃了好几次百吃不厌！），在此也分享给大家～&lt;/p&gt;
+&lt;h3 id=&#34;谷子收获&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#谷子收获&#34;&gt;#&lt;/a&gt; 谷子收获&lt;/h3&gt;
+&lt;p&gt;谷子大部分是在秋叶原买的，也有少部分是在池袋和涉谷买的。大部分是在 K-Books 和 Animate 买的，种类很多，新番老番都有，只要你肯仔细找，基本都能找到心中那个“隐藏款”。（谷子里面那个爽哥吧唧是我最喜欢的，本人爽哥厨，哈哈～）&lt;/p&gt;
+&lt;table :=&#34;&#34; class=&#34;medium-imgs&#34;&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;&lt;img loading=&#34;lazy&#34; src=&#34;/assets/post/sg-visit/Goods.jpg&#34; alt=&#34;Goods&#34; /&gt;&lt;/th&gt;
+&lt;th&gt;&lt;img loading=&#34;lazy&#34; src=&#34;/assets/post/sg-visit/Sayaka.jpg&#34; alt=&#34;Sayaka&#34; /&gt;&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;/table&gt;
+&lt;h3 id=&#34;日本美食&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#日本美食&#34;&gt;#&lt;/a&gt; 日本美食&lt;/h3&gt;
+&lt;p&gt;美食的话就不仅限于秋叶原啦，猪排饭、拉面、咖喱饭等应有尽有，真的很爽！&lt;/p&gt;
+&lt;table :=&#34;&#34; class=&#34;medium-imgs&#34;&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;&lt;img loading=&#34;lazy&#34; src=&#34;/assets/post/sg-visit/Food1.jpg&#34; alt=&#34;Food1&#34; /&gt;&lt;/th&gt;
+&lt;th&gt;&lt;img loading=&#34;lazy&#34; src=&#34;/assets/post/sg-visit/Food2.jpg&#34; alt=&#34;Food2&#34; /&gt;&lt;/th&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;th&gt;&lt;img loading=&#34;lazy&#34; src=&#34;/assets/post/sg-visit/Food3.jpg&#34; alt=&#34;Food3&#34; /&gt;&lt;/th&gt;
+&lt;th&gt;&lt;img loading=&#34;lazy&#34; src=&#34;/assets/post/sg-visit/Food4.jpg&#34; alt=&#34;Food4&#34; /&gt;&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;/table&gt;
+&lt;hr /&gt;
+&lt;p&gt;当然还有地道饮料野菜人生（个人觉得很不错）和石头门中二必备经典饮料 Dr.Pepper（超级难喝）～&lt;/p&gt;
+&lt;table :=&#34;&#34; class=&#34;large-imgs&#34;&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;&lt;img loading=&#34;lazy&#34; src=&#34;/assets/post/sg-visit/VegetableJuice.jpg&#34; alt=&#34;VegetableJuice&#34; /&gt;&lt;/th&gt;
+&lt;th&gt;&lt;img loading=&#34;lazy&#34; src=&#34;/assets/post/sg-visit/DrPepper.jpg&#34; alt=&#34;DrPepper&#34; /&gt;&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;/table&gt;
+&lt;h2 id=&#34;结语-conclusion&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#结语-conclusion&#34;&gt;#&lt;/a&gt; 结语 | Conclusion&lt;/h2&gt;
+&lt;p&gt;本次秋叶原之行真的很棒，圣地旅行了命运石之门中各个景点。唯一的遗憾是当时旅游前不久我才刚入坑二次元，很多番我都不认识，错过了很多经典谷子...之后看了更多番再来，相比会更加开心～&lt;/p&gt;
+&lt;p&gt;当然本次日本之行也不只去了秋叶原，池袋、东京塔、涉谷等知名景点也都去了，有机会再写文章分享吧（咕——，有生之年～）。&lt;/p&gt;
+&lt;p&gt;总结：好玩，下次还来！&lt;/p&gt;
+ ]]></description>
+        </item>
+    </channel>
+</rss>
