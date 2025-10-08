@@ -138,7 +138,7 @@
   --grey-9-a3: rgba(245,222,207,0.3);
   --grey-9-a1: rgba(245,222,207,0.1);
   --grey-6-a2: rgba(198,162,142,0.2);
-  --grey-2-a6: rgba(43,2,56,0);
+  --grey-2-a6: rgba(43,2,56,0.6);
   --grey-2-a0: rgba(43,2,56,0);
   --color-pink-light: #322d31;
   --color-cyan-light: #2d3230;
@@ -4318,14 +4318,25 @@ use.stop-animation {
   justify-content: space-between;
   align-content: baseline;
   min-height: 5rem;
-  overflow: hidden;
 }
-.cards .item ul.posts li {
+.cards .item ul.posts a {
   width: 45%;
   overflow: hidden;
   white-space: nowrap;
+  text-align: center;
   text-overflow: ellipsis;
+  font-weight: bold;
   color: var(--primary-color);
+  background: var(--grey-2-a6);
+  border-radius: 0.5rem;
+  padding: 0.3rem 0.6rem;
+  box-shadow: 0 2px 6px var(--box-bg-shadow); /* 基础阴影 */
+  transition: all 0.2s ease-in-out; /* 平滑过渡 */
+}
+.cards .item ul.posts a:hover {
+  background: var(--color-orange);
+  transform: translateY(-4px); /* 上移一点 */
+  box-shadow: 0 6px 12px var(--box-bg-shadow); /* hover 阴影更明显 */
 }
 .segments {
   display: flex;
