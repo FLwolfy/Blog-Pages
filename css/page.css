@@ -4571,9 +4571,8 @@ use.stop-animation {
   position: fixed;
   top: 50%;
   left: 50%;
-  width: calc(100vw - 7rem);
-  min-height: 70%;
-  max-height: 100vw;
+  width: calc(100vw - 5rem);
+  height: 70%;
   transform: translate(-50%, -80%); /* 初始上移一点 */
   z-index: 999;
   background: var(--grey-1-a5);
@@ -4601,6 +4600,11 @@ use.stop-animation {
   filter: blur(6px); /* 这里改为 filter */
   transition: opacity 0.5s ease;
 }
+@media (max-width: 820px) {
+  .osu-container::before {
+    margin-top: 40%;
+  }
+}
 .osu-container.show-bg::before {
   opacity: 0.3; /* fade-in */
   filter: blur(6px); /* 模糊背景图 */
@@ -4613,9 +4617,9 @@ use.stop-animation {
 }
 @media (max-width: 820px) {
   .osu-wheel {
-    bottom: -2%;
+    bottom: 0%;
     width: 100%;
-    height: 20rem;
+    height: 40%;
     -webkit-mask-image: linear-gradient(to top, rgba(0,0,0,0) 0%, #000 10%, #000 90%, rgba(0,0,0,0) 100%);
     -webkit-mask-repeat: no-repeat;
     -webkit-mask-size: 100% 100%;
@@ -4674,7 +4678,7 @@ use.stop-animation {
 }
 @media (max-width: 820px) {
   .track {
-    height: 6rem;
+    height: 5.5rem;
   }
 }
 .track-image {
@@ -4694,6 +4698,11 @@ use.stop-animation {
   object-fit: cover;
   object-position: center;
 }
+@media (max-width: 820px) {
+  .track-image {
+    display: none;
+  }
+}
 .track-content {
   display: flex;
   flex-direction: column;
@@ -4705,6 +4714,12 @@ use.stop-animation {
   margin-left: 0.3rem;
   margin-right: 0.3rem;
 }
+@media (max-width: 820px) {
+  .track-content {
+    margin-left: auto;
+    width: 100%;
+  }
+}
 .track-content .track-cats-container {
   margin-left: auto;
   margin-top: auto;
@@ -4715,6 +4730,12 @@ use.stop-animation {
 .track-content .track-cats-container .meta {
   white-space: nowrap; /* 不允许换行 */
   overflow: hidden; /* 超出隐藏 */
+}
+@media (max-width: 820px) {
+  .track-content .track-cats-container {
+    font-size: 0.6rem;
+    line-height: 0.7rem;
+  }
 }
 .track-content .track-title {
   height: 2.25rem;
@@ -4733,14 +4754,14 @@ use.stop-animation {
 }
 @media (max-width: 820px) {
   .track-content .track-title a {
-    font-size: 1rem;
-    line-height: 1.2rem;
+    font-size: 0.9rem;
+    line-height: 1rem;
     margin-top: 0;
   }
 }
 @media (max-width: 820px) {
   .track-content .track-title {
-    height: 1.75rem;
+    height: 1.5rem;
   }
 }
 .track-content .track-description {
@@ -4758,6 +4779,7 @@ use.stop-animation {
   .track-content .track-description {
     font-size: 0.6rem;
     line-height: 0.8rem;
+    -webkit-line-clamp: 3;
   }
 }
 .track-content .track-meta-container {
@@ -4775,6 +4797,17 @@ use.stop-animation {
   margin-left: 0.5rem;
   font-size: 0.75rem;
   line-height: 1.2rem;
+}
+@media (max-width: 820px) {
+  .track-content .track-meta-container .meta .item {
+    font-size: 0.6rem;
+    line-height: 0.7rem;
+  }
+}
+@media (max-width: 820px) {
+  .track-content .track-meta-container {
+    height: 0.7rem;
+  }
 }
 .track .track-meta-html {
   display: none;
@@ -4811,6 +4844,7 @@ use.stop-animation {
   .track-detail {
     width: 100%;
     height: 60%;
+    border: 0.1rem solid var(--grey-6-a2);
     -webkit-mask-image: linear-gradient(to bottom, #000 90%, rgba(0,0,0,0) 100%);
     -webkit-mask-repeat: no-repeat;
     -webkit-mask-size: cover;
@@ -4853,8 +4887,8 @@ use.stop-animation {
   font-weight: bold;
   text-align: center;
 /* 文字描边 */
-  -webkit-text-stroke: 0.4rem #000; /* 边框颜色和粗细 */
-  paint-order: stroke fill; /* 确保描边在文字外 */
+  -webkit-text-stroke: 0.4rem #000;
+  paint-order: stroke fill;
 /* 多行省略号 */
   display: -webkit-box; /* 盒子模型 */
   -webkit-box-orient: vertical; /* 垂直布局 */
@@ -4862,6 +4896,14 @@ use.stop-animation {
   overflow: hidden; /* 超出隐藏 */
   text-overflow: ellipsis; /* 省略号 */
   word-break: break-word; /* 避免长单词撑开 */
+}
+@media (max-width: 820px) {
+  .track-cover .track-info-title {
+    top: 25%;
+    font-size: 1.5rem;
+    -webkit-text-stroke: 0.2rem #000;
+    line-height: 2rem;
+  }
 }
 .track-card {
   position: absolute;
@@ -4876,7 +4918,7 @@ use.stop-animation {
 }
 @media (max-width: 820px) {
   .track-card {
-    padding-bottom: 2.5rem;
+    padding: 0.1rem 0.5rem 2rem 0.5rem;
   }
 }
 .track-info-meta {
@@ -4895,6 +4937,16 @@ use.stop-animation {
   margin-left: 0.5rem;
   padding: 0;
   font-size: 0.75rem;
+}
+@media (max-width: 820px) {
+  .track-info-meta .meta .item {
+    font-size: 0.5rem;
+  }
+}
+@media (max-width: 820px) {
+  .track-info-meta .meta {
+    line-height: 0.6rem;
+  }
 }
 .track-info-description {
   font-size: 1rem;
@@ -4918,8 +4970,10 @@ use.stop-animation {
 }
 @media (max-width: 820px) {
   .track-info-description {
-    font-size: 0.8rem;
-    line-height: 1rem;
+    margin-top: 0.2rem;
+    margin-bottom: 0.2rem;
+    font-size: 0.6rem;
+    line-height: 0.75rem;
   }
 }
 .track-info-readmore {
@@ -4929,7 +4983,7 @@ use.stop-animation {
   width: 80%;
   height: 2rem;
   padding: 0.5rem 1%;
-  margin: 0 10%;
+  margin: 0 auto;
   margin-top: auto;
   font-size: 1.5rem;
   font-weight: 500;
@@ -4942,6 +4996,13 @@ use.stop-animation {
   transition: transform 0.6s ease;
 /* 纯 CSS 渐变背景 */
   background: linear-gradient(135deg, var(--color-pink), var(--color-orange));
+}
+@media (max-width: 820px) {
+  .track-info-readmore {
+    width: 40%;
+    font-size: 0.8rem;
+    height: 1rem;
+  }
 }
 .track-info-readmore:hover {
   transform: translateY(-0.5rem);
