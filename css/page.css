@@ -4116,6 +4116,15 @@ use.stop-animation {
   --waline-info-bg-color: var(--grey-2);
   --waline-info-color: var(--grey-6);
 }
+#MusicPlayerRoot {
+  background-color: var(--grey-6-a2);
+  color: var(--text-color);
+  backdrop-filter: blur(0.625rem);
+  -webkit-backdrop-filter: blur(0.625rem);
+  border-radius: 0.75rem;
+  border: 0.625rem solid var(--grey-9-a3);
+  box-shadow: 0 0 0.9375rem var(--grey-9-a6), 0 0 1.875rem var(--grey-9-a3);
+}
 .katex,
 .katex-display {
   user-select: all;
@@ -4598,6 +4607,9 @@ use.stop-animation {
 }
 .osu-container .osu-container.show {
   opacity: 1;
+}
+.osu-container #osu-close {
+  color: var(--text-color);
 }
 .osu-container::before {
   content: '';

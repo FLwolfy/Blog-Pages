@@ -98,13 +98,6 @@
       0 0 0.9375rem var(--grey-9-a6),
       0 0 1.875rem var(--grey-9-a3);
 
-  -webkit-mask-image: radial-gradient(circle, rgba(0,0,0,1) 80%, rgba(0,0,0,0) 100%);
-  -webkit-mask-repeat: no-repeat;
-  -webkit-mask-size: cover;
-
-  mask-image: radial-gradient(circle, rgba(0,0,0,1) 80%, rgba(0,0,0,0) 100%);
-  mask-repeat: no-repeat;
-  mask-size: cover;
   will-change: transform;
 }
 
