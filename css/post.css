@@ -4615,6 +4615,9 @@ use.stop-animation {
 .md .large-imgs img {
   max-height: 36rem;
 }
+.md .max-imgs img {
+  width: 100%;
+}
 .md table {
   width: auto;
   margin-left: auto; /* 水平居中 */
