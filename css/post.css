@@ -2113,7 +2113,6 @@ main >.inner {
 /* 垂直视差滚动 */
   will-change: transform;
   transform: translate3d(0, var(--parallax-offset, 0), 0);
-  transition: transform 0.1s ease;
 }
 #imgs li.stop-animation {
   animation-play-state: paused;
