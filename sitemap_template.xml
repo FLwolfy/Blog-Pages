@@ -2,18 +2,30 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
   {%- for post in posts -%}
-    {%- if post.layout == 'post' -%} 
+    {%- if post.layout == 'post' or post.layout == 'page' -%} 
   <url>
     <loc>https://blog.flwolfy.xyz/{{ post.path | uriencode }}</loc>
     {% if post.updated %}
-    <lastmod>{{ post.updated.toISOString() }}</lastmod>
+    <lastmod>{{ post.updated.toISOString().split('T')[0] }}</lastmod>
     {% elif post.date %}
-    <lastmod>{{ post.date.toISOString() }}</lastmod>
+    <lastmod>{{ post.date.toISOString().split('T')[0] }}</lastmod>
     {% endif %}
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
     {%- endif -%}
   {%- endfor -%}
+
+  <url>
+    <loc>https://blog.flwolfy.xyz/</loc>
+    {% if posts[posts.length - 1].updated %}
+    <lastmod>{{ posts[posts.length - 1].updated.toISOString().split('T')[0] }}</lastmod>
+    {% elif posts[posts.length - 1].date %}
+    <lastmod>{{ posts[posts.length - 1].date.toISOString().split('T')[0] }}</lastmod>
+    {% endif %}
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+
 
 </urlset>
