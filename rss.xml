@@ -12,10 +12,18 @@
         <language>zh-CN</language>
         <pubDate>Tue, 16 Sep 2025 16:00:00 +0000</pubDate>
         <lastBuildDate>Tue, 16 Sep 2025 16:00:00 +0000</lastBuildDate>
+        <category term="blog" />
+        <category term=" 博客" />
+        <category term=" programming" />
+        <category term=" 编程" />
+        <category term=" game" />
+        <category term=" 游戏" />
+        <category term=" anime" />
+        <category term=" 动漫" />
         <item>
-            <guid isPermalink="true">https://blog.flwolfy.xyz/2025/09/16/game/review/wothn-review/</guid>
+            <guid isPermalink="true">https://blog.flwolfy.xyz/game/review/wothn-review/</guid>
             <title>《魔法使之夜》通关感想【更新中...】</title>
-            <link>https://blog.flwolfy.xyz/2025/09/16/game/review/wothn-review/</link>
+            <link>https://blog.flwolfy.xyz/game/review/wothn-review/</link>
             <category term="游戏" scheme="https://blog.flwolfy.xyz/categories/game/" />
             <category term="观后感" scheme="https://blog.flwolfy.xyz/categories/game/review/" />
             <category term="型月" scheme="https://blog.flwolfy.xyz/tags/type-moon/" />
@@ -35,9 +43,9 @@
  ]]></description>
         </item>
         <item>
-            <guid isPermalink="true">https://blog.flwolfy.xyz/2025/06/20/game/guide/lucario-guide/</guid>
+            <guid isPermalink="true">https://blog.flwolfy.xyz/game/guide/lucario-guide/</guid>
             <title>路卡利欧全方位教程</title>
-            <link>https://blog.flwolfy.xyz/2025/06/20/game/guide/lucario-guide/</link>
+            <link>https://blog.flwolfy.xyz/game/guide/lucario-guide/</link>
             <category term="游戏" scheme="https://blog.flwolfy.xyz/categories/game/" />
             <category term="攻略" scheme="https://blog.flwolfy.xyz/categories/game/guide/" />
             <category term="任斗" scheme="https://blog.flwolfy.xyz/tags/ssbu/" />
@@ -281,9 +289,9 @@
  ]]></description>
         </item>
         <item>
-            <guid isPermalink="true">https://blog.flwolfy.xyz/2025/05/26/anime/pilgrimage/sg-visit/</guid>
+            <guid isPermalink="true">https://blog.flwolfy.xyz/anime/pilgrimage/sg-visit/</guid>
             <title>《命运石之门》圣地巡礼</title>
-            <link>https://blog.flwolfy.xyz/2025/05/26/anime/pilgrimage/sg-visit/</link>
+            <link>https://blog.flwolfy.xyz/anime/pilgrimage/sg-visit/</link>
             <category term="动漫" scheme="https://blog.flwolfy.xyz/categories/anime/" />
             <category term="圣地巡礼" scheme="https://blog.flwolfy.xyz/categories/anime/pilgrimage/" />
             <category term="旅游" scheme="https://blog.flwolfy.xyz/tags/travel/" />
