@@ -4632,41 +4632,26 @@ use.stop-animation {
   color: inherit;
 }
 .md img {
-  max-height: 12rem;
+  max-height: 10rem;
   width: 100%;
   display: block;
   object-fit: cover;
   background: var(--grey-4);
-  border: 0.3rem solid var(--color-grey); /* 单元格线条加粗 */
-  padding: 0.7rem 0.7rem; /* 给点内边距，不会太挤 */
-/* 禁用 hover 遮罩 */
-  opacity: 1 !important;
-  filter: none !important;
-  transition: none !important;
+  border-radius: 0.5rem;
+  transition: all 0.3s ease;
 }
-.md img :hover {
-  opacity: 1 !important;
-  filter: none !important;
+.md img:hover {
+  opacity: 1;
+  box-shadow: 0 0 1rem var(--color-pink);
 }
-.md .medium-imgs img {
-  max-height: 24rem;
-}
-.md .large-imgs img {
-  max-height: 36rem;
-}
-.md .max-imgs img {
-  width: 100%;
+.md .table-container {
+  overflow: visible;
 }
 .md table {
   width: auto;
-  margin-left: auto; /* 水平居中 */
+  margin-left: auto;
   margin-right: auto;
-  border-collapse: collapse; /* 合并边框 */
-  border: 0.3rem solid var(--color-grey); /* 外框加粗 */
-}
-.md table img {
-  border: 0;
-  padding: 0;
+  border-collapse: collapse;
 }
 @media (max-width: 820px) {
   .md table {
@@ -4676,8 +4661,8 @@ use.stop-animation {
 }
 .md table th,
 .md table td {
-  background: var(--grey-4);
-  border: 0.3rem solid var(--color-grey); /* 单元格线条加粗 */
+  border: 0.1rem solid var(--color-grey);
+  padding: 0.5rem;
 }
 .md ruby {
   padding: 0 0.3125rem;
@@ -4706,6 +4691,22 @@ use.stop-animation {
   background-clip: text;
   color: transparent;
   animation: rainbow 60s linear infinite;
+}
+.md .no-borders {
+  border: none;
+}
+.md .no-borders th,
+.md .no-borders td {
+  border: none;
+}
+.md .medium-imgs img {
+  max-height: 20rem;
+}
+.md .large-imgs img {
+  max-height: 32rem;
+}
+.md .max-imgs img {
+  width: 100%;
 }
 @media (max-width: 567px) {
   .article .md .anchor {
