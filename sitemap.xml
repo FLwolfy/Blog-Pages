@@ -4,14 +4,43 @@
   <url>
     <loc>https://blog.flwolfy.xyz/anime/pilgrimage/sg-visit/</loc>
     <lastmod>2025-10-12</lastmod>
-    
-  </url><url>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
     <loc>https://blog.flwolfy.xyz/game/guide/lucario-guide/</loc>
     <lastmod>2025-10-12</lastmod>
-    
-  </url><url>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
     <loc>https://blog.flwolfy.xyz/game/review/wothn-review/</loc>
     <lastmod>2025-10-12</lastmod>
-    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
   </url>
+
+  <url>
+    <loc>https://blog.flwolfy.xyz/aboutsite/index.html</loc>
+    <lastmod>2025-10-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://blog.flwolfy.xyz/stats/index.html</loc>
+    <lastmod>2025-10-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://blog.flwolfy.xyz/</loc>
+    <lastmod>2025-10-12</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+
 </urlset>
