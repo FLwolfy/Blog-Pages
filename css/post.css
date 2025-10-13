@@ -4632,7 +4632,7 @@ use.stop-animation {
   color: inherit;
 }
 .md img {
-  max-height: 10rem;
+  height: 10rem !important;
   width: 100%;
   display: block;
   object-fit: cover;
@@ -4691,22 +4691,6 @@ use.stop-animation {
   background-clip: text;
   color: transparent;
   animation: rainbow 60s linear infinite;
-}
-.md .no-borders {
-  border: none;
-}
-.md .no-borders th,
-.md .no-borders td {
-  border: none;
-}
-.md .medium-imgs img {
-  max-height: 20rem;
-}
-.md .large-imgs img {
-  max-height: 32rem;
-}
-.md .max-imgs img {
-  width: 100%;
 }
 @media (max-width: 567px) {
   .article .md .anchor {
@@ -4778,6 +4762,22 @@ use.stop-animation {
   to {
     background-position: -2000vw;
   }
+}
+.md .no-borders {
+  border: none;
+}
+.md .no-borders th,
+.md .no-borders td {
+  border: none;
+}
+.md .medium-imgs img {
+  height: 20rem !important;
+}
+.md .large-imgs img {
+  height: 32rem !important;
+}
+.md .max-imgs img {
+  width: 100% !important;
 }
 .rtl.body p,
 .rtl.body a,
