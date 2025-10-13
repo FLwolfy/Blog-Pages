@@ -10,8 +10,8 @@
         </author>
         <description>编程、游戏、动漫爱好者！</description>
         <language>zh-CN</language>
-        <pubDate>Tue, 16 Sep 2025 16:00:00 +0000</pubDate>
-        <lastBuildDate>Tue, 16 Sep 2025 16:00:00 +0000</lastBuildDate>
+        <pubDate>Sun, 12 Oct 2025 16:00:00 +0000</pubDate>
+        <lastBuildDate>Sun, 12 Oct 2025 16:00:00 +0000</lastBuildDate>
         <category term="blog" />
         <category term=" 博客" />
         <category term=" programming" />
@@ -20,6 +20,45 @@
         <category term=" 游戏" />
         <category term=" anime" />
         <category term=" 动漫" />
+        <item>
+            <guid isPermalink="true">https://blog.flwolfy.xyz/other/announce/</guid>
+            <title>公告栏</title>
+            <link>https://blog.flwolfy.xyz/other/announce/</link>
+            <category term="其他" scheme="https://blog.flwolfy.xyz/categories/other/" />
+            <category term="公告" scheme="https://blog.flwolfy.xyz/tags/%E5%85%AC%E5%91%8A/" />
+            <category term="攻略" scheme="https://blog.flwolfy.xyz/tags/tutorial/" />
+            <pubDate>Sun, 12 Oct 2025 16:00:00 +0000</pubDate>
+            <description><![CDATA[ &lt;h1 id=&#34;公告栏须知&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#公告栏须知&#34;&gt;#&lt;/a&gt; 公告栏须知&lt;/h1&gt;
+&lt;blockquote&gt;
+&lt;ul&gt;
+&lt;li&gt;本公告栏内容具有时效性，建议定期查看来获得最新内容。&lt;/li&gt;
+&lt;li&gt;阅读评论请注意其发布时间，以确保沟通交流为同一公告版本内容～&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&#34;通知-notification&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#通知-notification&#34;&gt;#&lt;/a&gt; 通知 | Notification&lt;/h2&gt;
+&lt;p&gt;本博客从搭建完毕发布第一篇文章已经是 25 年 5 月的事情，中途由于切换主题和配置博客耽误了不少时间，直到25年9月左右才开始有继续更新。所以实际的建站时间至今不超过 4 个月，文章内容也不是很多。但有很多待发布的想法、教程、分享在筹备中，敬请期待～&lt;/p&gt;
+&lt;h2 id=&#34;最新资讯-news&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#最新资讯-news&#34;&gt;#&lt;/a&gt; 最新资讯 | News&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;已更新完毕 | Published&lt;br /&gt;
+&lt;span class=&#34;label success&#34;&gt;25-09-14&lt;/span&gt; &lt;a href=&#34;/anime/pilgrimage/sg-visit/&#34;&gt;《命运石之门圣地巡礼》&lt;/a&gt; =&amp;gt; 讲了站主去秋叶原玩打卡的经历，欢迎阅读～&lt;br /&gt;
+&lt;span class=&#34;label success&#34;&gt;25-07-28&lt;/span&gt; &lt;a href=&#34;/game/guide/lucario-guide/&#34;&gt;《路卡利欧全方位教程》&lt;/a&gt; =&amp;gt; 如果你玩《任天堂明星大乱斗》，同时又对路卡利欧感兴趣想学习，这是一个不错的参考～&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;更新中 | Updating&lt;br /&gt;
+&lt;span class=&#34;label info&#34;&gt;25-10-13&lt;/span&gt; &lt;a href=&#34;game/review/wothn-review/&#34;&gt;《魔法使之夜通关感想》&lt;/a&gt; =&amp;gt; 持续更新中，敬请期待...&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;文章发布预告 | Trailer&lt;br /&gt;
+&lt;span class=&#34;label danger&#34;&gt;??-??-??&lt;/span&gt; &lt;strong&gt;《Hexo 的安装教学系列》&lt;/strong&gt; =&amp;gt; 整理并教学如何从 0 安装和部署 Hexo，并且添加主题美化和个性化设置。&lt;br /&gt;
+&lt;span class=&#34;label danger&#34;&gt;??-??-??&lt;/span&gt; &lt;strong&gt;《FLwolfy.ShokaX 日志》&lt;/strong&gt; =&amp;gt; 为我魔改 ShokaX 源码的部分进行讲解和撰写 API 文档。&lt;br /&gt;
+&lt;span class=&#34;label danger&#34;&gt;??-??-??&lt;/span&gt; &lt;strong&gt;《十三机兵防卫圈剧情梳理》&lt;/strong&gt; =&amp;gt; 以正时间线的方式梳理这部浪漫的科幻情书。&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;后续-following&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#后续-following&#34;&gt;#&lt;/a&gt; 后续 | Following&lt;/h2&gt;
+&lt;p&gt;祝愿和祈祷站主不鸽🐦吧～&lt;/p&gt;
+ ]]></description>
+        </item>
         <item>
             <guid isPermalink="true">https://blog.flwolfy.xyz/game/review/wothn-review/</guid>
             <title>《魔法使之夜》通关感想【更新中...】</title>
@@ -48,9 +87,9 @@
             <link>https://blog.flwolfy.xyz/game/guide/lucario-guide/</link>
             <category term="游戏" scheme="https://blog.flwolfy.xyz/categories/game/" />
             <category term="攻略" scheme="https://blog.flwolfy.xyz/categories/game/guide/" />
+            <category term="攻略" scheme="https://blog.flwolfy.xyz/tags/tutorial/" />
             <category term="任斗" scheme="https://blog.flwolfy.xyz/tags/ssbu/" />
             <category term="宝可梦" scheme="https://blog.flwolfy.xyz/tags/pokemon/" />
-            <category term="攻略" scheme="https://blog.flwolfy.xyz/tags/tutorial/" />
             <pubDate>Fri, 20 Jun 2025 16:00:00 +0000</pubDate>
             <description><![CDATA[ &lt;h1 id=&#34;前言和申明&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#前言和申明&#34;&gt;#&lt;/a&gt; 前言和申明&lt;/h1&gt;
 &lt;blockquote&gt;
@@ -284,7 +323,7 @@
 &lt;h4 id=&#34;向下投技-下投&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#向下投技-下投&#34;&gt;#&lt;/a&gt; 向下投技 | 下投&lt;/h4&gt;
 &lt;p&gt;路卡利欧的下投（在曾经）算是他最没用的投技之一，低百分比虽然能够接上空前拓展，但是稳定性不如上投，会被对手&lt;strong&gt;外DI&lt;/strong&gt;逃出从而连不上任何连招。不过，在对手&lt;strong&gt;内DI&lt;/strong&gt;的前提下，且路卡自身高波导时，下投接空上成为了路卡利欧的一个可选早期击杀选项。所以，在板边抓到对手之后，可以mix前投和下投来扰乱对手的DI，从而使得&lt;strong&gt;下投空上&lt;/strong&gt;成为一个有效且不错的击杀确认。&lt;/p&gt;
 &lt;hr /&gt;
-&lt;h2 id=&#34;后续&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#后续&#34;&gt;#&lt;/a&gt; 后续&lt;/h2&gt;
+&lt;h2 id=&#34;后续-following&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#后续-following&#34;&gt;#&lt;/a&gt; 后续 | Following&lt;/h2&gt;
 &lt;p&gt;这边路卡利欧的大部分攻击招式和帧数就算写完了。但这不代表路卡利欧的教学在此结束。后续将会持续更新包括但不限于：基础连段、进阶连段、板与受身择、立回思路、技巧练习等，敬请期待～&lt;/p&gt;
  ]]></description>
         </item>
