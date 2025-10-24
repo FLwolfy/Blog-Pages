@@ -315,9 +315,9 @@
     }
 
     // ================================
-    // 页面加载
+    // 导出接口
     // ================================
-    window.addEventListener('load', initOsuWheel);
+    window.initOsuWheel = initOsuWheel;
 
     })();
 
