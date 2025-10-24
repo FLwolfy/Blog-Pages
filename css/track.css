@@ -1,0 +1,390 @@
+/* ==============================
+   osu-container：整体容器
+   ============================== */
+.osu-container {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: calc(100vw - 5rem);
+  height: 70%;
+  transform: translate(-50%, -80%); /* 初始上移一点 */
+  z-index: 999; /* 与 $zindex-4 相同 */
+  background: var(--grey-1-a5);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  overflow: hidden;
+  display: block;
+  border: 2px solid var(--grey-3);
+  border-radius: 1rem;
+  box-shadow: 0 0.25rem 0.75rem var(--box-bg-shadow);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.osu-container .osu-container.show {
+  opacity: 1;
+}
+.osu-container #osu-close {
+  color: var(--text-color);
+}
+.osu-container::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: var(--bg-url, none);
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  opacity: 0;
+  filter: blur(6px); /* 这里改为 filter */
+  transition: opacity 0.5s ease;
+mobile()
+}
+.osu-container.show-bg::before {
+  opacity: 0.3; /* fade-in */
+  filter: blur(6px); /* 模糊背景图 */
+}
+/* ==============================
+   osu-wheel：轮盘主体
+   ============================== */
+.osu-wheel {
+  position: absolute;
+  width: 70%;
+  height: 100%;
+  overflow: hidden;
+mobile()
+}
+/* ==============================
+   track：每条音乐条目
+   ============================== */
+.track {
+  position: absolute;
+  transform-origin: left center; /* 左边缘中间 */
+  transition: transform 0.2s, opacity 0.2s;
+  width: 90%;
+  height: 9rem;
+  display: flex;
+  align-items: center; /* 垂直居中 */
+  justify-content: flex-start; /* 左对齐 */
+  overflow: hidden;
+  background-color: var(--grey-3-a6);
+  backdrop-filter: blur(0.375rem);
+  -webkit-backdrop-filter: blur(0.375rem);
+  border-radius: 0 0.375rem 0.375rem 0;
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+/* inactive 禁用点击 */
+/* 灰色遮罩 */
+/* active 状态 */
+mobile()
+}
+.track a {
+  pointer-events: none;
+}
+.track::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(80,80,80,0.15);
+  transition: opacity 0.3s ease;
+  pointer-events: none; /* 遮罩不挡交互 */
+  z-index: 5;
+}
+.track.active {
+  box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.12), 0 0 1.25rem 0.5rem var(--color-pink-a3);
+/* 去掉遮罩 */
+/* track 内 a 可点击 */
+}
+.track.active::after {
+  opacity: 0;
+}
+.track.active a {
+  pointer-events: auto;
+}
+/* ==============================
+   track-image：条目图片
+   ============================== */
+.track-image {
+  display: inline-block;
+  width: 30%;
+  height: 100%;
+  padding: 0.2rem;
+  position: relative;
+  overflow: hidden;
+  vertical-align: top;
+mobile()
+}
+.track-image img {
+  opacity: 0.8;
+  border-radius: 0.375rem;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+/* ==============================
+   track-content：条目内容容器
+   ============================== */
+.track-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 70%;
+  height: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+  margin-left: 0.3rem;
+  margin-right: 0.3rem;
+mobile()
+}
+/* ==============================
+   track-cats-container：条目标签分类信息
+   ============================== */
+.track-content .track-cats-container {
+  margin-left: auto;
+  margin-top: auto;
+  font-size: 0.75rem;
+  line-height: 1.2rem;
+  color: var(--grey-5);
+mobile()
+}
+.track-content .track-cats-container .meta {
+  white-space: nowrap; /* 不允许换行 */
+  overflow: hidden; /* 超出隐藏 */
+}
+/* ==============================
+   track-title：标题
+   ============================== */
+.track-content .track-title {
+  height: 2.25rem;
+  display: flex;
+  margin-left: auto;
+  align-items: center;
+  color: var(--color-red);
+mobile()
+}
+.track-content .track-title a {
+  font-size: 1.5rem;
+  font-weight: bold;
+  line-height: 2.625rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+mobile()
+}
+/* ==============================
+   track-description：简介
+   ============================== */
+.track-content .track-description {
+  font-size: 0.9rem;
+  line-height: 1.2rem;
+  width: 100%;
+  text-align: right;
+  display: -webkit-box; /* 必须加 */
+  -webkit-box-orient: vertical; /* 垂直排列 */
+  -webkit-line-clamp: 2; /* 显示行数 */
+  overflow: hidden; /* 超出隐藏 */
+  text-overflow: ellipsis; /* 省略号 */
+mobile()
+}
+/* ==============================
+   track-meta-container：条目 Meta 信息
+   ============================== */
+.track-content .track-meta-container {
+  display: flex;
+  height: 1.2rem;
+  margin-left: auto;
+  align-items: center;
+  color: var(--grey-5);
+mobile()
+}
+.track-content .track-meta-container .meta {
+  white-space: nowrap; /* 不允许换行 */
+  overflow: hidden; /* 超出隐藏 */
+}
+.track-content .track-meta-container .meta .item {
+  margin-left: 0.5rem;
+  font-size: 0.75rem;
+  line-height: 1.2rem;
+mobile()
+}
+/* ==============================
+   track-meta-html：Meta 完整信息容器
+   ============================== */
+.track .track-meta-html {
+  display: none;
+}
+/* =============================================================================================================== */
+/* ==============================
+   track-detail：右侧详情区域
+   ============================== */
+.track-detail {
+  background: var(--grey-0-a7);
+  position: absolute;
+  right: 0%;
+  width: 38%;
+  height: 100%; /* 整体撑满容器 */
+  overflow: hidden;
+  display: block;
+  border: 0.5rem solid var(--grey-6-a2);
+  border-radius: 1rem;
+  gap: 0;
+/* 动画效果 */
+  opacity: 1;
+  transform: translateX(0);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+/* ==============================
+     fade-out / fade-in 动画类
+     ============================== */
+/* 响应式 */
+mobile()
+}
+.track-detail.fade-out {
+  opacity: 0;
+  transform: translateX(20px); /* 向右淡出 */
+}
+.track-detail.fade-in {
+  opacity: 1;
+  transform: translateX(0); /* 从右淡入 */
+}
+/* ==============================
+   track-cover：封面图
+   ============================== */
+.track-cover {
+  position: relative;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 30%; /* 3:7 高度比例 */
+  overflow: hidden;
+/* 底部渐变透明效果 */
+  -webkit-mask-image: linear-gradient(to bottom, #000 90%, rgba(0,0,0,0) 100%);
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-size: cover;
+  mask-image: linear-gradient(to bottom, #000 90%, rgba(0,0,0,0) 100%);
+  mask-repeat: no-repeat;
+  mask-size: cover;
+}
+.track-cover img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none; /* 默认禁止点击 */
+}
+/* ==============================
+   track-info-title：标题
+   ============================== */
+.track-cover .track-info-title {
+  position: absolute;
+  width: 95%;
+  top: 35%; /* 垂直居中 */
+  left: 50%; /* 水平居中 */
+  transform: translate(-50%, -50%);
+  color: var(--header-text-color);
+  font-size: 2.5rem;
+  line-height: 3.2rem;
+  font-weight: bold;
+  text-align: center;
+/* 文字描边 */
+  -webkit-text-stroke: 0.4rem #000;
+  paint-order: stroke fill;
+/* 多行省略号 */
+  display: -webkit-box; /* 盒子模型 */
+  -webkit-box-orient: vertical; /* 垂直布局 */
+  -webkit-line-clamp: 2; /* 限制最多两行 */
+  overflow: hidden; /* 超出隐藏 */
+  text-overflow: ellipsis; /* 省略号 */
+  word-break: break-word; /* 避免长单词撑开 */
+mobile()
+}
+/* ==============================
+   track-card：内容卡片
+   ============================== */
+.track-card {
+  position: absolute;
+  top: 30%; /* 位于封面下方 */
+  left: 0;
+  width: 100%;
+  height: 70%;
+  padding: 0.6rem 2rem 0.6rem 2rem;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column; /* 垂直排列内容 */
+mobile()
+}
+/* ==============================
+   track-info-meta：Meta 信息
+   ============================== */
+.track-info-meta {
+  display: flex;
+  width: 100%;
+  height: 1.2rem;
+  align-items: center;
+  text-align: center;
+  justify-content: center;
+  color: var(--grey-5);
+}
+.track-info-meta .meta {
+  line-height: 0.9rem;
+mobile()
+}
+.track-info-meta .meta .item {
+  margin-left: 0.5rem;
+  padding: 0;
+  font-size: 0.75rem;
+mobile()
+}
+/* ==============================
+   track-info-description：描述
+   ============================== */
+.track-info-description {
+  font-size: 1rem;
+  line-height: 1.2rem;
+  overflow: hidden;
+  flex: 1 1 auto; /* 填充剩余空间 */
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 999; /* 无限行 */
+  white-space: normal;
+  word-break: break-word;
+/* 底部渐变透明效果 */
+  -webkit-mask-image: linear-gradient(to bottom, #000 90%, rgba(0,0,0,0) 100%);
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-size: cover;
+  mask-image: linear-gradient(to bottom, #000 90%, rgba(0,0,0,0) 100%);
+  mask-repeat: no-repeat;
+  mask-size: cover;
+mobile()
+}
+/* ==============================
+   track-info-readmore：阅读更多按钮
+   ============================== */
+.track-info-readmore {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 80%;
+  height: 2rem;
+  padding: 0.5rem 1%;
+  margin: 0 auto;
+  margin-top: auto;
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: var(--header-text-color);
+  border: none;
+  border-radius: 1rem;
+  text-decoration: none;
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.6s ease;
+/* 纯 CSS 渐变背景 */
+  background: linear-gradient(135deg, var(--color-pink), var(--color-orange));
+mobile()
+}
+.track-info-readmore:hover {
+  transform: translateY(-0.5rem);
+}
