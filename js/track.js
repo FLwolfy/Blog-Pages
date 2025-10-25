@@ -3,22 +3,23 @@
     // 配置参数
     // ================================
     const CONFIG = {
-        activeZIndex: 50,      // 激活条目的 z-index
-        visibleCount: 11,      // 可见条目数量（奇数）
-        spacing: 15,           // 每条条目角度间隔（度数）
-        mobileSpacing: 8,      // 移动端 spacing
-        mobileThreshold: 820,  // 移动端阈值（px）
-        radius: 300,           // 圆弧半径
-        scrollSpeed: 0.1,      // 鼠标滚轮灵敏度
-        animateSpeed: 5,       // 动画速度（数值越大越快）
-        touchMoveFactor: 0.05, // 触屏/拖拽灵敏度
-        opacityFactor: 0.15,    // 不透明度衰减因子
-        scaleFactor: 1.5,      // 激活条目的缩放比例
-        offsetX: 0,            // X 轴偏移
-        snapDelay: 150,        // 自动吸附延迟（ms）
-        detailFadeDelay: 200,  // detail 区淡出延迟（ms）
-        gapThreshold: 0.01     // 位置差异阈值（小于该值时认为已到达目标位置）
+        activeZIndex: 50,        // 激活条目的 z-index
+        visibleCount: 11,        // 可见条目数量（奇数）
+        spacing: 15,             // 每条条目角度间隔（度数）
+        mobileSpacing: 8,        // 移动端 spacing
+        mobileThreshold: 820,    // 移动端阈值（px）
+        radius: 300,             // 圆弧半径
+        scrollUnit: 120,         // 一格滚动单位
+        animateSpeed: 5,         // 动画速度（数值越大越快）
+        touchMoveFactor: 0.05,   // 触屏/拖拽灵敏度
+        opacityFactor: 0.15,     // 不透明度衰减因子
+        scaleFactor: 1.5,        // 激活条目的缩放比例
+        offsetX: 0,              // X 轴偏移
+        snapDelay: 150,          // 自动吸附延迟（ms）
+        detailFadeDelay: 500,    // detail 区淡出延迟（ms）
+        gapThreshold: 0.01       // 位置差异阈值（小于该值时认为已到达目标位置）
     };
+
 
     // ================================
     // 内部状态变量
@@ -34,8 +35,6 @@
     let lastTime = null;
 
     let isTouchDragging = false;
-    let wheelTicking = false;
-    let touchTicking = false;
 
     let container = null;
     let osuWheel = null;
@@ -75,9 +74,8 @@
     // 初始化 track 条目
     // ================================
     function initTracks() {
-        // 取出数据
         tracks = Array.from(osuWheel.querySelectorAll('.track'))
-            .sort((a, b) => new Date(b.dataset.created) - new Date(a.dataset.created))
+            .sort((a, b) => new Date(b.dataset.created) - new Date(a.dataset.created));
     }
 
     // ================================
@@ -114,10 +112,9 @@
     // 获取当前 spacing（响应式）
     // ================================
     function getSpacing() {
-        if (window.innerWidth <= CONFIG.mobileThreshold) {
-            return CONFIG.mobileSpacing;
-        }
-        return CONFIG.spacing;
+        return window.innerWidth <= CONFIG.mobileThreshold
+            ? CONFIG.mobileSpacing
+            : CONFIG.spacing;
     }
 
     // ================================
@@ -147,7 +144,6 @@
             detail.classList.remove('fade-out');
             detail.classList.add('fade-in');
 
-            // 用 ?. 安全取值，避免 dataset 或 querySelector 为 null 报错
             const newTitle = activeTrack.dataset?.title ?? '';
             const newDescription = activeTrack.dataset?.description ?? '';
             const newCover = activeTrack.dataset?.cover ?? '';
@@ -156,12 +152,10 @@
 
             if (title.textContent !== newTitle) title.textContent = newTitle;
             if (description.innerHTML !== newDescription) description.innerHTML = newDescription;
-
             if (cover.src !== newCover) {
                 cover.src = newCover;
                 container.style.setProperty('--bg-url', `url(${newCover || ''})`);
             }
-
             if (meta.innerHTML !== newMeta) meta.innerHTML = newMeta;
             if (link.href !== newLink) link.href = newLink;
 
@@ -169,24 +163,17 @@
     }
 
     // ================================
-    // 渲染函数：位置、缩放、透明度
+    // 渲染函数
     // ================================
     function render() {
         const centerY = osuWheel.clientHeight / 2;
-
         const activeIndex = Math.round(offset);
         const startIndex = Math.max(0, activeIndex - halfVisible);
         const endIndex = Math.min(tracks.length - 1, activeIndex + halfVisible);
 
-        // 先隐藏 startIndex 前和 endIndex 后的 track
-        for (let i = 0; i < startIndex; i++) {
-            tracks[i].style.display = 'none';
-        }
-        for (let i = endIndex + 1; i < tracks.length; i++) {
-            tracks[i].style.display = 'none';
-        }
+        for (let i = 0; i < startIndex; i++) tracks[i].style.display = 'none';
+        for (let i = endIndex + 1; i < tracks.length; i++) tracks[i].style.display = 'none';
 
-        // 遍历可见范围
         for (let i = startIndex; i <= endIndex; i++) {
             const track = tracks[i];
             track.style.display = 'flex';
@@ -201,20 +188,16 @@
             const scale = i === activeIndex ? 1 : Math.max(0, 1 - Math.abs(diff) * 0.1) / CONFIG.scaleFactor;
             const opacity = i === activeIndex ? 1 : Math.max(0, 1 - Math.abs(diff) * CONFIG.opacityFactor);
 
-            track.style.transform = `translate(${x}px, ${y}px) scale(${scale})`;
+            track.style.transform = `translate3d(${x}px, ${y}px, 0px) scale(${scale})`;
             track.style.opacity = opacity;
             track.classList.toggle('active', i === activeIndex);
             track.style.zIndex = CONFIG.activeZIndex - Math.abs(activeIndex - i);
         }
 
-        // 检查激活条目变化
         if (activeIndex !== lastActiveIndex) {
             lastActiveIndex = activeIndex;
             updateDetail(tracks[activeIndex]);
-        } 
-        
-        // 背景淡入淡出效果
-        else if (Math.abs(offset - targetOffset) < CONFIG.gapThreshold) {
+        } else if (Math.abs(offset - targetOffset) < CONFIG.gapThreshold) {
             container.classList.add('show-bg');
         } else {
             container.classList.remove('show-bg');
@@ -222,12 +205,12 @@
     }
 
     // ================================
-    // 鼠标滚轮事件
+    // 鼠标滚轮事件（统一 scrollUnit） 
     // ================================
     function handleWheel(e) {
         e.preventDefault();
-        const delta = Math.sign(e.deltaY) * CONFIG.scrollSpeed;
-        targetOffset = Math.max(0, Math.min(tracks.length - 1, targetOffset - delta));
+        const deltaOffset = e.deltaY / CONFIG.scrollUnit;
+        targetOffset = Math.max(0, Math.min(tracks.length - 1, targetOffset - deltaOffset));
         startSnapTimer();
     }
 
@@ -263,8 +246,7 @@
     // 动画循环
     // ================================
     function animate(timestamp) {
-        if (timestamp)
-        {
+        if (timestamp) {
             if (lastTime === null) lastTime = timestamp;
             const delta = (timestamp - lastTime) / 1000;
             lastTime = timestamp;
@@ -279,45 +261,34 @@
     // 主初始化函数
     // ================================
     function initOsuWheel() {
-        // 清理旧状态
         if (animationFrameId) cancelAnimationFrame(animationFrameId);
         if (snapTimer) clearTimeout(snapTimer);
         if (detailTimer) clearTimeout(detailTimer);
         if (resizeObserver) resizeObserver.disconnect();
 
-        // 还原状态变量
         lastActiveIndex = -1;
         offset = 0;
         targetOffset = 0;
+        wheelRemainder = 0;
 
-        // 获取容器
         container = document.querySelector('.osu-container');
         osuWheel = document.querySelector('.osu-wheel');
         if (!container || !osuWheel) return;
 
-        // 初始化
         initTracks();
         initTrackStyles();
         initTrackInteraction();
-
-        // 监听高度变化
         observeTrackHeights();
 
-        // 事件绑定
         osuWheel.addEventListener('wheel', handleWheel, { passive: false });
         osuWheel.addEventListener('touchstart', handleTouchStart, { passive: true });
         osuWheel.addEventListener('touchmove', handleTouchMove, { passive: false });
         osuWheel.addEventListener('touchend', handleTouchEnd);
 
-        // 初始渲染
         animate();
         render();
     }
 
-    // ================================
-    // 导出接口
-    // ================================
     window.initOsuWheel = initOsuWheel;
 
-    })();
-
+})();
