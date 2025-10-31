@@ -8,7 +8,7 @@
     <author>
       <name>FLwolfy</name>
     </author>
-    <updated>2025-10-12T16:00:00.000Z</updated>
+    <updated>2025-06-20T16:00:00.000Z</updated>
     <category term="blog" />
     <category term=" 博客" />
     <category term=" programming" />
@@ -18,58 +18,13 @@
     <category term=" anime" />
     <category term=" 动漫" />
     <entry>
-        <id>https://blog.flwolfy.xyz/other/announce/</id>
-        <title>公告栏</title>
-        <link rel="alternate" href="https://blog.flwolfy.xyz/other/announce/"/>
-        <content type="html">&lt;h1 id=&#34;公告栏须知&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#公告栏须知&#34;&gt;#&lt;/a&gt; 公告栏须知&lt;/h1&gt;
-&lt;blockquote&gt;
-&lt;ul&gt;
-&lt;li&gt;本公告栏内容具有时效性，建议定期查看来获得最新内容。&lt;/li&gt;
-&lt;li&gt;阅读评论请注意其发布时间，以确保沟通交流为同一公告版本内容～&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/blockquote&gt;
-&lt;h2 id=&#34;通知-notification&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#通知-notification&#34;&gt;#&lt;/a&gt; 通知 | Notification&lt;/h2&gt;
-&lt;p&gt;本博客从搭建完毕发布第一篇文章已经是 25 年 5 月的事情，中途由于切换主题和配置博客耽误了不少时间，直到25年9月左右才开始有继续更新。所以实际的建站时间至今不超过 4 个月，文章内容也不是很多。但有很多待发布的想法、教程、分享在筹备中，敬请期待～&lt;/p&gt;
-&lt;h2 id=&#34;最新资讯-news&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#最新资讯-news&#34;&gt;#&lt;/a&gt; 最新资讯 | News&lt;/h2&gt;
-&lt;ul&gt;
-&lt;li&gt;
-&lt;p&gt;已发布 | Published&lt;br /&gt;
-&lt;span class=&#34;label success&#34;&gt;25-09-14&lt;/span&gt; &lt;a href=&#34;/anime/pilgrimage/sg-visit/&#34;&gt;&lt;strong&gt;《命运石之门圣地巡礼》&lt;/strong&gt;&lt;/a&gt; =&amp;gt; 讲了站主去秋叶原玩打卡的经历，欢迎阅读～&lt;br /&gt;
-&lt;span class=&#34;label success&#34;&gt;25-07-28&lt;/span&gt; &lt;a href=&#34;/game/guide/lucario-guide/&#34;&gt;&lt;strong&gt;《路卡利欧全方位教程》&lt;/strong&gt;&lt;/a&gt; =&amp;gt; 如果你玩《任天堂明星大乱斗》，同时又对路卡利欧感兴趣想学习，这是一个不错的参考～&lt;br /&gt;
- &lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;更新中 | Updating&lt;br /&gt;
-&lt;span class=&#34;label info&#34;&gt;25-10-13&lt;/span&gt; &lt;span class=&#34;pink&#34;&gt;&lt;strong&gt;《魔法使之夜通关感想》&lt;/strong&gt;&lt;/span&gt; =&amp;gt; 持续更新中，敬请期待...&lt;br /&gt;
- &lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;文章发布预告 | Trailer&lt;br /&gt;
-&lt;span class=&#34;label danger&#34;&gt;??-??-??&lt;/span&gt; &lt;span class=&#34;purple&#34;&gt;&lt;strong&gt;《Hexo 的安装教学系列》&lt;/strong&gt;&lt;/span&gt; =&amp;gt; 整理并教学如何从 0 安装和部署 Hexo，并且添加主题美化和个性化设置。&lt;br /&gt;
-&lt;span class=&#34;label danger&#34;&gt;??-??-??&lt;/span&gt; &lt;span class=&#34;purple&#34;&gt;&lt;strong&gt;《FLwolfy.ShokaX 日志》&lt;/strong&gt;&lt;/span&gt; =&amp;gt; 为我魔改 ShokaX 源码的部分进行讲解和撰写 API 文档。&lt;br /&gt;
-&lt;span class=&#34;label danger&#34;&gt;??-??-??&lt;/span&gt; &lt;span class=&#34;purple&#34;&gt;&lt;strong&gt;《十三机兵防卫圈剧情梳理》&lt;/strong&gt;&lt;/span&gt; =&amp;gt; 以正时间线的方式梳理这部浪漫的科幻情书。&lt;/p&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h2 id=&#34;后续-following&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#后续-following&#34;&gt;#&lt;/a&gt; 后续 | Following&lt;/h2&gt;
-&lt;p&gt;祝愿和祈祷站主不鸽🐦吧～&lt;/p&gt;
-</content>
-        <category term="其他" scheme="https://blog.flwolfy.xyz/categories/other/" />
-        <category term="公告" scheme="https://blog.flwolfy.xyz/tags/%E5%85%AC%E5%91%8A/" />
-        <category term="攻略" scheme="https://blog.flwolfy.xyz/tags/tutorial/" />
-        <updated>2025-10-12T16:00:00.000Z</updated>
-    </entry>
-    <entry>
         <id>https://blog.flwolfy.xyz/game/guide/lucario-guide/</id>
         <title>路卡利欧全方位教程</title>
         <link rel="alternate" href="https://blog.flwolfy.xyz/game/guide/lucario-guide/"/>
         <content type="html">&lt;h1 id=&#34;前言和申明&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#前言和申明&#34;&gt;#&lt;/a&gt; 前言和申明&lt;/h1&gt;
-&lt;blockquote&gt;
-&lt;ul&gt;
-&lt;li&gt;本指南旨在帮助准备练习《任天堂明星大乱斗—特别版》中路卡利欧的玩家了解路卡利欧的整体定位与玩法思路，并充当一个查阅百科的作用。该指南要求玩家对大乱斗中各类术语有一定了解。我将常见问题整理成清晰的结构，方便查阅与学习。&lt;/li&gt;
-&lt;li&gt;本资料的内容整合参考国外大佬 &lt;em&gt;NewBae&lt;/em&gt; 的路卡利欧教学与我自己对于路卡职业选手研究，并融合了我自身对路卡角色的实战经验。本文章内相关影像素材部分来自 &lt;em&gt;Ultimate Frame Data&lt;/em&gt; 、 &lt;em&gt;Smash Wiki&lt;/em&gt; 等网站。&lt;/li&gt;
-&lt;li&gt;若有建议、疑问或补充，欢迎通过邮件联系我 &lt;em&gt;FLwolfy&lt;/em&gt;，也欢迎各位加入任天堂明星大乱斗路卡利欧国内角色QQ群：1007101846。&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/blockquote&gt;
+&lt;p class=&#34;note warning&#34;&gt;本指南旨在帮助准备练习《任天堂明星大乱斗—特别版》中路卡利欧的玩家了解路卡利欧的整体定位与玩法思路，并充当一个查阅百科的作用。该指南要求玩家对大乱斗中各类术语有一定了解。我将常见问题整理成清晰的结构，方便查阅与学习。&lt;br /&gt;
+本资料的内容整合参考国外大佬 &lt;em&gt;NewBae&lt;/em&gt; 的路卡利欧教学与我自己对于路卡职业选手研究，并融合了我自身对路卡角色的实战经验。本文章内相关影像素材部分来自 &lt;em&gt;Ultimate Frame Data&lt;/em&gt; 、 &lt;em&gt;Smash Wiki&lt;/em&gt; 等网站。&lt;br /&gt;
+若有建议、疑问或补充，欢迎通过邮件联系我 &lt;em&gt;FLwolfy&lt;/em&gt;，也欢迎各位加入任天堂明星大乱斗路卡利欧国内角色QQ群：1007101846。&lt;/p&gt;
 &lt;h2 id=&#34;招式技能与帧数-moves&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#招式技能与帧数-moves&#34;&gt;#&lt;/a&gt; 招式技能与帧数 | Moves&lt;/h2&gt;
 &lt;p&gt;路卡利欧在大乱斗5代并不算是优秀角色，人人都有早期击杀的时代让路卡利欧非常难以保留高波导并生存。不过路卡利欧还是有一些帧数相对优秀的的招式，并且由于波导的机制，大部分对手不敢让路卡利欧获得高波导，这导致对手在跟路卡利欧立回时总是容易凹或急从而露出破绽。路卡利欧玩家要做的是熟悉各种安全招和帧数，并以最大化收益来翻盘。&lt;/p&gt;
 &lt;h3 id=&#34;地面招式-grounds&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#地面招式-grounds&#34;&gt;#&lt;/a&gt; 地面招式 | Grounds&lt;/h3&gt;
@@ -309,12 +264,8 @@
         <title>《命运石之门》圣地巡礼</title>
         <link rel="alternate" href="https://blog.flwolfy.xyz/anime/pilgrimage/sg-visit/"/>
         <content type="html">&lt;h1 id=&#34;图片所有权声明&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#图片所有权声明&#34;&gt;#&lt;/a&gt; 图片所有权声明&lt;/h1&gt;
-&lt;blockquote&gt;
-&lt;ul&gt;
-&lt;li&gt;大部分实景图片为本人及朋友（已授权）拍摄，未经允许请勿使用！&lt;/li&gt;
-&lt;li&gt;动漫内部图片均为原片截图以及B站“圣地巡礼”专栏导览图，如果这侵犯了你的著作权，请立即联系我，我会删除。&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/blockquote&gt;
+&lt;p class=&#34;note warning&#34;&gt;大部分实景图片为本人及朋友（已授权）拍摄，未经允许请勿使用！&lt;br /&gt;
+动漫内部图片均为原片截图以及B站“圣地巡礼”专栏导览图，如果这侵犯了你的著作权，请立即联系我，我会删除。&lt;/p&gt;
 &lt;h2 id=&#34;引言-intro&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#引言-intro&#34;&gt;#&lt;/a&gt; 引言 | Intro&lt;/h2&gt;
 &lt;p&gt;今年5月去了一趟日本东京旅游，作为二次元圈内人，必须去一趟秋叶原买各种谷子。同时秋叶原作为大名鼎鼎的“石头门”取景地，本人作为石头门厨必须要进行一波圣地巡礼啦。跟我一起说：一切都是命运石之门的选择！&lt;/p&gt;
 &lt;p&gt;虽然秋叶原本身其实不大，但本人和朋友逛各家谷子店花了非常久的时间，基本上也是收获满满，不过圣地打卡也就反倒变成了买谷之余做的事情了哈哈。本人打卡的地方除了参考动漫中的地点，也有部分几个是根据游戏内出现的画面进行相同角度的拍摄。不过本人的拍摄技术有限，拍的不好见谅啦～&lt;/p&gt;
@@ -457,5 +408,43 @@
         <category term="旅游" scheme="https://blog.flwolfy.xyz/tags/travel/" />
         <category term="秋叶原" scheme="https://blog.flwolfy.xyz/tags/akihabara/" />
         <updated>2025-05-26T16:00:00.000Z</updated>
+    </entry>
+    <entry>
+        <id>https://blog.flwolfy.xyz/other/announce/</id>
+        <title>公告栏</title>
+        <link rel="alternate" href="https://blog.flwolfy.xyz/other/announce/"/>
+        <content type="html">&lt;h1 id=&#34;公告栏须知&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#公告栏须知&#34;&gt;#&lt;/a&gt; 公告栏须知&lt;/h1&gt;
+&lt;p class=&#34;note warning&#34;&gt;本公告栏内容具有时效性，建议定期查看来获得最新内容。&lt;br /&gt;
+阅读评论请注意其发布时间，以确保沟通交流为同一公告版本内容～&lt;/p&gt;
+&lt;h2 id=&#34;通知-notification&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#通知-notification&#34;&gt;#&lt;/a&gt; 通知 | Notification&lt;/h2&gt;
+&lt;p&gt;本博客从搭建完毕发布第一篇文章已经是 25 年 5 月的事情，中途由于切换主题和配置博客耽误了不少时间，直到25年9月左右才开始有继续更新。所以实际的建站时间至今不超过 4 个月，文章内容也不是很多。但有很多待发布的想法、教程、分享在筹备中，敬请期待～&lt;/p&gt;
+&lt;h2 id=&#34;最新资讯-news&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#最新资讯-news&#34;&gt;#&lt;/a&gt; 最新资讯 | News&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;已发布 | Published&lt;br /&gt;
+&lt;span class=&#34;label success&#34;&gt;25-05-27&lt;/span&gt; &lt;a href=&#34;/anime/pilgrimage/sg-visit/&#34;&gt;&lt;strong&gt;《命运石之门圣地巡礼》&lt;/strong&gt;&lt;/a&gt; =&amp;gt; 讲了站主去秋叶原玩打卡的经历，欢迎阅读～&lt;br /&gt;
+&lt;span class=&#34;label success&#34;&gt;25-06-21&lt;/span&gt; &lt;a href=&#34;/game/guide/lucario-guide/&#34;&gt;&lt;strong&gt;《路卡利欧全方位教程》&lt;/strong&gt;&lt;/a&gt; =&amp;gt; 如果你玩《任天堂明星大乱斗》，同时又对路卡利欧感兴趣想学习，这是一个不错的参考～&lt;br /&gt;
+ &lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;更新中 | Updating&lt;br /&gt;
+&lt;span class=&#34;label info&#34;&gt;25-11-??&lt;/span&gt; &lt;span class=&#34;pink&#34;&gt;&lt;strong&gt;《旮旯杂谈之〈魔法使之夜〉》&lt;/strong&gt;&lt;/span&gt; =&amp;gt; 持续更新中，敬请期待...&lt;br /&gt;
+&lt;span class=&#34;label info&#34;&gt;25-11-??&lt;/span&gt; &lt;span class=&#34;pink&#34;&gt;&lt;strong&gt;《旮旯杂谈之〈秽翼の尤斯缇娅〉》&lt;/strong&gt;&lt;/span&gt; =&amp;gt; 持续更新中，敬请期待...&lt;br /&gt;
+ &lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;文章发布预告 | Trailer&lt;br /&gt;
+&lt;span class=&#34;label danger&#34;&gt;??-??-??&lt;/span&gt; &lt;span class=&#34;purple&#34;&gt;&lt;strong&gt;《Hexo 的安装教学系列》&lt;/strong&gt;&lt;/span&gt; =&amp;gt; 整理并教学如何从 0 安装和部署 Hexo，并且添加主题美化和个性化设置。&lt;br /&gt;
+&lt;span class=&#34;label danger&#34;&gt;??-??-??&lt;/span&gt; &lt;span class=&#34;purple&#34;&gt;&lt;strong&gt;《FLwolfy.ShokaX 日志》&lt;/strong&gt;&lt;/span&gt; =&amp;gt; 为我魔改 ShokaX 源码的部分进行讲解和撰写简易文档。&lt;br /&gt;
+&lt;span class=&#34;label danger&#34;&gt;??-??-??&lt;/span&gt; &lt;span class=&#34;purple&#34;&gt;&lt;strong&gt;《十三机兵防卫圈通关感想》&lt;/strong&gt;&lt;/span&gt; =&amp;gt; 以正时间线的方式梳理这部浪漫的科幻情书。&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;后续-following&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#后续-following&#34;&gt;#&lt;/a&gt; 后续 | Following&lt;/h2&gt;
+&lt;p&gt;祝愿和祈祷站主不鸽🐦吧～&lt;/p&gt;
+</content>
+        <category term="其他" scheme="https://blog.flwolfy.xyz/categories/other/" />
+        <category term="公告" scheme="https://blog.flwolfy.xyz/tags/%E5%85%AC%E5%91%8A/" />
+        <category term="攻略" scheme="https://blog.flwolfy.xyz/tags/tutorial/" />
+        <updated>2025-04-12T16:00:00.000Z</updated>
     </entry>
 </feed>

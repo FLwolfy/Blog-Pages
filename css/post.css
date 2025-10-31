@@ -4543,6 +4543,10 @@ use.stop-animation {
 .md p {
   margin: 0 0 0.8rem;
 }
+.md strong,
+.md b {
+  color: var(--grey-7);
+}
 .md blockquote {
   font-size: 90%;
   background-color: var(--grey-2);
@@ -4778,6 +4782,7 @@ use.stop-animation {
 }
 .md .max-imgs img {
   width: 100% !important;
+  height: auto !important;
 }
 .rtl.body p,
 .rtl.body a,
