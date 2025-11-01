@@ -4774,10 +4774,10 @@ use.stop-animation {
   border: none;
 }
 .md .medium-imgs img {
-  height: 20rem !important;
+  height: 17.5rem !important;
 }
 .md .large-imgs img {
-  height: 32rem !important;
+  height: 25rem !important;
 }
 .md .max-imgs img {
   width: 100% !important;
