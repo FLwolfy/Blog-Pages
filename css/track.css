@@ -231,17 +231,16 @@
   line-height: 1.2rem;
   width: 100%;
   text-align: right;
-  display: -webkit-box; /* 必须加 */
-  -webkit-box-orient: vertical; /* 垂直排列 */
-  -webkit-line-clamp: 2; /* 显示行数 */
-  overflow: hidden; /* 超出隐藏 */
-  text-overflow: ellipsis; /* 省略号 */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 @media (max-width: 820px) {
   .track-content .track-description {
     font-size: 0.6rem;
     line-height: 0.8rem;
-    -webkit-line-clamp: 3;
   }
 }
 /* ==============================
