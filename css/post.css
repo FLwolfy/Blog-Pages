@@ -4543,9 +4543,8 @@ use.stop-animation {
 .md p {
   margin: 0 0 0.8rem;
 }
-.md strong,
-.md b {
-  color: var(--grey-7);
+.md p strong {
+  filter: contrast(2);
 }
 .md blockquote {
   font-size: 90%;
