@@ -33,14 +33,26 @@
     let snapTimer = null;
     let detailTimer = null;
     let lastTime = null;
+    let isRunning = false;
+    let forceImmediateDetail = false;
 
     let isTouchDragging = false;
 
     let container = null;
     let osuWheel = null;
+    let timelineSlider = null;
+    let isSliderDragging = false;
     let tracks = [];
     let offset = 0;
     let targetOffset = 0;
+
+    function sliderToOffset(value) {
+        return tracks.length - 1 - Number(value);
+    }
+
+    function offsetToSlider(value) {
+        return tracks.length - 1 - value;
+    }
 
     // ================================
     // DOM 查询 / IO 操作
@@ -66,7 +78,13 @@
             track.style.left = '0';
             track.style.top = '0';
             track.style.transformOrigin = 'left center';
-            track.dataset.height = track.offsetHeight;
+            track.dataset.height = track.offsetHeight || track.getBoundingClientRect().height || 0;
+        });
+    }
+
+    function refreshTrackHeights() {
+        tracks.forEach(track => {
+            track.dataset.height = track.offsetHeight || track.getBoundingClientRect().height || 0;
         });
     }
 
@@ -135,12 +153,7 @@
         if (!elems || !activeTrack) return;
 
         const { detail, cover, title, description, meta, link } = elems;
-
-        detail.classList.remove('fade-in');
-        detail.classList.add('fade-out');
-
-        if (detailTimer) clearTimeout(detailTimer);
-        detailTimer = setTimeout(() => {
+        const apply = () => {
             detail.classList.remove('fade-out');
             detail.classList.add('fade-in');
 
@@ -158,14 +171,27 @@
             }
             if (meta.innerHTML !== newMeta) meta.innerHTML = newMeta;
             if (link.href !== newLink) link.href = newLink;
+        };
 
-        }, CONFIG.detailFadeDelay);
+        if (forceImmediateDetail) {
+            if (detailTimer) clearTimeout(detailTimer);
+            detail.classList.remove('fade-out');
+            detail.classList.remove('fade-in');
+            apply();
+            forceImmediateDetail = false;
+            return;
+        }
+
+        detail.classList.remove('fade-in');
+        detail.classList.add('fade-out');
+        if (detailTimer) clearTimeout(detailTimer);
+        detailTimer = setTimeout(apply, CONFIG.detailFadeDelay);
     }
 
     // ================================
     // 渲染函数
     // ================================
-    function render() {
+    function render(timestamp) {
         const centerY = osuWheel.clientHeight / 2;
         const activeIndex = Math.round(offset);
         const startIndex = Math.max(0, activeIndex - halfVisible);
@@ -181,9 +207,10 @@
             const diff = offset - i;
             const angle = diff * getSpacing();
             const rad = angle * Math.PI / 180;
+            const trackHeight = Number(track.dataset.height) || track.offsetHeight || track.getBoundingClientRect().height || 0;
 
             const x = CONFIG.offsetX + Math.cos(rad) * CONFIG.radius - CONFIG.radius;
-            const y = centerY - track.dataset.height / 2 + Math.sin(rad) * CONFIG.radius;
+            const y = centerY - trackHeight / 2 + Math.sin(rad) * CONFIG.radius;
 
             const scale = i === activeIndex ? 1 : Math.max(0, 1 - Math.abs(diff) * 0.1) / CONFIG.scaleFactor;
             const opacity = i === activeIndex ? 1 : Math.max(0, 1 - Math.abs(diff) * CONFIG.opacityFactor);
@@ -201,6 +228,10 @@
             container.classList.add('show-bg');
         } else {
             container.classList.remove('show-bg');
+        }
+
+        if (timelineSlider && !isSliderDragging) {
+            timelineSlider.value = String(offsetToSlider(offset));
         }
     }
 
@@ -246,15 +277,35 @@
     // 动画循环
     // ================================
     function animate(timestamp) {
+        if (!isRunning) return;
         if (timestamp) {
             if (lastTime === null) lastTime = timestamp;
             const delta = (timestamp - lastTime) / 1000;
             lastTime = timestamp;
 
             offset += (targetOffset - offset) * delta * CONFIG.animateSpeed;
-            render();
+            render(timestamp);
         }
         animationFrameId = requestAnimationFrame(animate);
+    }
+
+    function setOsuWheelActive(active) {
+        if (active) {
+            if (isRunning) return;
+            refreshTrackHeights();
+            lastActiveIndex = -1;
+            forceImmediateDetail = true;
+            isRunning = true;
+            lastTime = null;
+            animate();
+            render(performance.now());
+            return;
+        }
+        isRunning = false;
+        if (animationFrameId) {
+            cancelAnimationFrame(animationFrameId);
+            animationFrameId = null;
+        }
     }
 
     // ================================
@@ -273,9 +324,33 @@
 
         container = document.querySelector('.osu-container');
         osuWheel = document.querySelector('.osu-wheel');
+        timelineSlider = document.getElementById('osu-timeline-slider');
         if (!container || !osuWheel) return;
 
         initTracks();
+
+        if (timelineSlider) {
+            timelineSlider.min = '0';
+            timelineSlider.max = String(Math.max(0, tracks.length - 1));
+            timelineSlider.step = '0.01';
+            timelineSlider.value = String(Math.max(0, tracks.length - 1));
+
+            timelineSlider.addEventListener('input', () => {
+                targetOffset = Math.max(0, Math.min(tracks.length - 1, sliderToOffset(timelineSlider.value)));
+            });
+            timelineSlider.addEventListener('pointerdown', () => {
+                isSliderDragging = true;
+            });
+            timelineSlider.addEventListener('pointerup', () => {
+                isSliderDragging = false;
+                startSnapTimer();
+            });
+            timelineSlider.addEventListener('change', () => {
+                isSliderDragging = false;
+                startSnapTimer();
+            });
+        }
+
         initTrackStyles();
         initTrackInteraction();
         observeTrackHeights();
@@ -285,10 +360,10 @@
         osuWheel.addEventListener('touchmove', handleTouchMove, { passive: false });
         osuWheel.addEventListener('touchend', handleTouchEnd);
 
-        animate();
-        render();
+        setOsuWheelActive(container.style.display === 'block');
     }
 
     window.initOsuWheel = initOsuWheel;
+    window.setOsuWheelActive = setOsuWheelActive;
 
 })();
