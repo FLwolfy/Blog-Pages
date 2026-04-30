@@ -4543,9 +4543,6 @@ use.stop-animation {
 .md p {
   margin: 0 0 0.8rem;
 }
-.md p strong {
-  filter: contrast(2);
-}
 .md blockquote {
   font-size: 90%;
   background-color: var(--grey-2);
@@ -4774,14 +4771,13 @@ use.stop-animation {
   border: none;
 }
 .md .medium-imgs img {
-  height: 17.5rem !important;
+  height: 20rem !important;
 }
 .md .large-imgs img {
-  height: 25rem !important;
+  height: 32rem !important;
 }
 .md .max-imgs img {
   width: 100% !important;
-  height: auto !important;
 }
 .rtl.body p,
 .rtl.body a,
