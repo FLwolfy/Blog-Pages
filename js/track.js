@@ -33,8 +33,6 @@
     let snapTimer = null;
     let detailTimer = null;
     let lastTime = null;
-    let isRunning = false;
-    let forceImmediateDetail = false;
 
     let isTouchDragging = false;
 
@@ -78,12 +76,6 @@
             track.style.left = '0';
             track.style.top = '0';
             track.style.transformOrigin = 'left center';
-            track.dataset.height = track.offsetHeight || track.getBoundingClientRect().height || 0;
-        });
-    }
-
-    function refreshTrackHeights() {
-        tracks.forEach(track => {
             track.dataset.height = track.offsetHeight || track.getBoundingClientRect().height || 0;
         });
     }
@@ -172,15 +164,6 @@
             if (meta.innerHTML !== newMeta) meta.innerHTML = newMeta;
             if (link.href !== newLink) link.href = newLink;
         };
-
-        if (forceImmediateDetail) {
-            if (detailTimer) clearTimeout(detailTimer);
-            detail.classList.remove('fade-out');
-            detail.classList.remove('fade-in');
-            apply();
-            forceImmediateDetail = false;
-            return;
-        }
 
         detail.classList.remove('fade-in');
         detail.classList.add('fade-out');
@@ -277,7 +260,6 @@
     // 动画循环
     // ================================
     function animate(timestamp) {
-        if (!isRunning) return;
         if (timestamp) {
             if (lastTime === null) lastTime = timestamp;
             const delta = (timestamp - lastTime) / 1000;
@@ -287,25 +269,6 @@
             render(timestamp);
         }
         animationFrameId = requestAnimationFrame(animate);
-    }
-
-    function setOsuWheelActive(active) {
-        if (active) {
-            if (isRunning) return;
-            refreshTrackHeights();
-            lastActiveIndex = -1;
-            forceImmediateDetail = true;
-            isRunning = true;
-            lastTime = null;
-            animate();
-            render(performance.now());
-            return;
-        }
-        isRunning = false;
-        if (animationFrameId) {
-            cancelAnimationFrame(animationFrameId);
-            animationFrameId = null;
-        }
     }
 
     // ================================
@@ -320,8 +283,6 @@
         lastActiveIndex = -1;
         offset = 0;
         targetOffset = 0;
-        wheelRemainder = 0;
-
         container = document.querySelector('.osu-container');
         osuWheel = document.querySelector('.osu-wheel');
         timelineSlider = document.getElementById('osu-timeline-slider');
@@ -360,10 +321,11 @@
         osuWheel.addEventListener('touchmove', handleTouchMove, { passive: false });
         osuWheel.addEventListener('touchend', handleTouchEnd);
 
-        setOsuWheelActive(container.style.display === 'block');
+        lastTime = null;
+        animate();
+        render(performance.now());
     }
 
     window.initOsuWheel = initOsuWheel;
-    window.setOsuWheelActive = setOsuWheelActive;
 
 })();
