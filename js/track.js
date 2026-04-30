@@ -40,6 +40,7 @@
     let osuWheel = null;
     let timelineSlider = null;
     let isSliderDragging = false;
+    let sliderPointerId = null;
     let tracks = [];
     let offset = 0;
     let targetOffset = 0;
@@ -50,6 +51,20 @@
 
     function offsetToSlider(value) {
         return tracks.length - 1 - value;
+    }
+
+    function clamp(num, min, max) {
+        return Math.max(min, Math.min(max, num));
+    }
+
+    function setSliderTargetFromClientX(clientX) {
+        if (!timelineSlider) return;
+        const rect = timelineSlider.getBoundingClientRect();
+        if (rect.width <= 0) return;
+
+        const ratio = clamp((clientX - rect.left) / rect.width, 0, 1);
+        const sliderValue = ratio * Math.max(0, tracks.length - 1);
+        targetOffset = clamp(sliderToOffset(sliderValue), 0, Math.max(0, tracks.length - 1));
     }
 
     // ================================
@@ -213,7 +228,7 @@
             container.classList.remove('show-bg');
         }
 
-        if (timelineSlider && !isSliderDragging) {
+        if (timelineSlider) {
             timelineSlider.value = String(offsetToSlider(offset));
         }
     }
@@ -285,8 +300,16 @@
         targetOffset = 0;
         container = document.querySelector('.osu-container');
         osuWheel = document.querySelector('.osu-wheel');
+        const timeline = document.querySelector('.osu-timeline');
         timelineSlider = document.getElementById('osu-timeline-slider');
         if (!container || !osuWheel) return;
+
+        if (timeline) {
+            const absorbEvents = ['wheel', 'touchstart', 'touchmove', 'touchend', 'pointerdown', 'pointermove', 'pointerup', 'mousedown', 'mouseup', 'click'];
+            absorbEvents.forEach((eventName) => {
+                timeline.addEventListener(eventName, (e) => e.stopPropagation(), { passive: true });
+            });
+        }
 
         initTracks();
 
@@ -297,17 +320,36 @@
             timelineSlider.value = String(Math.max(0, tracks.length - 1));
 
             timelineSlider.addEventListener('input', () => {
-                targetOffset = Math.max(0, Math.min(tracks.length - 1, sliderToOffset(timelineSlider.value)));
+                if (!isSliderDragging) {
+                    targetOffset = clamp(sliderToOffset(timelineSlider.value), 0, Math.max(0, tracks.length - 1));
+                }
             });
-            timelineSlider.addEventListener('pointerdown', () => {
+
+            timelineSlider.addEventListener('pointerdown', (e) => {
+                e.preventDefault();
                 isSliderDragging = true;
+                sliderPointerId = e.pointerId;
+                timelineSlider.setPointerCapture?.(e.pointerId);
+                setSliderTargetFromClientX(e.clientX);
             });
-            timelineSlider.addEventListener('pointerup', () => {
+
+            timelineSlider.addEventListener('pointermove', (e) => {
+                if (!isSliderDragging || (sliderPointerId !== null && e.pointerId !== sliderPointerId)) return;
+                e.preventDefault();
+                setSliderTargetFromClientX(e.clientX);
+            });
+
+            timelineSlider.addEventListener('pointerup', (e) => {
+                if (sliderPointerId !== null && e.pointerId !== sliderPointerId) return;
                 isSliderDragging = false;
+                sliderPointerId = null;
                 startSnapTimer();
             });
-            timelineSlider.addEventListener('change', () => {
+
+            timelineSlider.addEventListener('pointercancel', (e) => {
+                if (sliderPointerId !== null && e.pointerId !== sliderPointerId) return;
                 isSliderDragging = false;
+                sliderPointerId = null;
                 startSnapTimer();
             });
         }
