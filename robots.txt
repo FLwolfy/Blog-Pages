@@ -5,11 +5,10 @@ Allow: /tags/
 Allow: /categories/
 Allow: /aboutsite/
 Allow: /stats/
+Allow: /assets/
 
 Disallow: /vendors/
-Disallow: /js/
-Disallow: /css/
-Disallow: /fonts/
 Disallow: /fancybox/
 
+Sitemap: https://blog.flwolfy.xyz/sitemap.xml
 Sitemap: https://blog.flwolfy.xyz/baidusitemap.xml
