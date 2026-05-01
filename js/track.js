@@ -62,6 +62,10 @@
         return Math.max(2, CONFIG.visibleCount * 2);
     }
 
+    function getLeadSlotCount() {
+        return CONFIG.visibleCount - 1;
+    }
+
     function sliderToOffset(value) {
         return sourceTracks.length - 1 - Number(value);
     }
@@ -323,7 +327,7 @@
 
         sourceTracks = rawTracks.map(captureTrackData);
 
-        const poolSize = Math.min(getPoolSize(), Math.max(1, sourceTracks.length || 1));
+        const poolSize = getPoolSize();
         trackPool = [];
         poolAssignments = new Array(poolSize).fill(-1);
         slotUpdateTokens = new Array(poolSize).fill(0);
@@ -331,7 +335,7 @@
         slotContentReadyAt = new Array(poolSize).fill(0);
         slotRenderCursor = 0;
         slotRenderUnlockAt = 0;
-        currentPoolHeadSource = -(CONFIG.visibleCount - 1);
+        currentPoolHeadSource = -getLeadSlotCount();
         if (slotRenderRafId !== null) {
             cancelAnimationFrame(slotRenderRafId);
             slotRenderRafId = null;
@@ -453,7 +457,7 @@
         if (!trackPool.length) return;
 
         const base = Math.floor(offset);
-        const desiredHead = base - (CONFIG.visibleCount - 1);
+        const desiredHead = base - getLeadSlotCount();
 
         if (poolAssignments.every((v) => v === -1)) {
             currentPoolHeadSource = desiredHead;
@@ -512,7 +516,7 @@
             const sourceIndex = poolAssignments[i];
             const sourceDiff = sourceIndex - offset;
 
-            const logicalSlot = (i - frac) - (CONFIG.visibleCount - 1);
+            const logicalSlot = (i - frac) - getLeadSlotCount();
             const angle = logicalSlot * getSpacing();
             const rad = angle * Math.PI / 180;
             const trackHeight = Number(track.dataset.height) || track.offsetHeight || track.getBoundingClientRect().height || 0;
