@@ -576,6 +576,11 @@
   opacity: 0;
   transform: translateX(20px); /* 向右淡出 */
 }
+@media (max-width: 820px) and (orientation: portrait) {
+  .track-detail.fade-out {
+    transform: translateX(0);
+  }
+}
 .track-detail.fade-in {
   opacity: 1;
   transform: translateX(0); /* 从右淡入 */
