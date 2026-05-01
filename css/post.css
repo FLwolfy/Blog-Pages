@@ -2838,6 +2838,9 @@ use.stop-animation {
     transform: translateX(-100%);
   }
 }
+.overview .author {
+  padding-top: 0.75rem;
+}
 .overview .author .image {
   border: 0.0625rem solid var(--body-bg-shadow);
   display: block;

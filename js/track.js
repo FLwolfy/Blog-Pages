@@ -41,6 +41,7 @@
     let timelineSlider = null;
     let isSliderDragging = false;
     let sliderPointerId = null;
+    let titleResizeHandler = null;
     let tracks = [];
     let offset = 0;
     let targetOffset = 0;
@@ -57,12 +58,19 @@
         return Math.max(min, Math.min(max, num));
     }
 
-    function setSliderTargetFromClientX(clientX) {
+    function isPortraitMode() {
+        return window.matchMedia('(orientation: portrait)').matches;
+    }
+
+    function setSliderTargetFromPointer(clientX, clientY) {
         if (!timelineSlider) return;
         const rect = timelineSlider.getBoundingClientRect();
-        if (rect.width <= 0) return;
+        const isPortrait = isPortraitMode();
+        if ((!isPortrait && rect.width <= 0) || (isPortrait && rect.height <= 0)) return;
 
-        const ratio = clamp((clientX - rect.left) / rect.width, 0, 1);
+        const ratio = isPortrait
+            ? clamp((rect.bottom - clientY) / rect.height, 0, 1)
+            : clamp((clientX - rect.left) / rect.width, 0, 1);
         const sliderValue = ratio * Math.max(0, tracks.length - 1);
         targetOffset = clamp(sliderToOffset(sliderValue), 0, Math.max(0, tracks.length - 1));
     }
@@ -80,6 +88,57 @@
             meta: detail.querySelector('.track-info-meta'),
             link: detail.querySelector('.track-info-readmore')
         } : null;
+    }
+
+    function truncateTextToFit(text, maxWidth, font) {
+        const canvas = truncateTextToFit.canvas || (truncateTextToFit.canvas = document.createElement('canvas'));
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return text;
+        ctx.font = font;
+
+        if (ctx.measureText(text).width <= maxWidth) return text;
+
+        const suffix = '...';
+        const suffixWidth = ctx.measureText(suffix).width;
+        const available = Math.max(0, maxWidth - suffixWidth);
+        if (available <= 0) return suffix;
+
+        let low = 0;
+        let high = text.length;
+        while (low < high) {
+            const mid = Math.ceil((low + high) / 2);
+            const candidate = text.slice(0, mid);
+            if (ctx.measureText(candidate).width <= available) {
+                low = mid;
+            } else {
+                high = mid - 1;
+            }
+        }
+        return text.slice(0, low) + suffix;
+    }
+
+    function applyManualTitleTruncation() {
+        const anchors = document.querySelectorAll('.osu-container .track-content .track-title a');
+        anchors.forEach((anchor) => {
+            if (!anchor.dataset.fullTitle) {
+                anchor.dataset.fullTitle = (anchor.textContent || '').trim();
+            }
+            const fullTitle = anchor.dataset.fullTitle || '';
+            const titleWrap = anchor.closest('.track-title');
+            if (!titleWrap) return;
+
+            const styles = window.getComputedStyle(anchor);
+            const rightInset = parseFloat(styles.right) || 0;
+            const safeWidth = Math.max(0, titleWrap.clientWidth - rightInset);
+            if (safeWidth <= 0) return;
+
+            const font = `${styles.fontStyle} ${styles.fontVariant} ${styles.fontWeight} ${styles.fontSize} / ${styles.lineHeight} ${styles.fontFamily}`;
+            anchor.textContent = truncateTextToFit(fullTitle, safeWidth, font);
+        });
+    }
+
+    function forceTitleTruncation() {
+        applyManualTitleTruncation();
     }
 
     // ================================
@@ -294,6 +353,10 @@
         if (snapTimer) clearTimeout(snapTimer);
         if (detailTimer) clearTimeout(detailTimer);
         if (resizeObserver) resizeObserver.disconnect();
+        if (titleResizeHandler) {
+            window.removeEventListener('resize', titleResizeHandler);
+            titleResizeHandler = null;
+        }
 
         lastActiveIndex = -1;
         offset = 0;
@@ -330,13 +393,13 @@
                 isSliderDragging = true;
                 sliderPointerId = e.pointerId;
                 timelineSlider.setPointerCapture?.(e.pointerId);
-                setSliderTargetFromClientX(e.clientX);
+                setSliderTargetFromPointer(e.clientX, e.clientY);
             });
 
             timelineSlider.addEventListener('pointermove', (e) => {
                 if (!isSliderDragging || (sliderPointerId !== null && e.pointerId !== sliderPointerId)) return;
                 e.preventDefault();
-                setSliderTargetFromClientX(e.clientX);
+                setSliderTargetFromPointer(e.clientX, e.clientY);
             });
 
             timelineSlider.addEventListener('pointerup', (e) => {
@@ -357,6 +420,9 @@
         initTrackStyles();
         initTrackInteraction();
         observeTrackHeights();
+        forceTitleTruncation();
+        titleResizeHandler = () => applyManualTitleTruncation();
+        window.addEventListener('resize', titleResizeHandler);
 
         osuWheel.addEventListener('wheel', handleWheel, { passive: false });
         osuWheel.addEventListener('touchstart', handleTouchStart, { passive: true });
@@ -369,5 +435,6 @@
     }
 
     window.initOsuWheel = initOsuWheel;
+    window.forceOsuTitleTruncation = forceTitleTruncation;
 
 })();
