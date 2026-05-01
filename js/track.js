@@ -10,7 +10,8 @@
         mobileThreshold: 820,      // 移动端阈值（px）
         radius: 300,               // 圆弧半径
         scrollUnit: 120,           // 一格滚动单位
-        scrollDirection: 1,        // 滚动方向：1 为默认，-1 为反向（scroll/touch 同步）
+        scrollDirection: 1,        // 滚动方向：1 为默认，-1 为反向
+        touchDirection: -1,        // 触控方向：1 为默认，-1 为反向
         animateSpeed: 5,           // 动画速度（数值越大越快）
         touchMoveFactor: 0.05,     // 触屏/拖拽灵敏度
         opacityFactor: 0.15,       // 不透明度衰减因子
@@ -617,7 +618,7 @@
         if (!isTouchDragging || e.touches.length !== 1) return;
         e.preventDefault();
         const deltaY = e.touches[0].clientY - startY;
-        const touchDirection = CONFIG.scrollDirection;
+        const touchDirection = CONFIG.touchDirection;
         targetOffset = startOffset + deltaY * CONFIG.touchMoveFactor * touchDirection;
         targetOffset = Math.max(0, Math.min(sourceTracks.length - 1, targetOffset));
     }
@@ -702,7 +703,7 @@
                 if (!isTimelineTouchDragging || !isPortraitMode() || e.touches.length !== 1 || !sourceTracks.length) return;
                 e.preventDefault();
                 const deltaY = e.touches[0].clientY - timelineTouchStartY;
-                const touchDirection = CONFIG.scrollDirection;
+                const touchDirection = CONFIG.touchDirection;
                 targetOffset = clamp(startOffset + deltaY * CONFIG.touchMoveFactor * touchDirection, 0, Math.max(0, sourceTracks.length - 1));
             }, { passive: false });
 
