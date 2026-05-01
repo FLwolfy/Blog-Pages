@@ -270,7 +270,14 @@
     font-size: 0.6rem;
     line-height: 1;
   }
+  .osu-timeline span.label.left {
+    order: 3;
+  }
+  .osu-timeline span.label.right {
+    order: 1;
+  }
   .osu-timeline #osu-timeline-slider {
+    order: 2;
     width: 0.255rem;
     height: 100%;
     writing-mode: vertical-lr;
