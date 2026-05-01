@@ -3,23 +3,24 @@
     // 配置参数
     // ================================
     const CONFIG = {
-        activeZIndex: 50,        // 激活条目的 z-index
-        visibleCount: 11,        // 可见条目数量（奇数）
-        spacing: 15,             // 每条条目角度间隔（度数）
-        mobileSpacing: 8,        // 移动端 spacing
-        mobileThreshold: 820,    // 移动端阈值（px）
-        radius: 300,             // 圆弧半径
-        scrollUnit: 120,         // 一格滚动单位
-        animateSpeed: 5,         // 动画速度（数值越大越快）
-        touchMoveFactor: 0.05,   // 触屏/拖拽灵敏度
-        opacityFactor: 0.15,     // 不透明度衰减因子
-        scaleFactor: 1.5,        // 激活条目的缩放比例
-        offsetX: 0,              // X 轴偏移
-        snapDelay: 150,          // 自动吸附延迟（ms）
-        detailFadeDelay: 500,    // detail 区淡出延迟（ms）
-        gapThreshold: 0.01       // 位置差异阈值（小于该值时认为已到达目标位置）
+        activeZIndex: 50,          // 激活条目的 z-index
+        visibleCount: 11,          // 右侧可见条目数量（奇数）
+        spacing: 15,               // 每条条目角度间隔（度数）
+        mobileSpacing: 8,          // 移动端 spacing
+        mobileThreshold: 820,      // 移动端阈值（px）
+        radius: 300,               // 圆弧半径
+        scrollUnit: 120,           // 一格滚动单位
+        animateSpeed: 5,           // 动画速度（数值越大越快）
+        touchMoveFactor: 0.05,     // 触屏/拖拽灵敏度
+        opacityFactor: 0.15,       // 不透明度衰减因子
+        scaleFactor: 1.5,          // 激活条目的缩放比例
+        offsetX: 0,                // X 轴偏移
+        snapDelay: 150,            // 自动吸附延迟（ms）
+        detailFadeDelay: 500,      // detail 区淡出延迟（ms）
+        gapThreshold: 0.01,        // 位置差异阈值（小于该值时认为已到达目标位置）
+        asyncRenderInternal: 22,   // 触发下一个 slot 异步渲染的时间间隔（ms）
+        contentFadeInMs: 220       // 异步内容回填后的淡入时长（ms）
     };
-
 
     // ================================
     // 内部状态变量
@@ -42,16 +43,31 @@
     let isSliderDragging = false;
     let sliderPointerId = null;
     let titleResizeHandler = null;
-    let tracks = [];
+
+    let sourceTracks = [];
+    let trackPool = [];
+    let poolAssignments = [];
+    let slotUpdateTokens = [];
+    let slotPendingSourceIndex = [];
+    let slotContentReadyAt = [];
+    let currentPoolHeadSource = 0;
+    let truncationRafId = null;
+    let slotRenderCursor = 0;
+    let slotRenderUnlockAt = 0;
+    let slotRenderRafId = null;
     let offset = 0;
     let targetOffset = 0;
 
+    function getPoolSize() {
+        return Math.max(2, CONFIG.visibleCount * 2);
+    }
+
     function sliderToOffset(value) {
-        return tracks.length - 1 - Number(value);
+        return sourceTracks.length - 1 - Number(value);
     }
 
     function offsetToSlider(value) {
-        return tracks.length - 1 - value;
+        return sourceTracks.length - 1 - value;
     }
 
     function clamp(num, min, max) {
@@ -71,8 +87,8 @@
         const ratio = isPortrait
             ? clamp((rect.bottom - clientY) / rect.height, 0, 1)
             : clamp((clientX - rect.left) / rect.width, 0, 1);
-        const sliderValue = ratio * Math.max(0, tracks.length - 1);
-        targetOffset = clamp(sliderToOffset(sliderValue), 0, Math.max(0, tracks.length - 1));
+        const sliderValue = ratio * Math.max(0, sourceTracks.length - 1);
+        targetOffset = clamp(sliderToOffset(sliderValue), 0, Math.max(0, sourceTracks.length - 1));
     }
 
     // ================================
@@ -141,40 +157,225 @@
         applyManualTitleTruncation();
     }
 
-    // ================================
-    // 初始化 track 样式
-    // ================================
-    function initTrackStyles() {
-        tracks.forEach(track => {
-            track.style.position = 'absolute';
-            track.style.left = '0';
-            track.style.top = '0';
-            track.style.transformOrigin = 'left center';
-            track.dataset.height = track.offsetHeight || track.getBoundingClientRect().height || 0;
+    function scheduleTitleTruncation() {
+        if (truncationRafId !== null) return;
+        truncationRafId = requestAnimationFrame(() => {
+            truncationRafId = null;
+            applyManualTitleTruncation();
         });
     }
 
+    function captureTrackData(track) {
+        return {
+            created: track.dataset.created || '',
+            title: track.dataset.title || '',
+            description: track.dataset.description || '',
+            cover: track.dataset.cover || '',
+            link: track.dataset.link || '#',
+            height: track.offsetHeight || track.getBoundingClientRect().height || 0,
+            html: track.innerHTML
+        };
+    }
+
+    function clearDataset(el) {
+        Object.keys(el.dataset).forEach((key) => {
+            delete el.dataset[key];
+        });
+    }
+
+    function applyTrackDataToSlot(slot, trackData, sourceIndex) {
+        clearDataset(slot);
+        slot.innerHTML = trackData.html;
+        slot.dataset.created = trackData.created;
+        slot.dataset.title = trackData.title;
+        slot.dataset.description = trackData.description;
+        slot.dataset.cover = trackData.cover;
+        slot.dataset.link = trackData.link;
+        slot.dataset.trackIndex = String(sourceIndex);
+        slot.dataset.height = slot.offsetHeight || slot.getBoundingClientRect().height || 0;
+        slot.dataset.emptyCard = '0';
+    }
+
+    function applyEmptyCardToSlot(slot, trackData, sourceIndex) {
+        clearDataset(slot);
+        slot.innerHTML = '';
+        slot.dataset.created = trackData.created;
+        slot.dataset.title = trackData.title;
+        slot.dataset.description = trackData.description;
+        slot.dataset.cover = trackData.cover;
+        slot.dataset.link = trackData.link;
+        slot.dataset.trackIndex = String(sourceIndex);
+        slot.dataset.height = String(trackData.height || 0);
+        slot.dataset.emptyCard = '1';
+    }
+
+    function applyEmptySlot(slot) {
+        clearDataset(slot);
+        slot.innerHTML = '';
+        slot.dataset.trackIndex = '-1';
+        slot.dataset.height = '0';
+    }
+
+    function bindSlotSourceAsync(slotIndex, sourceIndex) {
+        const slot = trackPool[slotIndex];
+        if (!slot) return;
+
+        const token = (slotUpdateTokens[slotIndex] || 0) + 1;
+        slotUpdateTokens[slotIndex] = token;
+        slotPendingSourceIndex[slotIndex] = sourceIndex;
+        poolAssignments[slotIndex] = sourceIndex;
+
+        if (sourceIndex >= 0 && sourceIndex < sourceTracks.length) {
+            applyEmptyCardToSlot(slot, sourceTracks[sourceIndex], sourceIndex);
+        } else {
+            applyEmptySlot(slot);
+        }
+        slotContentReadyAt[slotIndex] = 0;
+
+        if (slotRenderRafId === null) {
+            slotRenderRafId = requestAnimationFrame(processSlotRenderQueue);
+        }
+    }
+
+    function hasPendingSlotRenders() {
+        for (let i = 0; i < slotPendingSourceIndex.length; i++) {
+            if (slotPendingSourceIndex[i] !== null) return true;
+        }
+        return false;
+    }
+
+    function processOneSlotRender(slotIndex, now) {
+        const sourceIndex = slotPendingSourceIndex[slotIndex];
+        if (sourceIndex === null || sourceIndex === undefined) return;
+        const token = slotUpdateTokens[slotIndex] || 0;
+        if (token <= 0) return;
+
+        const slot = trackPool[slotIndex];
+        if (!slot) return;
+
+        // 只按“应该渲染的文章 index”判定是否需要渲染。
+        const expectedIndex = poolAssignments[slotIndex];
+        const renderedIndex = Number(slot.dataset.trackIndex || '-1');
+        const isEmptyCard = slot.dataset.emptyCard === '1';
+
+        // 若 pending 已过期（不是当前应该渲染的 index），直接丢弃，等待新任务。
+        if (sourceIndex !== expectedIndex) {
+            slotPendingSourceIndex[slotIndex] = null;
+            return;
+        }
+
+        // 已经是正确 index 且不是空卡，直接跳过，不重复渲染。
+        if (renderedIndex === expectedIndex && !isEmptyCard) {
+            slotPendingSourceIndex[slotIndex] = null;
+            return;
+        }
+
+        if (sourceIndex >= 0 && sourceIndex < sourceTracks.length) {
+            applyTrackDataToSlot(slot, sourceTracks[sourceIndex], sourceIndex);
+            slotContentReadyAt[slotIndex] = now;
+        } else {
+            applyEmptySlot(slot);
+            slotContentReadyAt[slotIndex] = 0;
+        }
+        slotPendingSourceIndex[slotIndex] = null;
+        scheduleTitleTruncation();
+    }
+
+    function processSlotRenderQueue(timestamp) {
+        slotRenderRafId = null;
+        if (!trackPool.length || !sourceTracks.length) return;
+
+        // 当前 fade-in 尚未结束，必须等待后续帧再处理下一个 slot。
+        if (timestamp < slotRenderUnlockAt) {
+            if (hasPendingSlotRenders()) {
+                slotRenderRafId = requestAnimationFrame(processSlotRenderQueue);
+            }
+            return;
+        }
+
+        const count = trackPool.length;
+        let picked = -1;
+        for (let step = 0; step < count; step++) {
+            const idx = (slotRenderCursor + step) % count;
+            if (slotPendingSourceIndex[idx] !== null && slotPendingSourceIndex[idx] !== undefined) {
+                picked = idx;
+                break;
+            }
+        }
+
+        if (picked >= 0) {
+            processOneSlotRender(picked, timestamp);
+            slotRenderCursor = (picked + 1) % count;
+            slotRenderUnlockAt = timestamp + Math.max(1, CONFIG.asyncRenderInternal);
+        }
+
+        if (hasPendingSlotRenders()) {
+            slotRenderRafId = requestAnimationFrame(processSlotRenderQueue);
+        }
+    }
+
     // ================================
-    // 初始化 track 条目
+    // 初始化 track 池
     // ================================
     function initTracks() {
-        tracks = Array.from(osuWheel.querySelectorAll('.track'))
+        const rawTracks = Array.from(osuWheel.querySelectorAll('.track'))
             .sort((a, b) => new Date(b.dataset.created) - new Date(a.dataset.created));
+
+        sourceTracks = rawTracks.map(captureTrackData);
+
+        const poolSize = Math.min(getPoolSize(), Math.max(1, sourceTracks.length || 1));
+        trackPool = [];
+        poolAssignments = new Array(poolSize).fill(-1);
+        slotUpdateTokens = new Array(poolSize).fill(0);
+        slotPendingSourceIndex = new Array(poolSize).fill(null);
+        slotContentReadyAt = new Array(poolSize).fill(0);
+        slotRenderCursor = 0;
+        slotRenderUnlockAt = 0;
+        currentPoolHeadSource = -(CONFIG.visibleCount - 1);
+        if (slotRenderRafId !== null) {
+            cancelAnimationFrame(slotRenderRafId);
+            slotRenderRafId = null;
+        }
+
+        osuWheel.innerHTML = '';
+
+        for (let i = 0; i < poolSize; i++) {
+            const slot = document.createElement('div');
+            slot.className = 'track';
+            slot.style.position = 'absolute';
+            slot.style.left = '0';
+            slot.style.top = '0';
+            slot.style.transformOrigin = 'left center';
+            slot.style.willChange = 'transform, opacity';
+            trackPool.push(slot);
+            osuWheel.appendChild(slot);
+        }
     }
 
     // ================================
     // track 点击 / 触摸激活
     // ================================
     function initTrackInteraction() {
-        tracks.forEach((track, i) => {
+        trackPool.forEach((track) => {
             let touchMoved = false;
-            track.addEventListener('click', () => targetOffset = i);
-            track.addEventListener('touchstart', () => touchMoved = false, { passive: true });
-            track.addEventListener('touchmove', () => touchMoved = true, { passive: true });
-            track.addEventListener('touchend', e => {
+            const activate = () => {
+                const idx = Number(track.dataset.trackIndex || '-1');
+                if (idx >= 0 && idx < sourceTracks.length) {
+                    targetOffset = idx;
+                }
+            };
+
+            track.addEventListener('click', activate);
+            track.addEventListener('touchstart', () => {
+                touchMoved = false;
+            }, { passive: true });
+            track.addEventListener('touchmove', () => {
+                touchMoved = true;
+            }, { passive: true });
+            track.addEventListener('touchend', (e) => {
                 if (!touchMoved) {
                     e.preventDefault();
-                    targetOffset = i;
+                    activate();
                 }
             });
         });
@@ -189,7 +390,7 @@
                 entry.target.dataset.height = entry.target.offsetHeight;
             }
         });
-        tracks.forEach(track => resizeObserver.observe(track));
+        trackPool.forEach(track => resizeObserver.observe(track));
     }
 
     // ================================
@@ -214,20 +415,19 @@
     // ================================
     // 更新右侧 detail 区内容
     // ================================
-    function updateDetail(activeTrack) {
+    function updateDetail(activeTrackData) {
         const elems = getDetailElements();
-        if (!elems || !activeTrack) return;
+        if (!elems || !activeTrackData) return;
 
         const { detail, cover, title, description, meta, link } = elems;
         const apply = () => {
             detail.classList.remove('fade-out');
             detail.classList.add('fade-in');
 
-            const newTitle = activeTrack.dataset?.title ?? '';
-            const newDescription = activeTrack.dataset?.description ?? '';
-            const newCover = activeTrack.dataset?.cover ?? '';
-            const newLink = activeTrack.dataset?.link ?? '#';
-            const newMeta = activeTrack.querySelector('.track-meta-html')?.innerHTML ?? '';
+            const newTitle = activeTrackData.title || '';
+            const newDescription = activeTrackData.description || '';
+            const newCover = activeTrackData.cover || '';
+            const newLink = activeTrackData.link || '#';
 
             if (title.textContent !== newTitle) title.textContent = newTitle;
             if (description.innerHTML !== newDescription) description.innerHTML = newDescription;
@@ -235,6 +435,10 @@
                 cover.src = newCover;
                 container.style.setProperty('--bg-url', `url(${newCover || ''})`);
             }
+
+            const temp = document.createElement('div');
+            temp.innerHTML = activeTrackData.html || '';
+            const newMeta = temp.querySelector('.track-meta-html')?.innerHTML ?? '';
             if (meta.innerHTML !== newMeta) meta.innerHTML = newMeta;
             if (link.href !== newLink) link.href = newLink;
         };
@@ -245,42 +449,128 @@
         detailTimer = setTimeout(apply, CONFIG.detailFadeDelay);
     }
 
+    function syncPoolAssignments() {
+        if (!trackPool.length) return;
+
+        const base = Math.floor(offset);
+        const desiredHead = base - (CONFIG.visibleCount - 1);
+
+        if (poolAssignments.every((v) => v === -1)) {
+            currentPoolHeadSource = desiredHead;
+            for (let i = 0; i < trackPool.length; i++) {
+                bindSlotSourceAsync(i, currentPoolHeadSource + i);
+            }
+            return;
+        }
+
+        while (currentPoolHeadSource < desiredHead) {
+            // 向前滚动时，复用左侧最底部离场槽位（index 0）到末尾
+            const firstTrack = trackPool.shift();
+            const firstAssign = poolAssignments.shift();
+            const firstToken = slotUpdateTokens.shift();
+            if (!firstTrack || firstAssign === undefined || firstToken === undefined) break;
+
+            trackPool.push(firstTrack);
+            poolAssignments.push(firstAssign);
+            slotUpdateTokens.push(firstToken);
+
+            currentPoolHeadSource += 1;
+            const tailIndex = trackPool.length - 1;
+            bindSlotSourceAsync(tailIndex, currentPoolHeadSource + tailIndex);
+        }
+
+        while (currentPoolHeadSource > desiredHead) {
+            const lastTrack = trackPool.pop();
+            const lastAssign = poolAssignments.pop();
+            const lastToken = slotUpdateTokens.pop();
+            if (!lastTrack || lastAssign === undefined || lastToken === undefined) break;
+
+            trackPool.unshift(lastTrack);
+            poolAssignments.unshift(lastAssign);
+            slotUpdateTokens.unshift(lastToken);
+
+            currentPoolHeadSource -= 1;
+            bindSlotSourceAsync(0, currentPoolHeadSource);
+        }
+    }
+
     // ================================
     // 渲染函数
     // ================================
-    function render(timestamp) {
+    function render() {
+        if (!sourceTracks.length || !trackPool.length) return;
+
         const centerY = osuWheel.clientHeight / 2;
-        const activeIndex = Math.round(offset);
-        const startIndex = Math.max(0, activeIndex - halfVisible);
-        const endIndex = Math.min(tracks.length - 1, activeIndex + halfVisible);
+        const activeIndex = clamp(Math.round(offset), 0, sourceTracks.length - 1);
+        const base = Math.floor(offset);
+        const frac = offset - base;
 
-        for (let i = 0; i < startIndex; i++) tracks[i].style.display = 'none';
-        for (let i = endIndex + 1; i < tracks.length; i++) tracks[i].style.display = 'none';
+        syncPoolAssignments();
 
-        for (let i = startIndex; i <= endIndex; i++) {
-            const track = tracks[i];
-            track.style.display = 'flex';
+        for (let i = 0; i < trackPool.length; i++) {
+            const track = trackPool[i];
+            const sourceIndex = poolAssignments[i];
+            const sourceDiff = sourceIndex - offset;
 
-            const diff = offset - i;
-            const angle = diff * getSpacing();
+            const logicalSlot = (i - frac) - (CONFIG.visibleCount - 1);
+            const angle = logicalSlot * getSpacing();
             const rad = angle * Math.PI / 180;
             const trackHeight = Number(track.dataset.height) || track.offsetHeight || track.getBoundingClientRect().height || 0;
 
             const x = CONFIG.offsetX + Math.cos(rad) * CONFIG.radius - CONFIG.radius;
             const y = centerY - trackHeight / 2 + Math.sin(rad) * CONFIG.radius;
 
-            const scale = i === activeIndex ? 1 : Math.max(0, 1 - Math.abs(diff) * 0.1) / CONFIG.scaleFactor;
-            const opacity = i === activeIndex ? 1 : Math.max(0, 1 - Math.abs(diff) * CONFIG.opacityFactor);
+            const isOnRightSide = Math.cos(rad) > 0;
+            const isValidSource = sourceIndex >= 0 && sourceIndex < sourceTracks.length;
+            const isActive = isValidSource && sourceIndex === activeIndex;
+            const scale = isActive ? 1 : Math.max(0, 1 - Math.abs(sourceDiff) * 0.1) / CONFIG.scaleFactor;
+            const opacityBase = isActive ? 1 : Math.max(0, 1 - Math.abs(sourceDiff) * CONFIG.opacityFactor);
+            const shouldRender = isOnRightSide && isValidSource;
 
+            if (shouldRender) {
+                const renderedIndex = Number(track.dataset.trackIndex || '-1');
+                const isEmptyCard = track.dataset.emptyCard === '1';
+                const hasPendingSameSource = slotPendingSourceIndex[i] === sourceIndex;
+                if ((renderedIndex !== sourceIndex || isEmptyCard) && !hasPendingSameSource) {
+                    bindSlotSourceAsync(i, sourceIndex);
+                }
+            }
+
+            const readyAt = slotContentReadyAt[i] || 0;
+            const isRealContent = track.dataset.emptyCard !== '1';
+            const fadeProgress = readyAt > 0
+                ? clamp((performance.now() - readyAt) / Math.max(1, CONFIG.contentFadeInMs), 0, 1)
+                : 1;
+            const opacity = shouldRender ? opacityBase : 0;
+
+            track.style.display = shouldRender ? 'flex' : 'none';
             track.style.transform = `translate3d(${x}px, ${y}px, 0px) scale(${scale})`;
-            track.style.opacity = opacity;
-            track.classList.toggle('active', i === activeIndex);
-            track.style.zIndex = CONFIG.activeZIndex - Math.abs(activeIndex - i);
+            track.style.opacity = String(opacity);
+            track.style.visibility = shouldRender ? 'visible' : 'hidden';
+            track.style.pointerEvents = shouldRender ? 'auto' : 'none';
+            track.classList.toggle('active', isActive);
+            track.style.zIndex = String(CONFIG.activeZIndex - Math.round(Math.abs(sourceDiff)));
+
+            const contentOpacity = isRealContent ? String(fadeProgress) : '1';
+            const contentEl = track.querySelector('.track-content');
+            const coverEl = track.querySelector('.track-cover');
+            const imageEl = track.querySelector('.track-image');
+            const metaEl = track.querySelector('.track-meta-html');
+            if (contentEl) contentEl.style.opacity = contentOpacity;
+            if (coverEl) coverEl.style.opacity = contentOpacity;
+            if (imageEl) imageEl.style.opacity = contentOpacity;
+            if (metaEl) metaEl.style.opacity = contentOpacity;
+
+            // 强制图片和内容同节奏淡入
+            const imgs = track.querySelectorAll('.track-cover img, .track-image img');
+            imgs.forEach((img) => {
+                img.style.setProperty('opacity', contentOpacity, 'important');
+            });
         }
 
         if (activeIndex !== lastActiveIndex) {
             lastActiveIndex = activeIndex;
-            updateDetail(tracks[activeIndex]);
+            updateDetail(sourceTracks[activeIndex]);
         } else if (Math.abs(offset - targetOffset) < CONFIG.gapThreshold) {
             container.classList.add('show-bg');
         } else {
@@ -293,12 +583,12 @@
     }
 
     // ================================
-    // 鼠标滚轮事件（统一 scrollUnit） 
+    // 鼠标滚轮事件（统一 scrollUnit）
     // ================================
     function handleWheel(e) {
         e.preventDefault();
         const deltaOffset = e.deltaY / CONFIG.scrollUnit;
-        targetOffset = Math.max(0, Math.min(tracks.length - 1, targetOffset - deltaOffset));
+        targetOffset = Math.max(0, Math.min(sourceTracks.length - 1, targetOffset + deltaOffset));
         startSnapTimer();
     }
 
@@ -321,7 +611,7 @@
         e.preventDefault();
         const deltaY = e.touches[0].clientY - startY;
         targetOffset = startOffset + deltaY * CONFIG.touchMoveFactor;
-        targetOffset = Math.max(0, Math.min(tracks.length - 1, targetOffset));
+        targetOffset = Math.max(0, Math.min(sourceTracks.length - 1, targetOffset));
     }
 
     function handleTouchEnd() {
@@ -339,8 +629,11 @@
             const delta = (timestamp - lastTime) / 1000;
             lastTime = timestamp;
 
-            offset += (targetOffset - offset) * delta * CONFIG.animateSpeed;
-            render(timestamp);
+            if (delta > 0) {
+                offset += (targetOffset - offset) * delta * CONFIG.animateSpeed;
+            }
+
+            render();
         }
         animationFrameId = requestAnimationFrame(animate);
     }
@@ -350,6 +643,12 @@
     // ================================
     function initOsuWheel() {
         if (animationFrameId) cancelAnimationFrame(animationFrameId);
+        if (slotRenderRafId !== null) {
+            cancelAnimationFrame(slotRenderRafId);
+            slotRenderRafId = null;
+        }
+        slotRenderUnlockAt = 0;
+        slotRenderCursor = 0;
         if (snapTimer) clearTimeout(snapTimer);
         if (detailTimer) clearTimeout(detailTimer);
         if (resizeObserver) resizeObserver.disconnect();
@@ -359,8 +658,6 @@
         }
 
         lastActiveIndex = -1;
-        offset = 0;
-        targetOffset = 0;
         container = document.querySelector('.osu-container');
         osuWheel = document.querySelector('.osu-wheel');
         const timeline = document.querySelector('.osu-timeline');
@@ -375,16 +672,19 @@
         }
 
         initTracks();
+        if (!sourceTracks.length) return;
+        offset = Math.max(0, sourceTracks.length - 1);
+        targetOffset = offset;
 
         if (timelineSlider) {
             timelineSlider.min = '0';
-            timelineSlider.max = String(Math.max(0, tracks.length - 1));
+            timelineSlider.max = String(Math.max(0, sourceTracks.length - 1));
             timelineSlider.step = '0.01';
-            timelineSlider.value = String(Math.max(0, tracks.length - 1));
+            timelineSlider.value = String(Math.max(0, sourceTracks.length - 1));
 
             timelineSlider.addEventListener('input', () => {
                 if (!isSliderDragging) {
-                    targetOffset = clamp(sliderToOffset(timelineSlider.value), 0, Math.max(0, tracks.length - 1));
+                    targetOffset = clamp(sliderToOffset(timelineSlider.value), 0, Math.max(0, sourceTracks.length - 1));
                 }
             });
 
@@ -417,9 +717,9 @@
             });
         }
 
-        initTrackStyles();
         initTrackInteraction();
         observeTrackHeights();
+        syncPoolAssignments();
         forceTitleTruncation();
         titleResizeHandler = () => applyManualTitleTruncation();
         window.addEventListener('resize', titleResizeHandler);
