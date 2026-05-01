@@ -263,7 +263,7 @@
     flex-direction: column;
     justify-content: center;
     gap: 0.15rem;
-    touch-action: pan-y;
+    touch-action: none;
     z-index: 260;
   }
   .osu-timeline span.label {
@@ -290,6 +290,7 @@
     border: 0;
     outline: none;
     box-shadow: none;
+    touch-action: none;
   }
   .osu-timeline #osu-timeline-slider::-webkit-slider-runnable-track {
     width: 0.165rem;

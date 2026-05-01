@@ -10,6 +10,7 @@
         mobileThreshold: 820,      // 移动端阈值（px）
         radius: 300,               // 圆弧半径
         scrollUnit: 120,           // 一格滚动单位
+        scrollDirection: 1,        // 滚动方向：1 为默认，-1 为反向（scroll/touch 同步）
         animateSpeed: 5,           // 动画速度（数值越大越快）
         touchMoveFactor: 0.05,     // 触屏/拖拽灵敏度
         opacityFactor: 0.15,       // 不透明度衰减因子
@@ -43,6 +44,8 @@
     let isSliderDragging = false;
     let sliderPointerId = null;
     let titleResizeHandler = null;
+    let isTimelineTouchDragging = false;
+    let timelineTouchStartY = 0;
 
     let sourceTracks = [];
     let trackPool = [];
@@ -591,7 +594,7 @@
     // ================================
     function handleWheel(e) {
         e.preventDefault();
-        const deltaOffset = e.deltaY / CONFIG.scrollUnit;
+        const deltaOffset = (e.deltaY / CONFIG.scrollUnit) * CONFIG.scrollDirection;
         targetOffset = Math.max(0, Math.min(sourceTracks.length - 1, targetOffset + deltaOffset));
         startSnapTimer();
     }
@@ -614,7 +617,8 @@
         if (!isTouchDragging || e.touches.length !== 1) return;
         e.preventDefault();
         const deltaY = e.touches[0].clientY - startY;
-        targetOffset = startOffset + deltaY * CONFIG.touchMoveFactor;
+        const touchDirection = CONFIG.scrollDirection;
+        targetOffset = startOffset + deltaY * CONFIG.touchMoveFactor * touchDirection;
         targetOffset = Math.max(0, Math.min(sourceTracks.length - 1, targetOffset));
     }
 
@@ -669,10 +673,52 @@
         if (!container || !osuWheel) return;
 
         if (timeline) {
-            const absorbEvents = ['wheel', 'touchstart', 'touchmove', 'touchend', 'pointerdown', 'pointermove', 'pointerup', 'mousedown', 'mouseup', 'click'];
+            // 吞掉事件，避免 timeline 面板滚动/拖动触发页面或外层 wheel 行为
+            const absorbEvents = ['pointerdown', 'pointermove', 'pointerup', 'mousedown', 'mouseup', 'click'];
             absorbEvents.forEach((eventName) => {
                 timeline.addEventListener(eventName, (e) => e.stopPropagation(), { passive: true });
             });
+
+            timeline.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (!sourceTracks.length) return;
+                const deltaOffset = (e.deltaY / CONFIG.scrollUnit) * CONFIG.scrollDirection;
+                targetOffset = clamp(targetOffset + deltaOffset, 0, Math.max(0, sourceTracks.length - 1));
+                startSnapTimer();
+            }, { passive: false });
+
+            timeline.addEventListener('touchstart', (e) => {
+                e.stopPropagation();
+                if (!isPortraitMode() || e.touches.length !== 1 || !sourceTracks.length) return;
+                isTimelineTouchDragging = true;
+                timelineTouchStartY = e.touches[0].clientY;
+                startOffset = targetOffset;
+                if (snapTimer) clearTimeout(snapTimer);
+            }, { passive: true });
+
+            timeline.addEventListener('touchmove', (e) => {
+                e.stopPropagation();
+                if (!isTimelineTouchDragging || !isPortraitMode() || e.touches.length !== 1 || !sourceTracks.length) return;
+                e.preventDefault();
+                const deltaY = e.touches[0].clientY - timelineTouchStartY;
+                const touchDirection = CONFIG.scrollDirection;
+                targetOffset = clamp(startOffset + deltaY * CONFIG.touchMoveFactor * touchDirection, 0, Math.max(0, sourceTracks.length - 1));
+            }, { passive: false });
+
+            timeline.addEventListener('touchend', (e) => {
+                e.stopPropagation();
+                if (!isTimelineTouchDragging) return;
+                isTimelineTouchDragging = false;
+                startSnapTimer();
+            }, { passive: true });
+
+            timeline.addEventListener('touchcancel', (e) => {
+                e.stopPropagation();
+                if (!isTimelineTouchDragging) return;
+                isTimelineTouchDragging = false;
+                startSnapTimer();
+            }, { passive: true });
         }
 
         initTracks();
