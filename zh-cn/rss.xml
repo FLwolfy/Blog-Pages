@@ -21,14 +21,14 @@
         <category term=" anime" />
         <category term=" 动漫" />
         <item>
-            <guid isPermalink="true">https://blog.flwolfy.xyz/game/review/wothn-review/</guid>
+            <guid isPermalink="true">https://blog.flwolfy.xyz/acg/review/wothn-review/</guid>
             <title>旮旯杂谈之《魔法使之夜》，细腻平稳的奇幻故事</title>
-            <link>https://blog.flwolfy.xyz/game/review/wothn-review/</link>
-            <category term="游戏" scheme="https://blog.flwolfy.xyz/categories/game/" />
-            <category term="赏析" scheme="https://blog.flwolfy.xyz/categories/game/review/" />
-            <category term="型月" scheme="https://blog.flwolfy.xyz/tags/type-moon/" />
-            <category term="Gal" scheme="https://blog.flwolfy.xyz/tags/gal/" />
-            <category term="杂谈" scheme="https://blog.flwolfy.xyz/tags/misc/" />
+            <link>https://blog.flwolfy.xyz/acg/review/wothn-review/</link>
+            <category term="ACG" scheme="https://blog.flwolfy.xyz/categories/acg/" />
+            <category term="赏析" scheme="https://blog.flwolfy.xyz/categories/acg/review/" />
+            <category term="型月" scheme="https://blog.flwolfy.xyz/tags/tag-76a61e2f5b84/" />
+            <category term="Gal" scheme="https://blog.flwolfy.xyz/tags/tag-93c410467860/" />
+            <category term="杂谈" scheme="https://blog.flwolfy.xyz/tags/tag-36c07fc2ca65/" />
             <pubDate>Fri, 31 Oct 2025 16:00:00 +0000</pubDate>
             <description><![CDATA[ &lt;h1 id=&#34;阅读前须知&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#阅读前须知&#34;&gt;#&lt;/a&gt; 阅读前须知&lt;/h1&gt;
 &lt;p class=&#34;note warning&#34;&gt;&lt;span class=&#34;pink&#34;&gt;◉&lt;/span&gt; 本篇感想含有剧透内容，请未通关《魔法使之夜》的读者谨慎观看！&lt;br&gt;&lt;span class=&#34;pink&#34;&gt;◉&lt;/span&gt; 
@@ -188,14 +188,14 @@
  ]]></description>
         </item>
         <item>
-            <guid isPermalink="true">https://blog.flwolfy.xyz/game/guide/lucario-guide/</guid>
+            <guid isPermalink="true">https://blog.flwolfy.xyz/acg/guide/lucario-guide/</guid>
             <title>路卡利欧全方位教程</title>
-            <link>https://blog.flwolfy.xyz/game/guide/lucario-guide/</link>
-            <category term="游戏" scheme="https://blog.flwolfy.xyz/categories/game/" />
-            <category term="攻略" scheme="https://blog.flwolfy.xyz/categories/game/guide/" />
-            <category term="攻略" scheme="https://blog.flwolfy.xyz/tags/tutorial/" />
-            <category term="任斗" scheme="https://blog.flwolfy.xyz/tags/ssbu/" />
-            <category term="宝可梦" scheme="https://blog.flwolfy.xyz/tags/pokemon/" />
+            <link>https://blog.flwolfy.xyz/acg/guide/lucario-guide/</link>
+            <category term="ACG" scheme="https://blog.flwolfy.xyz/categories/acg/" />
+            <category term="攻略" scheme="https://blog.flwolfy.xyz/categories/acg/guide/" />
+            <category term="任斗" scheme="https://blog.flwolfy.xyz/tags/tag-04d1b3974390/" />
+            <category term="宝可梦" scheme="https://blog.flwolfy.xyz/tags/tag-d1107c563188/" />
+            <category term="攻略" scheme="https://blog.flwolfy.xyz/tags/tag-27bc88d254f8/" />
             <pubDate>Fri, 20 Jun 2025 16:00:00 +0000</pubDate>
             <description><![CDATA[ &lt;h1 id=&#34;前言和申明&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#前言和申明&#34;&gt;#&lt;/a&gt; 前言和申明&lt;/h1&gt;
 &lt;p class=&#34;note warning&#34;&gt;&lt;span class=&#34;pink&#34;&gt;◉&lt;/span&gt; 本指南旨在帮助准备练习《任天堂明星大乱斗—特别版》中路卡利欧的玩家了解路卡利欧的整体定位与玩法思路，并充当一个查阅百科的作用。该指南要求玩家对大乱斗中各类术语有一定了解。我将常见问题整理成清晰的结构，方便查阅与学习。&lt;br&gt;&lt;span class=&#34;pink&#34;&gt;◉&lt;/span&gt; 
@@ -430,13 +430,14 @@
  ]]></description>
         </item>
         <item>
-            <guid isPermalink="true">https://blog.flwolfy.xyz/anime/pilgrimage/sg-visit/</guid>
+            <guid isPermalink="true">https://blog.flwolfy.xyz/acg/pilgrimage/sg-visit/</guid>
             <title>《命运石之门》圣地巡礼</title>
-            <link>https://blog.flwolfy.xyz/anime/pilgrimage/sg-visit/</link>
-            <category term="动漫" scheme="https://blog.flwolfy.xyz/categories/anime/" />
-            <category term="圣地巡礼" scheme="https://blog.flwolfy.xyz/categories/anime/pilgrimage/" />
-            <category term="旅游" scheme="https://blog.flwolfy.xyz/tags/travel/" />
-            <category term="秋叶原" scheme="https://blog.flwolfy.xyz/tags/akihabara/" />
+            <link>https://blog.flwolfy.xyz/acg/pilgrimage/sg-visit/</link>
+            <category term="ACG" scheme="https://blog.flwolfy.xyz/categories/acg/" />
+            <category term="巡礼" scheme="https://blog.flwolfy.xyz/categories/acg/pilgrimage/" />
+            <category term="旅游" scheme="https://blog.flwolfy.xyz/tags/tag-49a9d6b3c363/" />
+            <category term="秋叶原" scheme="https://blog.flwolfy.xyz/tags/tag-1fe44f2e3c13/" />
+            <category term="圣地巡礼" scheme="https://blog.flwolfy.xyz/tags/tag-f958642d785a/" />
             <pubDate>Mon, 26 May 2025 16:00:00 +0000</pubDate>
             <description><![CDATA[ &lt;h1 id=&#34;图片所有权声明&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#图片所有权声明&#34;&gt;#&lt;/a&gt; 图片所有权声明&lt;/h1&gt;
 &lt;p class=&#34;note warning&#34;&gt;&lt;span class=&#34;pink&#34;&gt;◉&lt;/span&gt; 大部分实景图片为本人及朋友（已授权）拍摄，未经允许请勿使用！&lt;br&gt;&lt;span class=&#34;pink&#34;&gt;◉&lt;/span&gt; 
@@ -580,12 +581,13 @@
  ]]></description>
         </item>
         <item>
-            <guid isPermalink="true">https://blog.flwolfy.xyz/other/announce/</guid>
+            <guid isPermalink="true">https://blog.flwolfy.xyz/other/announce/announce/</guid>
             <title>公告栏</title>
-            <link>https://blog.flwolfy.xyz/other/announce/</link>
+            <link>https://blog.flwolfy.xyz/other/announce/announce/</link>
             <category term="其他" scheme="https://blog.flwolfy.xyz/categories/other/" />
-            <category term="公告" scheme="https://blog.flwolfy.xyz/tags/%E5%85%AC%E5%91%8A/" />
-            <category term="攻略" scheme="https://blog.flwolfy.xyz/tags/tutorial/" />
+            <category term="公告" scheme="https://blog.flwolfy.xyz/categories/other/announce/" />
+            <category term="攻略" scheme="https://blog.flwolfy.xyz/tags/tag-27bc88d254f8/" />
+            <category term="公告" scheme="https://blog.flwolfy.xyz/tags/tag-3f9569532847/" />
             <pubDate>Sat, 12 Apr 2025 16:00:00 +0000</pubDate>
             <description><![CDATA[ &lt;h1 id=&#34;公告栏须知&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#公告栏须知&#34;&gt;#&lt;/a&gt; 公告栏须知&lt;/h1&gt;
 &lt;p class=&#34;note warning&#34;&gt;&lt;span class=&#34;pink&#34;&gt;◉&lt;/span&gt; 本公告栏内容具有时效性，建议定期查看来获得最新内容。&lt;br&gt;&lt;span class=&#34;pink&#34;&gt;◉&lt;/span&gt; 

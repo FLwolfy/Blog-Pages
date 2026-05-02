@@ -18,9 +18,9 @@
     <category term=" anime" />
     <category term=" 動漫" />
     <entry>
-        <id>https://blog.flwolfy.xyz/game/review/wothn-review/</id>
+        <id>https://blog.flwolfy.xyz/acg/review/wothn-review/</id>
         <title>旮旯雜談之《魔法使之夜》，細膩平穩的奇幻故事</title>
-        <link rel="alternate" href="https://blog.flwolfy.xyz/game/review/wothn-review/"/>
+        <link rel="alternate" href="https://blog.flwolfy.xyz/acg/review/wothn-review/"/>
         <content type="html">&lt;h1 id=&#34;閱讀前須知&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#閱讀前須知&#34;&gt;#&lt;/a&gt; 閱讀前須知&lt;/h1&gt;
 &lt;p class=&#34;note warning&#34;&gt;&lt;span class=&#34;pink&#34;&gt;◉&lt;/span&gt; 本篇感想含有劇透內容，請未通關《魔法使之夜》的讀者謹慎觀看！&lt;br&gt;&lt;span class=&#34;pink&#34;&gt;◉&lt;/span&gt; 
 此感想純作者主觀感受，部分內容參考了 &lt;a href=&#34;https://www.bilibili.com/opus/522824492042434554&#34;&gt;Bilibili&lt;/a&gt; 和 &lt;a href=&#34;https://forum.gamer.com.tw/C.php?bsn=9009&amp;amp;snA=10038&#34;&gt;巴哈姆特&lt;/a&gt; 上的賞析文章，融合了我自身的觀點。如果有任何觀點引起你的反感，請無視～&lt;br&gt;&lt;span class=&#34;pink&#34;&gt;◉&lt;/span&gt; 
@@ -177,17 +177,17 @@
 &lt;/ol&gt;
 &lt;p&gt;但正是這些“不完美”，賦予了作品獨特的魅力。人物理想化與現實衝突產生張力，使讀者在象徵與真實之間反思社會、人性與時代；情節隱晦又富含日常摩擦，強化了生活真實感；抽象的社會批判引導讀者主動思考，而非被動接受。《魔法使之夜》的這些“不完美”反倒使它更加優秀和值得思考，呈現出超越表面故事的深度，使作品成為一部值得反覆品味、能夠激發思考的文學藝術作品。&lt;/p&gt;
 </content>
-        <category term="遊戲" scheme="https://blog.flwolfy.xyz/categories/game/" />
-        <category term="賞析" scheme="https://blog.flwolfy.xyz/categories/game/review/" />
-        <category term="型月" scheme="https://blog.flwolfy.xyz/tags/type-moon/" />
-        <category term="Gal" scheme="https://blog.flwolfy.xyz/tags/gal/" />
-        <category term="雜談" scheme="https://blog.flwolfy.xyz/tags/misc/" />
+        <category term="ACG" scheme="https://blog.flwolfy.xyz/categories/acg/" />
+        <category term="賞析" scheme="https://blog.flwolfy.xyz/categories/acg/review/" />
+        <category term="型月" scheme="https://blog.flwolfy.xyz/tags/tag-76a61e2f5b84/" />
+        <category term="Gal" scheme="https://blog.flwolfy.xyz/tags/tag-93c410467860/" />
+        <category term="雜談" scheme="https://blog.flwolfy.xyz/tags/tag-36c07fc2ca65/" />
         <updated>2025-10-31T16:00:00.000Z</updated>
     </entry>
     <entry>
-        <id>https://blog.flwolfy.xyz/game/guide/lucario-guide/</id>
+        <id>https://blog.flwolfy.xyz/acg/guide/lucario-guide/</id>
         <title>路卡利歐全方位教程</title>
-        <link rel="alternate" href="https://blog.flwolfy.xyz/game/guide/lucario-guide/"/>
+        <link rel="alternate" href="https://blog.flwolfy.xyz/acg/guide/lucario-guide/"/>
         <content type="html">&lt;h1 id=&#34;前言和申明&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#前言和申明&#34;&gt;#&lt;/a&gt; 前言和申明&lt;/h1&gt;
 &lt;p class=&#34;note warning&#34;&gt;&lt;span class=&#34;pink&#34;&gt;◉&lt;/span&gt; 本指南旨在幫助準備練習《任天堂明星大亂鬥—特別版》中路卡利歐的玩家瞭解路卡利歐的整體定位與玩法思路，並充當一個查閱百科的作用。該指南要求玩家對大亂鬥中各類術語有一定了解。我將常見問題整理成清晰的結構，方便查閱與學習。&lt;br&gt;&lt;span class=&#34;pink&#34;&gt;◉&lt;/span&gt; 
 本資料的內容整合參考國外大佬 &lt;em&gt;NewBae&lt;/em&gt; 的路卡利歐教學與我自己對於路卡職業選手研究，並融合了我自身對路卡角色的實戰經驗。本文章內相關影像素材部分來自 &lt;em&gt;Ultimate Frame Data&lt;/em&gt; 、 &lt;em&gt;Smash Wiki&lt;/em&gt; 等網站。&lt;br&gt;&lt;span class=&#34;pink&#34;&gt;◉&lt;/span&gt; 
@@ -419,17 +419,17 @@
 &lt;h2 id=&#34;後續-following&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#後續-following&#34;&gt;#&lt;/a&gt; 後續 | Following&lt;/h2&gt;
 &lt;p&gt;這邊路卡利歐的大部分攻擊招式和幀數就算寫完了。但這不代表路卡利歐的教學在此結束。後續將會持續更新包括但不限於：基礎連段、進階連段、板與受身擇、立回思路、技巧練習等，敬請期待～&lt;/p&gt;
 </content>
-        <category term="遊戲" scheme="https://blog.flwolfy.xyz/categories/game/" />
-        <category term="攻略" scheme="https://blog.flwolfy.xyz/categories/game/guide/" />
-        <category term="攻略" scheme="https://blog.flwolfy.xyz/tags/tutorial/" />
-        <category term="任鬥" scheme="https://blog.flwolfy.xyz/tags/ssbu/" />
-        <category term="寶可夢" scheme="https://blog.flwolfy.xyz/tags/pokemon/" />
+        <category term="ACG" scheme="https://blog.flwolfy.xyz/categories/acg/" />
+        <category term="攻略" scheme="https://blog.flwolfy.xyz/categories/acg/guide/" />
+        <category term="任鬥" scheme="https://blog.flwolfy.xyz/tags/tag-04d1b3974390/" />
+        <category term="寶可夢" scheme="https://blog.flwolfy.xyz/tags/tag-d1107c563188/" />
+        <category term="攻略" scheme="https://blog.flwolfy.xyz/tags/tag-27bc88d254f8/" />
         <updated>2025-06-20T16:00:00.000Z</updated>
     </entry>
     <entry>
-        <id>https://blog.flwolfy.xyz/anime/pilgrimage/sg-visit/</id>
+        <id>https://blog.flwolfy.xyz/acg/pilgrimage/sg-visit/</id>
         <title>《命運石之門》聖地巡禮</title>
-        <link rel="alternate" href="https://blog.flwolfy.xyz/anime/pilgrimage/sg-visit/"/>
+        <link rel="alternate" href="https://blog.flwolfy.xyz/acg/pilgrimage/sg-visit/"/>
         <content type="html">&lt;h1 id=&#34;圖片所有權聲明&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#圖片所有權聲明&#34;&gt;#&lt;/a&gt; 圖片所有權聲明&lt;/h1&gt;
 &lt;p class=&#34;note warning&#34;&gt;&lt;span class=&#34;pink&#34;&gt;◉&lt;/span&gt; 大部分實景圖片為本人及朋友（已授權）拍攝，未經允許請勿使用！&lt;br&gt;&lt;span class=&#34;pink&#34;&gt;◉&lt;/span&gt; 
 動漫內部圖片均為原片截圖以及B站“聖地巡禮”專欄導覽圖，如果這侵犯了你的著作權，請立即聯繫我，我會刪除。&lt;/p&gt;
@@ -570,16 +570,17 @@
 &lt;p&gt;當然本次日本之行也不只去了秋葉原，池袋、東京塔、涉谷等知名景點也都去了，有機會再寫文章分享吧（咕——，有生之年～）。&lt;/p&gt;
 &lt;p&gt;總結：好玩，下次還來！&lt;/p&gt;
 </content>
-        <category term="動漫" scheme="https://blog.flwolfy.xyz/categories/anime/" />
-        <category term="聖地巡禮" scheme="https://blog.flwolfy.xyz/categories/anime/pilgrimage/" />
-        <category term="旅遊" scheme="https://blog.flwolfy.xyz/tags/travel/" />
-        <category term="秋葉原" scheme="https://blog.flwolfy.xyz/tags/akihabara/" />
+        <category term="ACG" scheme="https://blog.flwolfy.xyz/categories/acg/" />
+        <category term="巡禮" scheme="https://blog.flwolfy.xyz/categories/acg/pilgrimage/" />
+        <category term="旅遊" scheme="https://blog.flwolfy.xyz/tags/tag-49a9d6b3c363/" />
+        <category term="秋葉原" scheme="https://blog.flwolfy.xyz/tags/tag-1fe44f2e3c13/" />
+        <category term="聖地巡禮" scheme="https://blog.flwolfy.xyz/tags/tag-f958642d785a/" />
         <updated>2025-05-26T16:00:00.000Z</updated>
     </entry>
     <entry>
-        <id>https://blog.flwolfy.xyz/other/announce/</id>
+        <id>https://blog.flwolfy.xyz/other/announce/announce/</id>
         <title>公告欄</title>
-        <link rel="alternate" href="https://blog.flwolfy.xyz/other/announce/"/>
+        <link rel="alternate" href="https://blog.flwolfy.xyz/other/announce/announce/"/>
         <content type="html">&lt;h1 id=&#34;公告欄須知&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#公告欄須知&#34;&gt;#&lt;/a&gt; 公告欄須知&lt;/h1&gt;
 &lt;p class=&#34;note warning&#34;&gt;&lt;span class=&#34;pink&#34;&gt;◉&lt;/span&gt; 本公告欄內容具有時效性，建議定期查看來獲得最新內容。&lt;br&gt;&lt;span class=&#34;pink&#34;&gt;◉&lt;/span&gt; 
 閱讀評論請注意其發佈時間，以確保溝通交流為同一公告版本內容～&lt;/p&gt;
@@ -610,8 +611,9 @@
 &lt;p&gt;祝願和祈禱站主不鴿🐦吧～&lt;/p&gt;
 </content>
         <category term="其他" scheme="https://blog.flwolfy.xyz/categories/other/" />
-        <category term="公告" scheme="https://blog.flwolfy.xyz/tags/%E5%85%AC%E5%91%8A/" />
-        <category term="攻略" scheme="https://blog.flwolfy.xyz/tags/tutorial/" />
+        <category term="公告" scheme="https://blog.flwolfy.xyz/categories/other/announce/" />
+        <category term="攻略" scheme="https://blog.flwolfy.xyz/tags/tag-27bc88d254f8/" />
+        <category term="公告" scheme="https://blog.flwolfy.xyz/tags/tag-3f9569532847/" />
         <updated>2025-04-12T16:00:00.000Z</updated>
     </entry>
 </feed>
