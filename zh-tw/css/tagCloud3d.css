@@ -1,0 +1,26 @@
+#tag-cloud-3d {
+  position: relative;
+  display: flex; /* 必须加 flex 才能 align-items / justify-content 生效 */
+  align-items: center;
+  justify-content: center;
+  width: calc(300px + 2rem); /* 固定正方形宽度 */
+  height: calc(300px + 2rem); /* 固定正方形高度 */
+  margin: 3rem auto 5rem auto;
+  border-radius: 0.5rem; /* 可选圆角 */
+}
+#tag-cloud-3d .tagcloud {
+  width: 100%;
+  height: 100%;
+  display: block;
+  position: relative;
+}
+#tag-cloud-3d .tagcloud .tagcloud--item {
+  font-size: 1.2rem;
+  color: var(--color-orange);
+  transition: all 0.3s ease;
+}
+#tag-cloud-3d .tagcloud .tagcloud--item:hover {
+  color: var(--color-pink); /* 改变颜色 */
+  text-shadow: 0 0 0.5rem var(--color-pink); /* 发光效果 */
+  cursor: pointer;
+}
