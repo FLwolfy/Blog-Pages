@@ -10,11 +10,9 @@ Allow: /{lang}/aboutsite/
 Allow: /{lang}/stats/
 # @i18n-prefix-end
 
-# @i18n-prefix-begin
-Disallow: /{lang}/vendors/
-Disallow: /{lang}/fonts/
-Disallow: /{lang}/fancybox/
-# @i18n-prefix-end
+# Keep static assets crawlable for rendering/indexing quality.
+Disallow: /api/
+Disallow: /admin/
 
 # @i18n-prefix-begin
 Sitemap: https://blog.flwolfy.xyz/sitemap.{lang}.xml
