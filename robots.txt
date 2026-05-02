@@ -1,0 +1,25 @@
+User-agent: *
+
+Allow: /
+Allow: /zh-cn/
+Allow: /zh-cn/archives/
+Allow: /zh-cn/tags/
+Allow: /zh-cn/categories/
+Allow: /zh-cn/aboutsite/
+Allow: /zh-cn/stats/
+Allow: /zh-tw/
+Allow: /zh-tw/archives/
+Allow: /zh-tw/tags/
+Allow: /zh-tw/categories/
+Allow: /zh-tw/aboutsite/
+Allow: /zh-tw/stats/
+
+Disallow: /zh-cn/vendors/
+Disallow: /zh-cn/fonts/
+Disallow: /zh-cn/fancybox/
+Disallow: /zh-tw/vendors/
+Disallow: /zh-tw/fonts/
+Disallow: /zh-tw/fancybox/
+
+Sitemap: https://blog.flwolfy.xyz/sitemap.zh-cn.xml
+Sitemap: https://blog.flwolfy.xyz/sitemap.zh-tw.xml
