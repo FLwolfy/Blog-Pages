@@ -12,5 +12,5 @@ Disallow: /css/
 Disallow: /fonts/
 Disallow: /fancybox/
 
-Sitemap: https://blog.flwolfy.xyz/sitemap.zh_cn.xml
-Sitemap: https://blog.flwolfy.xyz/sitemap.zh_tw.xml
+Sitemap: https://blog.flwolfy.xyz/sitemap.zh-cn.xml
+Sitemap: https://blog.flwolfy.xyz/sitemap.zh-tw.xml
