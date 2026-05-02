@@ -23,3 +23,4 @@ Disallow: /zh-tw/fancybox/
 
 Sitemap: https://blog.flwolfy.xyz/sitemap.zh-cn.xml
 Sitemap: https://blog.flwolfy.xyz/sitemap.zh-tw.xml
+Sitemap: https://blog.flwolfy.xyz/sitemap.xml

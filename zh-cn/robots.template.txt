@@ -19,3 +19,4 @@ Disallow: /{lang}/fancybox/
 # @i18n-prefix-begin
 Sitemap: https://blog.flwolfy.xyz/sitemap.{lang}.xml
 # @i18n-prefix-end
+Sitemap: https://blog.flwolfy.xyz/sitemap.xml
