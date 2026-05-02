@@ -519,6 +519,12 @@
     line-height: 0.8rem;
   }
 }
+@media (max-width: 820px) and (orientation: portrait) {
+  .track-content .track-description {
+    padding-left: 0.3rem;
+    box-sizing: border-box;
+  }
+}
 /* ==============================
    track-meta-container：条目 Meta 信息
    ============================== */

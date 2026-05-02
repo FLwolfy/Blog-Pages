@@ -169,7 +169,8 @@
 
   function applyVariant(variant) {
     activeVariant = variant;
-    document.documentElement.setAttribute('lang', variant === 'zh-TW' ? 'zh-Hant' : 'zh-Hans');
+    // Keep lang aligned with Pagefind language keys (zh-tw / zh-cn indexes).
+    document.documentElement.setAttribute('lang', variant === 'zh-TW' ? 'zh-TW' : 'zh-CN');
     convertDom(document.body || document.documentElement, variant);
     convertTitle(variant);
   }
