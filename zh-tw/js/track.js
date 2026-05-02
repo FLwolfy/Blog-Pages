@@ -245,6 +245,23 @@
         }
     }
 
+    function bindSlotSourceSync(slotIndex, sourceIndex) {
+        const slot = trackPool[slotIndex];
+        if (!slot) return;
+
+        slotPendingSourceIndex[slotIndex] = null;
+        poolAssignments[slotIndex] = sourceIndex;
+        slotUpdateTokens[slotIndex] = (slotUpdateTokens[slotIndex] || 0) + 1;
+
+        if (sourceIndex >= 0 && sourceIndex < sourceTracks.length) {
+            applyTrackDataToSlot(slot, sourceTracks[sourceIndex], sourceIndex);
+        } else {
+            applyEmptySlot(slot);
+        }
+        // 首屏同步渲染不做淡入，直接完整显示
+        slotContentReadyAt[slotIndex] = 0;
+    }
+
     function hasPendingSlotRenders() {
         for (let i = 0; i < slotPendingSourceIndex.length; i++) {
             if (slotPendingSourceIndex[i] !== null) return true;
@@ -423,7 +440,7 @@
     // ================================
     // 更新右侧 detail 区内容
     // ================================
-    function updateDetail(activeTrackData) {
+    function updateDetail(activeTrackData, immediate = false) {
         const elems = getDetailElements();
         if (!elems || !activeTrackData) return;
 
@@ -451,6 +468,12 @@
             if (link.href !== newLink) link.href = newLink;
         };
 
+        if (immediate) {
+            if (detailTimer) clearTimeout(detailTimer);
+            apply();
+            return;
+        }
+
         detail.classList.remove('fade-in');
         detail.classList.add('fade-out');
         if (detailTimer) clearTimeout(detailTimer);
@@ -466,7 +489,7 @@
         if (poolAssignments.every((v) => v === -1)) {
             currentPoolHeadSource = desiredHead;
             for (let i = 0; i < trackPool.length; i++) {
-                bindSlotSourceAsync(i, currentPoolHeadSource + i);
+                bindSlotSourceSync(i, currentPoolHeadSource + i);
             }
             return;
         }
@@ -577,8 +600,9 @@
         }
 
         if (activeIndex !== lastActiveIndex) {
+            const isFirstDetailPaint = lastActiveIndex === -1;
             lastActiveIndex = activeIndex;
-            updateDetail(sourceTracks[activeIndex]);
+            updateDetail(sourceTracks[activeIndex], isFirstDetailPaint);
         } else if (Math.abs(offset - targetOffset) < CONFIG.gapThreshold) {
             container.classList.add('show-bg');
         } else {
