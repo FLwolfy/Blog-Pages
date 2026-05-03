@@ -326,67 +326,18 @@
         document.documentElement.setAttribute('data-theme', 'dark');
       }
 
-      function withTimeout(promise, ms) {
-        return Promise.race([
-          promise,
-          new Promise(function (resolve) {
-            setTimeout(function () { resolve(null); }, ms);
-          })
-        ]);
-      }
-
-      function parseCountryCode(data) {
-        if (!data || typeof data !== 'object') return '';
-        var value = data.country_code || data.countryCode || data.country || '';
-        return String(value).toUpperCase();
-      }
-
-      function detectCountryCode() {
-        return withTimeout(
-          fetch('https://api.country.is/', { method: 'GET' })
-            .then(function (res) { return res.ok ? res.json() : null; })
-            .then(function (data) {
-              var code = parseCountryCode(data);
-              if (code) return code;
-              return fetch('https://ipapi.co/json/', { method: 'GET' })
-                .then(function (res) { return res.ok ? res.json() : null; })
-                .then(function (fallbackData) { return parseCountryCode(fallbackData); })
-                .catch(function () { return ''; });
-            })
-            .catch(function () { return ''; }),
-          1500
-        ).then(function (code) {
-          return code || '';
-        });
-      }
-
-      function isLocalPreviewHost() {
-        var host = (window.location && window.location.hostname) ? window.location.hostname.toLowerCase() : '';
-        return host === 'localhost' || host === '127.0.0.1' || host === '::1';
-      }
-
-      if (isLocalPreviewHost()) {
-        document.getElementById('loading').style.display = 'none';
-        document.getElementById('lang-chooser').style.display = 'grid';
-        return;
-      }
-
-      detectCountryCode().then(function (code) {
-        if (!code) {
-          document.getElementById('loading').style.display = 'none';
-          document.getElementById('lang-chooser').style.display = 'grid';
-          return;
+      // Fallback: never leave language gateway stuck on loading.
+      setTimeout(function () {
+        var loadingEl = document.getElementById('loading');
+        var chooserEl = document.getElementById('lang-chooser');
+        if (!loadingEl || !chooserEl) return;
+        if (loadingEl.style.display !== 'none' && chooserEl.style.display !== 'grid') {
+          loadingEl.style.display = 'none';
+          chooserEl.style.display = 'grid';
         }
-        if (code === 'CN') {
-          window.location.replace('/zh-cn/');
-          return;
-        }
-        window.location.replace('/zh-tw/');
-      }).catch(function () {
-        document.getElementById('loading').style.display = 'none';
-        document.getElementById('lang-chooser').style.display = 'grid';
-      });
+      }, 2000);
     })();
   </script>
+  <script src="/js/lang-redirect.js"></script>
 </body>
 </html>

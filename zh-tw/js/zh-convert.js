@@ -7,8 +7,6 @@
     'SCRIPT', 'STYLE', 'CODE', 'PRE', 'KBD', 'SAMP', 'TEXTAREA', 'INPUT', 'OPTION', 'SELECT', 'NOSCRIPT'
   ]);
   var EXCLUDE_CLASS = 'no-opencc';
-  var ROOT_CN_PATH = '/zh_cn/';
-  var ROOT_TW_PATH = '/zh_tw/';
 
   var twConverter = null;
   var cnConverter = null;
@@ -38,91 +36,6 @@
     return shouldUseTraditionalByLocale() ? 'zh-TW' : 'zh-CN';
   }
 
-  function normalizeRootPath(path) {
-    if (!path) return '/';
-    return path.replace(/\/+$/, '') || '/';
-  }
-
-  function shouldRedirectFromRoot() {
-    var pathName = (window.location && window.location.pathname) ? normalizeRootPath(window.location.pathname) : '/';
-    return pathName === '/' || pathName === '/index.html';
-  }
-
-  function withTimeout(promise, ms) {
-    return Promise.race([
-      promise,
-      new Promise(function (resolve) {
-        setTimeout(function () {
-          resolve(null);
-        }, ms);
-      })
-    ]);
-  }
-
-  function parseCountryCode(data) {
-    if (!data || typeof data !== 'object') return '';
-    var value = data.country_code || data.countryCode || data.country || '';
-    return String(value).toUpperCase();
-  }
-
-  function detectCountryCode() {
-    // Try a primary endpoint and then a fallback endpoint.
-    return withTimeout(
-      fetch('https://api.country.is/', { method: 'GET' })
-        .then(function (res) {
-          if (!res.ok) return null;
-          return res.json();
-        })
-        .then(function (data) {
-          var code = parseCountryCode(data);
-          if (code) return code;
-          return fetch('https://ipapi.co/json/', { method: 'GET' })
-            .then(function (res) {
-              if (!res.ok) return null;
-              return res.json();
-            })
-            .then(function (fallbackData) {
-              return parseCountryCode(fallbackData);
-            })
-            .catch(function () { return ''; });
-        })
-        .catch(function () {
-          return fetch('https://ipapi.co/json/', { method: 'GET' })
-            .then(function (res) {
-              if (!res.ok) return null;
-              return res.json();
-            })
-            .then(function (fallbackData) {
-              return parseCountryCode(fallbackData);
-            })
-            .catch(function () { return ''; });
-        }),
-      1500
-    ).then(function (code) {
-      return code || '';
-    });
-  }
-
-  function redirectByCountryCode(code) {
-    if (!code) return false;
-    var targetPath = code === 'CN' ? ROOT_CN_PATH : ROOT_TW_PATH;
-    var current = (window.location && window.location.pathname) ? window.location.pathname : '/';
-    if (current === targetPath || current === targetPath.replace(/\/$/, '')) return false;
-    window.location.replace(targetPath);
-    return true;
-  }
-
-  function handleRootLanguageRedirect() {
-    if (!shouldRedirectFromRoot()) return Promise.resolve(false);
-    return detectCountryCode()
-      .then(function (code) {
-        return redirectByCountryCode(code);
-      })
-      .catch(function () {
-        // Keep default language selection page when geolocation fails.
-        return false;
-      });
-  }
 
   function isExcludedNode(node) {
     var p = node.parentElement;
@@ -204,8 +117,9 @@
 
   function initConverters() {
     if (!window.OpenCC || !window.OpenCC.Converter) return false;
-    twConverter = window.OpenCC.Converter({ from: 'cn', to: 'tw' });
-    cnConverter = window.OpenCC.Converter({ from: 'tw', to: 'cn' });
+    // Use phrase-aware Taiwan conversion in both directions.
+    twConverter = window.OpenCC.Converter({ from: 'cn', to: 'twp' });
+    cnConverter = window.OpenCC.Converter({ from: 'twp', to: 'cn' });
     return true;
   }
 
@@ -242,20 +156,17 @@
   }
 
   function boot() {
-    handleRootLanguageRedirect().then(function (redirected) {
-      if (redirected) return;
-      loadOpenCC()
-        .then(function () {
-          if (!initConverters()) return;
-          exposeApi();
-          bindLifecycle();
-          observeDomChanges();
-          scheduleApplyVariant(getPreferredVariant());
-        })
-        .catch(function (err) {
-          console.warn('[zh-convert] OpenCC load failed:', err);
-        });
-    });
+    loadOpenCC()
+      .then(function () {
+        if (!initConverters()) return;
+        exposeApi();
+        bindLifecycle();
+        observeDomChanges();
+        scheduleApplyVariant(getPreferredVariant());
+      })
+      .catch(function (err) {
+        console.warn('[zh-convert] OpenCC load failed:', err);
+      });
   }
 
   if (document.readyState === 'loading') {
