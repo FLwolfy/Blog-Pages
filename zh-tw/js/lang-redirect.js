@@ -1,6 +1,7 @@
 ;(function () {
   var ROOT_CN_PATH = '/zh-cn/';
   var ROOT_TW_PATH = '/zh-tw/';
+  var STORAGE_KEY = 'zh_variant_pref';
 
   function normalizeRootPath(path) {
     if (!path) return '/';
@@ -32,17 +33,19 @@
     return String(value).toUpperCase();
   }
 
+  function fetchCountryCode(url) {
+    return fetch(url, { method: 'GET' })
+      .then(function (res) { return res.ok ? res.json() : null; })
+      .then(function (data) { return parseCountryCode(data); })
+      .catch(function () { return ''; });
+  }
+
   function detectCountryCode() {
     return withTimeout(
-      fetch('https://api.country.is/', { method: 'GET' })
-        .then(function (res) { return res.ok ? res.json() : null; })
-        .then(function (data) {
-          var code = parseCountryCode(data);
+      fetchCountryCode('https://api.country.is/')
+        .then(function (code) {
           if (code) return code;
-          return fetch('https://ipapi.co/json/', { method: 'GET' })
-            .then(function (res) { return res.ok ? res.json() : null; })
-            .then(function (fallbackData) { return parseCountryCode(fallbackData); })
-            .catch(function () { return ''; });
+          return fetchCountryCode('https://ipapi.co/json/');
         })
         .catch(function () { return ''; }),
       1500
@@ -51,11 +54,37 @@
     });
   }
 
+  function getVariantFromLocalStorage() {
+    try {
+      var saved = localStorage.getItem(STORAGE_KEY);
+      if (saved === 'zh-CN') return 'CN';
+      if (saved === 'zh-TW') return 'TW';
+    } catch (e) {}
+    return '';
+  }
+
+  function getVariantFromNavigatorLanguage() {
+    var lang = (navigator.language || '').toLowerCase();
+    if (!lang) return '';
+    if (lang === 'zh-cn' || lang.indexOf('zh-hans') >= 0) return 'CN';
+    if (lang === 'zh-tw' || lang === 'zh-hk' || lang === 'zh-mo' || lang.indexOf('zh-hant') >= 0) return 'TW';
+    return '';
+  }
+
   function showChooser() {
     var loadingEl = document.getElementById('loading');
     var chooserEl = document.getElementById('lang-chooser');
     if (loadingEl) loadingEl.style.display = 'none';
     if (chooserEl) chooserEl.style.display = 'grid';
+  }
+
+  function redirectBySignal(signal) {
+    if (signal === 'CN') {
+      window.location.replace(ROOT_CN_PATH);
+      return;
+    }
+    // Non-local default: always route to zh-tw when not CN.
+    window.location.replace(ROOT_TW_PATH);
   }
 
   function boot() {
@@ -66,18 +95,12 @@
 
     detectCountryCode()
       .then(function (code) {
-        if (!code) {
-          showChooser();
-          return;
-        }
-        if (code === 'CN') {
-          window.location.replace(ROOT_CN_PATH);
-          return;
-        }
-        window.location.replace(ROOT_TW_PATH);
+        var resolved = code || getVariantFromLocalStorage() || getVariantFromNavigatorLanguage();
+        redirectBySignal(resolved);
       })
       .catch(function () {
-        showChooser();
+        var fallback = getVariantFromLocalStorage() || getVariantFromNavigatorLanguage();
+        redirectBySignal(fallback);
       });
   }
 
