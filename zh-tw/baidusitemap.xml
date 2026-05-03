@@ -1,10 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://blog.flwolfy.xyz/zh-tw/other/announce/announce/</loc>
-    <lastmod>2026-05-03</lastmod>
-  </url>
-  <url>
     <loc>https://blog.flwolfy.xyz/zh-tw/acg/guide/lucario-guide/</loc>
     <lastmod>2026-05-03</lastmod>
   </url>
@@ -14,6 +10,10 @@
   </url>
   <url>
     <loc>https://blog.flwolfy.xyz/zh-tw/acg/review/wothn-review/</loc>
+    <lastmod>2026-05-03</lastmod>
+  </url>
+  <url>
+    <loc>https://blog.flwolfy.xyz/zh-tw/other/announce/announce/</loc>
     <lastmod>2026-05-03</lastmod>
   </url>
 </urlset> 

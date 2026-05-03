@@ -360,6 +360,17 @@
         });
       }
 
+      function isLocalPreviewHost() {
+        var host = (window.location && window.location.hostname) ? window.location.hostname.toLowerCase() : '';
+        return host === 'localhost' || host === '127.0.0.1' || host === '::1';
+      }
+
+      if (isLocalPreviewHost()) {
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('lang-chooser').style.display = 'grid';
+        return;
+      }
+
       detectCountryCode().then(function (code) {
         if (!code) {
           document.getElementById('loading').style.display = 'none';
