@@ -8,6 +8,14 @@
   var IP_TIMEOUT = 1800;
   var OPENCC_TIMEOUT = 2500;
   var ATTRS = ['title', 'alt', 'placeholder', 'aria-label'];
+  var USER_CONTENT_SELECTOR = [
+    '#new-comment .item',
+    '#comments .wl-content',
+    '#comments .wl-nick',
+    '#comments .tk-content',
+    '#comments .tk-nick',
+    '#comments .tk-nick-link'
+  ].join(',');
   var SKIP_TAGS = new Set([
     'SCRIPT',
     'STYLE',
@@ -28,6 +36,7 @@
   var readyPromise = null;
   var observer = null;
   var refreshTimer = null;
+  var pendingRefreshRoot = null;
   var observedRoots = new WeakSet();
   var convertedText = new WeakMap();
   var convertedAttrs = new WeakMap();
@@ -117,6 +126,7 @@
       if (node.classList && (node.classList.contains('no-opencc') || node.classList.contains('no-translate'))) {
         return true;
       }
+      if (node.matches && node.matches(USER_CONTENT_SELECTOR)) return true;
       if (node.hasAttribute && node.hasAttribute('data-no-opencc')) return true;
     }
     return false;
@@ -232,19 +242,32 @@
     return document.getElementById('main') || document.body;
   }
 
+  function mergeRefreshRoot(current, next) {
+    if (!current) return next;
+    if (!next || current === next) return current;
+    if (current.contains && current.contains(next)) return current;
+    if (next.contains && next.contains(current)) return next;
+    return document.body || document.documentElement;
+  }
+
   function scheduleRefresh(root) {
     if (!converter) return;
     var target = root || document.getElementById('main') || document.body;
+    pendingRefreshRoot = mergeRefreshRoot(pendingRefreshRoot, target);
     if (refreshTimer) window.clearTimeout(refreshTimer);
     refreshTimer = window.setTimeout(function () {
+      var nextRoot = pendingRefreshRoot || target;
+      pendingRefreshRoot = null;
       refreshTimer = null;
-      refresh(target);
+      refresh(nextRoot);
     }, 80);
   }
 
   function observeDynamicRoots() {
     if (!observer) return;
-    var roots = Array.prototype.slice.call(document.querySelectorAll('.pjax, #comments, #new-comment'));
+    var roots = [document.body || document.documentElement].concat(
+      Array.prototype.slice.call(document.querySelectorAll('#comments, #new-comment'))
+    ).filter(Boolean);
     roots.forEach(function (root) {
       if (observedRoots.has(root)) return;
       observedRoots.add(root);
@@ -261,10 +284,11 @@
     if (!observer) {
       observer = new MutationObserver(function (mutations) {
         var root = null;
-        mutations.some(function (mutation) {
-          root = getRefreshRoot(mutation.target);
-          if (!root && mutation.addedNodes.length) root = getRefreshRoot(mutation.addedNodes[0]);
-          return !!root;
+        mutations.forEach(function (mutation) {
+          root = mergeRefreshRoot(root, getRefreshRoot(mutation.target));
+          Array.prototype.forEach.call(mutation.addedNodes, function (node) {
+            root = mergeRefreshRoot(root, getRefreshRoot(node));
+          });
         });
         observeDynamicRoots();
         if (root) scheduleRefresh(root);
