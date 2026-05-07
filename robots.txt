@@ -6,4 +6,4 @@ Allow: /
 Disallow: /api/
 Disallow: /admin/
 
-Sitemap: https://blog.flwolfy.xyz/sitemap.xml
+Sitemap: https://blog.wolfiora.site/sitemap.xml

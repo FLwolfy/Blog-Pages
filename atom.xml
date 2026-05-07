@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-    <id>https://blog.flwolfy.xyz</id>
+    <id>https://blog.wolfiora.site</id>
     <title>FLwolfy&#39;s Blog</title>
     <subtitle>寄蜉蝣于天地 · 渺沧海之一粟</subtitle>
-    <icon>https://blog.flwolfy.xyz/assets/favicon.ico</icon>
-    <link href="https://blog.flwolfy.xyz" />
+    <icon>https://blog.wolfiora.site/assets/favicon.ico</icon>
+    <link href="https://blog.wolfiora.site" />
     <author>
       <name>FLwolfy</name>
     </author>
@@ -18,9 +18,9 @@
     <category term=" anime" />
     <category term=" 动漫" />
     <entry>
-        <id>https://blog.flwolfy.xyz/acg/review/wothn-review/</id>
+        <id>https://blog.wolfiora.site/acg/review/wothn-review/</id>
         <title>旮旯杂谈之《魔法使之夜》，细腻平稳的奇幻故事</title>
-        <link rel="alternate" href="https://blog.flwolfy.xyz/acg/review/wothn-review/"/>
+        <link rel="alternate" href="https://blog.wolfiora.site/acg/review/wothn-review/"/>
         <content type="html">&lt;h1 id=&#34;阅读前须知&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#阅读前须知&#34;&gt;#&lt;/a&gt; 阅读前须知&lt;/h1&gt;
 &lt;p class=&#34;note warning&#34;&gt;&lt;span class=&#34;pink&#34;&gt;◉&lt;/span&gt; 本篇感想含有剧透内容，请未通关《魔法使之夜》的读者谨慎观看！&lt;br&gt;&lt;span class=&#34;pink&#34;&gt;◉&lt;/span&gt; 
 此感想纯作者主观感受，部分内容参考了 &lt;a href=&#34;https://www.bilibili.com/opus/522824492042434554&#34;&gt;Bilibili&lt;/a&gt; 和 &lt;a href=&#34;https://forum.gamer.com.tw/C.php?bsn=9009&amp;amp;snA=10038&#34;&gt;巴哈姆特&lt;/a&gt; 上的赏析文章，融合了我自身的观点。如果有任何观点引起你的反感，请无视～&lt;br&gt;&lt;span class=&#34;pink&#34;&gt;◉&lt;/span&gt; 
@@ -177,17 +177,17 @@
 &lt;/ol&gt;
 &lt;p&gt;但正是这些“不完美”，赋予了作品独特的魅力。人物理想化与现实冲突产生张力，使读者在象征与真实之间反思社会、人性与时代；情节隐晦又富含日常摩擦，强化了生活真实感；抽象的社会批判引导读者主动思考，而非被动接受。《魔法使之夜》的这些“不完美”反倒使它更加优秀和值得思考，呈现出超越表面故事的深度，使作品成为一部值得反复品味、能够激发思考的文学艺术作品。&lt;/p&gt;
 </content>
-        <category term="ACG" scheme="https://blog.flwolfy.xyz/categories/acg/" />
-        <category term="赏析" scheme="https://blog.flwolfy.xyz/categories/acg/review/" />
-        <category term="型月" scheme="https://blog.flwolfy.xyz/tags/tag-76a61e2f5b84/" />
-        <category term="Gal" scheme="https://blog.flwolfy.xyz/tags/tag-93c410467860/" />
-        <category term="杂谈" scheme="https://blog.flwolfy.xyz/tags/tag-36c07fc2ca65/" />
+        <category term="ACG" scheme="https://blog.wolfiora.site/categories/acg/" />
+        <category term="赏析" scheme="https://blog.wolfiora.site/categories/acg/review/" />
+        <category term="型月" scheme="https://blog.wolfiora.site/tags/tag-76a61e2f5b84/" />
+        <category term="Gal" scheme="https://blog.wolfiora.site/tags/tag-93c410467860/" />
+        <category term="杂谈" scheme="https://blog.wolfiora.site/tags/tag-36c07fc2ca65/" />
         <updated>2025-10-31T16:00:00.000Z</updated>
     </entry>
     <entry>
-        <id>https://blog.flwolfy.xyz/acg/guide/lucario-guide/</id>
+        <id>https://blog.wolfiora.site/acg/guide/lucario-guide/</id>
         <title>路卡利欧全方位教程</title>
-        <link rel="alternate" href="https://blog.flwolfy.xyz/acg/guide/lucario-guide/"/>
+        <link rel="alternate" href="https://blog.wolfiora.site/acg/guide/lucario-guide/"/>
         <content type="html">&lt;h1 id=&#34;前言和申明&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#前言和申明&#34;&gt;#&lt;/a&gt; 前言和申明&lt;/h1&gt;
 &lt;p class=&#34;note warning&#34;&gt;&lt;span class=&#34;pink&#34;&gt;◉&lt;/span&gt; 本指南旨在帮助准备练习《任天堂明星大乱斗—特别版》中路卡利欧的玩家了解路卡利欧的整体定位与玩法思路，并充当一个查阅百科的作用。该指南要求玩家对大乱斗中各类术语有一定了解。我将常见问题整理成清晰的结构，方便查阅与学习。&lt;br&gt;&lt;span class=&#34;pink&#34;&gt;◉&lt;/span&gt; 
 本资料的内容整合参考国外大佬 &lt;em&gt;NewBae&lt;/em&gt; 的路卡利欧教学与我自己对于路卡职业选手研究，并融合了我自身对路卡角色的实战经验。本文章内相关影像素材部分来自 &lt;em&gt;Ultimate Frame Data&lt;/em&gt; 、 &lt;em&gt;Smash Wiki&lt;/em&gt; 等网站。&lt;br&gt;&lt;span class=&#34;pink&#34;&gt;◉&lt;/span&gt; 
@@ -419,17 +419,17 @@
 &lt;h2 id=&#34;后续-following&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#后续-following&#34;&gt;#&lt;/a&gt; 后续 | Following&lt;/h2&gt;
 &lt;p&gt;这边路卡利欧的大部分攻击招式和帧数就算写完了。但这不代表路卡利欧的教学在此结束。后续将会持续更新包括但不限于：基础连段、进阶连段、板与受身择、立回思路、技巧练习等，敬请期待～&lt;/p&gt;
 </content>
-        <category term="ACG" scheme="https://blog.flwolfy.xyz/categories/acg/" />
-        <category term="攻略" scheme="https://blog.flwolfy.xyz/categories/acg/guide/" />
-        <category term="任斗" scheme="https://blog.flwolfy.xyz/tags/tag-04d1b3974390/" />
-        <category term="宝可梦" scheme="https://blog.flwolfy.xyz/tags/tag-d1107c563188/" />
-        <category term="攻略" scheme="https://blog.flwolfy.xyz/tags/tag-27bc88d254f8/" />
+        <category term="ACG" scheme="https://blog.wolfiora.site/categories/acg/" />
+        <category term="攻略" scheme="https://blog.wolfiora.site/categories/acg/guide/" />
+        <category term="任斗" scheme="https://blog.wolfiora.site/tags/tag-04d1b3974390/" />
+        <category term="宝可梦" scheme="https://blog.wolfiora.site/tags/tag-d1107c563188/" />
+        <category term="攻略" scheme="https://blog.wolfiora.site/tags/tag-27bc88d254f8/" />
         <updated>2025-06-20T16:00:00.000Z</updated>
     </entry>
     <entry>
-        <id>https://blog.flwolfy.xyz/acg/pilgrimage/sg-visit/</id>
+        <id>https://blog.wolfiora.site/acg/pilgrimage/sg-visit/</id>
         <title>《命运石之门》圣地巡礼</title>
-        <link rel="alternate" href="https://blog.flwolfy.xyz/acg/pilgrimage/sg-visit/"/>
+        <link rel="alternate" href="https://blog.wolfiora.site/acg/pilgrimage/sg-visit/"/>
         <content type="html">&lt;h1 id=&#34;图片所有权声明&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#图片所有权声明&#34;&gt;#&lt;/a&gt; 图片所有权声明&lt;/h1&gt;
 &lt;p class=&#34;note warning&#34;&gt;&lt;span class=&#34;pink&#34;&gt;◉&lt;/span&gt; 大部分实景图片为本人及朋友（已授权）拍摄，未经允许请勿使用！&lt;br&gt;&lt;span class=&#34;pink&#34;&gt;◉&lt;/span&gt; 
 动漫内部图片均为原片截图以及B站“圣地巡礼”专栏导览图，如果这侵犯了你的著作权，请立即联系我，我会删除。&lt;/p&gt;
@@ -570,17 +570,17 @@
 &lt;p&gt;当然本次日本之行也不只去了秋叶原，池袋、东京塔、涉谷等知名景点也都去了，有机会再写文章分享吧（咕——，有生之年～）。&lt;/p&gt;
 &lt;p&gt;总结：好玩，下次还来！&lt;/p&gt;
 </content>
-        <category term="ACG" scheme="https://blog.flwolfy.xyz/categories/acg/" />
-        <category term="巡礼" scheme="https://blog.flwolfy.xyz/categories/acg/pilgrimage/" />
-        <category term="旅游" scheme="https://blog.flwolfy.xyz/tags/tag-49a9d6b3c363/" />
-        <category term="秋叶原" scheme="https://blog.flwolfy.xyz/tags/tag-1fe44f2e3c13/" />
-        <category term="圣地巡礼" scheme="https://blog.flwolfy.xyz/tags/tag-f958642d785a/" />
+        <category term="ACG" scheme="https://blog.wolfiora.site/categories/acg/" />
+        <category term="巡礼" scheme="https://blog.wolfiora.site/categories/acg/pilgrimage/" />
+        <category term="旅游" scheme="https://blog.wolfiora.site/tags/tag-49a9d6b3c363/" />
+        <category term="秋叶原" scheme="https://blog.wolfiora.site/tags/tag-1fe44f2e3c13/" />
+        <category term="圣地巡礼" scheme="https://blog.wolfiora.site/tags/tag-f958642d785a/" />
         <updated>2025-05-26T16:00:00.000Z</updated>
     </entry>
     <entry>
-        <id>https://blog.flwolfy.xyz/other/announce/announce/</id>
+        <id>https://blog.wolfiora.site/other/announce/announce/</id>
         <title>公告栏</title>
-        <link rel="alternate" href="https://blog.flwolfy.xyz/other/announce/announce/"/>
+        <link rel="alternate" href="https://blog.wolfiora.site/other/announce/announce/"/>
         <content type="html">&lt;h1 id=&#34;公告栏须知&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#公告栏须知&#34;&gt;#&lt;/a&gt; 公告栏须知&lt;/h1&gt;
 &lt;p class=&#34;note warning&#34;&gt;&lt;span class=&#34;pink&#34;&gt;◉&lt;/span&gt; 本公告栏内容具有时效性，建议定期查看来获得最新内容。&lt;br&gt;&lt;span class=&#34;pink&#34;&gt;◉&lt;/span&gt; 
 阅读评论请注意其发布时间，以确保沟通交流为同一公告版本内容～&lt;/p&gt;
@@ -610,10 +610,10 @@
 &lt;h2 id=&#34;后续-following&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#后续-following&#34;&gt;#&lt;/a&gt; 后续 | Following&lt;/h2&gt;
 &lt;p&gt;祝愿和祈祷站主不鸽🐦吧～&lt;/p&gt;
 </content>
-        <category term="其他" scheme="https://blog.flwolfy.xyz/categories/other/" />
-        <category term="公告" scheme="https://blog.flwolfy.xyz/categories/other/announce/" />
-        <category term="攻略" scheme="https://blog.flwolfy.xyz/tags/tag-27bc88d254f8/" />
-        <category term="公告" scheme="https://blog.flwolfy.xyz/tags/tag-3f9569532847/" />
+        <category term="其他" scheme="https://blog.wolfiora.site/categories/other/" />
+        <category term="公告" scheme="https://blog.wolfiora.site/categories/other/announce/" />
+        <category term="攻略" scheme="https://blog.wolfiora.site/tags/tag-27bc88d254f8/" />
+        <category term="公告" scheme="https://blog.wolfiora.site/tags/tag-3f9569532847/" />
         <updated>2025-04-12T16:00:00.000Z</updated>
     </entry>
 </feed>
