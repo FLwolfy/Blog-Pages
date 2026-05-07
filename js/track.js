@@ -619,6 +619,9 @@
     // ================================
     function handleWheel(e) {
         e.preventDefault();
+        e.stopPropagation();
+        if (e.target.closest('.track-detail')) return;
+
         const deltaOffset = (e.deltaY / CONFIG.scrollUnit) * CONFIG.scrollDirection;
         targetOffset = Math.max(0, Math.min(sourceTracks.length - 1, targetOffset + deltaOffset));
         startSnapTimer();
@@ -629,8 +632,8 @@
     // ================================
     function handleTouchStart(e) {
         if (e.touches.length !== 1) return;
-        const trackEl = e.target.closest('.track');
-        if (!trackEl) return;
+        e.stopPropagation();
+        if (e.target.closest('.track-detail')) return;
 
         isTouchDragging = true;
         startY = e.touches[0].clientY;
@@ -639,8 +642,11 @@
     }
 
     function handleTouchMove(e) {
-        if (!isTouchDragging || e.touches.length !== 1) return;
+        if (e.touches.length !== 1) return;
         e.preventDefault();
+        e.stopPropagation();
+        if (!isTouchDragging) return;
+
         const deltaY = e.touches[0].clientY - startY;
         const touchDirection = CONFIG.touchDirection;
         targetOffset = startOffset + deltaY * CONFIG.touchMoveFactor * touchDirection;
@@ -799,10 +805,10 @@
         titleResizeHandler = () => applyManualTitleTruncation();
         window.addEventListener('resize', titleResizeHandler);
 
-        osuWheel.addEventListener('wheel', handleWheel, { passive: false });
-        osuWheel.addEventListener('touchstart', handleTouchStart, { passive: true });
-        osuWheel.addEventListener('touchmove', handleTouchMove, { passive: false });
-        osuWheel.addEventListener('touchend', handleTouchEnd);
+        container.addEventListener('wheel', handleWheel, { passive: false });
+        container.addEventListener('touchstart', handleTouchStart, { passive: true });
+        container.addEventListener('touchmove', handleTouchMove, { passive: false });
+        container.addEventListener('touchend', handleTouchEnd);
 
         lastTime = null;
         animate();
