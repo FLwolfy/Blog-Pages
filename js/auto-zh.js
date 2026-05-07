@@ -2,8 +2,6 @@
   'use strict';
 
   var STORAGE_KEY = 'zh-auto-variant';
-  var DECISION_KEY = 'zh-auto-detected';
-  var DECISION_TTL = 7 * 24 * 60 * 60 * 1000;
   var OPENCC_CDN = 'https://cdn.jsdelivr.net/npm/opencc-js@1.3.0/dist/umd/full.js';
   var IP_TIMEOUT = 1800;
   var OPENCC_TIMEOUT = 2500;
@@ -97,27 +95,6 @@
   function isLocalhost() {
     var host = (window.location.hostname || '').toLowerCase();
     return host === 'localhost' || host === '127.0.0.1' || host === '::1';
-  }
-
-  function readDetectedDecision() {
-    try {
-      var raw = localStorage.getItem(DECISION_KEY);
-      if (!raw) return null;
-      var data = JSON.parse(raw);
-      if (!data || Date.now() - data.time > DECISION_TTL) return null;
-      return data.variant === 'zh-TW';
-    } catch (err) {
-      return null;
-    }
-  }
-
-  function saveDetectedDecision(needsConvert) {
-    try {
-      localStorage.setItem(DECISION_KEY, JSON.stringify({
-        variant: needsConvert ? 'zh-TW' : 'zh-CN',
-        time: Date.now()
-      }));
-    } catch (err) {}
   }
 
   function shouldSkipElement(el) {
@@ -312,13 +289,8 @@
     if (saved === 'zh-CN') return Promise.resolve(false);
     if (saved === 'zh-TW') return Promise.resolve(true);
 
-    var cached = readDetectedDecision();
-    if (cached !== null) return Promise.resolve(cached);
-
     return detectCountryByIp().then(function (country) {
-      var needsConvert = country ? country !== 'CN' : isLocalhost();
-      saveDetectedDecision(needsConvert);
-      return needsConvert;
+      return country ? country !== 'CN' : isLocalhost();
     });
   }
 
@@ -349,16 +321,12 @@
         if (enabled) refresh(root);
         return enabled;
       });
-    },
-    clearCache: function () {
-      localStorage.removeItem(DECISION_KEY);
     }
   };
 
   window.setZhAutoVariant = function (variant) {
     if (variant === 'zh-CN' || variant === 'zh-TW') {
       localStorage.setItem(STORAGE_KEY, variant);
-      localStorage.removeItem(DECISION_KEY);
       window.location.reload();
     }
   };
