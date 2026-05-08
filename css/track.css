@@ -340,7 +340,7 @@
 .track {
   position: absolute;
   transform-origin: left center; /* 左边缘中间 */
-  transition: transform 0.2s, opacity 0.2s;
+  transition: transform 0.2s;
   width: 90%;
   height: 9rem;
   display: flex;
@@ -351,7 +351,7 @@
   backdrop-filter: blur(0.375rem);
   -webkit-backdrop-filter: blur(0.375rem);
   border-radius: 0 0.375rem 0.375rem 0;
-  will-change: transform, opacity;
+  will-change: transform;
   backface-visibility: hidden;
 /* inactive 禁用点击 */
 /* 灰色遮罩 */
@@ -367,18 +367,15 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(80,80,80,0.15);
+  background: rgba(18,18,24,0.82);
+  opacity: calc(1 - var(--track-brightness, 0.75));
   transition: opacity 0.3s ease;
   pointer-events: none; /* 遮罩不挡交互 */
   z-index: 5;
 }
 .track.active {
   box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.12), 0 0 1.25rem 0.5rem var(--color-pink-a3);
-/* 去掉遮罩 */
 /* track 内 a 可点击 */
-}
-.track.active::after {
-  opacity: 0;
 }
 .track.active a {
   pointer-events: auto;
@@ -388,6 +385,19 @@
     width: 95%;
     height: 5.5rem;
   }
+}
+/* 异步切换 source 的过渡态：只隐藏内容层，不清空容器 */
+.track .track-content,
+.track .track-image,
+.track .track-meta-html {
+  opacity: 1;
+  transition: opacity var(--track-reveal-ms, 220ms) ease;
+}
+.track.is-content-hidden .track-content,
+.track.is-content-hidden .track-image,
+.track.is-content-hidden .track-meta-html {
+  transition: none !important;
+  opacity: 0 !important;
 }
 /* panel 开关阶段：关闭条目位移动画，避免延迟拖影 */
 .osu-container.is-toggling .track {
@@ -681,6 +691,8 @@
   overflow: hidden; /* 超出隐藏 */
   text-overflow: ellipsis; /* 省略号 */
   word-break: break-word; /* 避免长单词撑开 */
+  opacity: 1;
+  transition: opacity 0.22s ease;
 }
 @media (max-width: 820px) {
   .track-cover .track-info-title {
@@ -689,6 +701,9 @@
     -webkit-text-stroke: 0.2rem #000;
     line-height: 2rem;
   }
+}
+.track-cover .track-info-title.track-text-pending {
+  opacity: 0;
 }
 /* ==============================
    track-card：内容卡片
@@ -762,6 +777,8 @@
   mask-size: 100% 100%;
   -webkit-mask-repeat: no-repeat;
   mask-repeat: no-repeat;
+  opacity: 1;
+  transition: opacity 0.22s ease;
 }
 .track-info-description p {
   margin: 0 0 0.35rem 0;
@@ -780,6 +797,9 @@
   .track-info-description p {
     margin-bottom: 0.2rem;
   }
+}
+.track-info-description.track-text-pending {
+  opacity: 0;
 }
 /* ==============================
    track-info-readmore：阅读更多按钮

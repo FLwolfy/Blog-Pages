@@ -53,6 +53,7 @@
     let poolAssignments = [];
     let slotUpdateTokens = [];
     let slotPendingSourceIndex = [];
+    let slotPendingToken = [];
     let slotContentReadyAt = [];
     let currentPoolHeadSource = 0;
     let truncationRafId = null;
@@ -62,6 +63,7 @@
     let offset = 0;
     let targetOffset = 0;
     let wheelIdleTimer = null;
+    let detailTextRenderToken = 0;
 
     function getPoolSize() {
         return Math.max(2, CONFIG.visibleCount * 2);
@@ -174,6 +176,27 @@
         });
     }
 
+    function applySlotTitleTruncation(slot) {
+        if (!slot) return;
+        const anchors = slot.querySelectorAll('.track-content .track-title a');
+        anchors.forEach((anchor) => {
+            if (!anchor.dataset.fullTitle) {
+                anchor.dataset.fullTitle = (anchor.textContent || '').trim();
+            }
+            const fullTitle = anchor.dataset.fullTitle || '';
+            const titleWrap = anchor.closest('.track-title');
+            if (!titleWrap) return;
+
+            const styles = window.getComputedStyle(anchor);
+            const rightInset = parseFloat(styles.right) || 0;
+            const safeWidth = Math.max(0, titleWrap.clientWidth - rightInset);
+            if (safeWidth <= 0) return;
+
+            const font = `${styles.fontStyle} ${styles.fontVariant} ${styles.fontWeight} ${styles.fontSize} / ${styles.lineHeight} ${styles.fontFamily}`;
+            anchor.textContent = truncateTextToFit(fullTitle, safeWidth, font);
+        });
+    }
+
     function captureTrackData(track) {
         return {
             created: track.dataset.created || '',
@@ -207,7 +230,6 @@
 
     function applyEmptyCardToSlot(slot, trackData, sourceIndex) {
         clearDataset(slot);
-        slot.innerHTML = '';
         slot.dataset.created = trackData.created;
         slot.dataset.title = trackData.title;
         slot.dataset.description = trackData.description;
@@ -232,12 +254,15 @@
         const token = (slotUpdateTokens[slotIndex] || 0) + 1;
         slotUpdateTokens[slotIndex] = token;
         slotPendingSourceIndex[slotIndex] = sourceIndex;
+        slotPendingToken[slotIndex] = token;
         poolAssignments[slotIndex] = sourceIndex;
 
         if (sourceIndex >= 0 && sourceIndex < sourceTracks.length) {
+            slot.classList.add('is-content-hidden');
             applyEmptyCardToSlot(slot, sourceTracks[sourceIndex], sourceIndex);
         } else {
             applyEmptySlot(slot);
+            slot.classList.remove('is-content-hidden');
         }
         slotContentReadyAt[slotIndex] = 0;
 
@@ -251,13 +276,16 @@
         if (!slot) return;
 
         slotPendingSourceIndex[slotIndex] = null;
+        slotPendingToken[slotIndex] = 0;
         poolAssignments[slotIndex] = sourceIndex;
         slotUpdateTokens[slotIndex] = (slotUpdateTokens[slotIndex] || 0) + 1;
 
         if (sourceIndex >= 0 && sourceIndex < sourceTracks.length) {
             applyTrackDataToSlot(slot, sourceTracks[sourceIndex], sourceIndex);
+            slot.classList.remove('is-content-hidden');
         } else {
             applyEmptySlot(slot);
+            slot.classList.remove('is-content-hidden');
         }
         // 首屏同步渲染不做淡入，直接完整显示
         slotContentReadyAt[slotIndex] = 0;
@@ -273,7 +301,7 @@
     function processOneSlotRender(slotIndex, now) {
         const sourceIndex = slotPendingSourceIndex[slotIndex];
         if (sourceIndex === null || sourceIndex === undefined) return;
-        const token = slotUpdateTokens[slotIndex] || 0;
+        const token = slotPendingToken[slotIndex] || 0;
         if (token <= 0) return;
 
         const slot = trackPool[slotIndex];
@@ -287,23 +315,46 @@
         // 若 pending 已过期（不是当前应该渲染的 index），直接丢弃，等待新任务。
         if (sourceIndex !== expectedIndex) {
             slotPendingSourceIndex[slotIndex] = null;
+            slotPendingToken[slotIndex] = 0;
+            return;
+        }
+
+        // 仅保留该 slot 最新一次 async 请求结果
+        if (token !== slotUpdateTokens[slotIndex]) {
+            slotPendingSourceIndex[slotIndex] = null;
+            slotPendingToken[slotIndex] = 0;
             return;
         }
 
         // 已经是正确 index 且不是空卡，直接跳过，不重复渲染。
         if (renderedIndex === expectedIndex && !isEmptyCard) {
             slotPendingSourceIndex[slotIndex] = null;
+            slotPendingToken[slotIndex] = 0;
             return;
         }
 
         if (sourceIndex >= 0 && sourceIndex < sourceTracks.length) {
             applyTrackDataToSlot(slot, sourceTracks[sourceIndex], sourceIndex);
+            slot.style.setProperty('--track-reveal-ms', `${Math.max(1, CONFIG.contentFadeInMs)}ms`);
+            slot.classList.add('is-content-hidden');
+            // 在 hidden 状态完成排版，然后仅用 opacity 过渡显示
+            applySlotTitleTruncation(slot);
+            void slot.offsetHeight;
+
+            const revealToken = token;
+            requestAnimationFrame(() => {
+                if (slotUpdateTokens[slotIndex] !== revealToken) return;
+                if (Number(slot.dataset.trackIndex || '-1') !== sourceIndex) return;
+                slot.classList.remove('is-content-hidden');
+            });
             slotContentReadyAt[slotIndex] = now;
         } else {
             applyEmptySlot(slot);
+            slot.classList.remove('is-content-hidden');
             slotContentReadyAt[slotIndex] = 0;
         }
         slotPendingSourceIndex[slotIndex] = null;
+        slotPendingToken[slotIndex] = 0;
         scheduleTitleTruncation();
     }
 
@@ -354,6 +405,7 @@
         poolAssignments = new Array(poolSize).fill(-1);
         slotUpdateTokens = new Array(poolSize).fill(0);
         slotPendingSourceIndex = new Array(poolSize).fill(null);
+        slotPendingToken = new Array(poolSize).fill(0);
         slotContentReadyAt = new Array(poolSize).fill(0);
         slotRenderCursor = 0;
         slotRenderUnlockAt = 0;
@@ -454,6 +506,22 @@
         if (!elems || !activeTrackData) return;
 
         const { detail, cover, title, description, meta, link } = elems;
+        const renderTextWithAutoZh = async (token) => {
+            if (window.AutoZh?.ready) await window.AutoZh.ready;
+            if (token !== detailTextRenderToken) return;
+            if (window.AutoZh?.refresh) {
+                await window.AutoZh.refresh(title);
+                if (token !== detailTextRenderToken) return;
+                await window.AutoZh.refresh(description);
+            }
+            if (token !== detailTextRenderToken) return;
+            requestAnimationFrame(() => {
+                if (token !== detailTextRenderToken) return;
+                title.classList.remove('track-text-pending');
+                description.classList.remove('track-text-pending');
+            });
+        };
+
         const apply = () => {
             detail.classList.remove('fade-out');
             detail.classList.add('fade-in');
@@ -463,8 +531,14 @@
             const newCover = activeTrackData.cover || '';
             const newLink = activeTrackData.link || '#';
 
-            if (title.textContent !== newTitle) title.textContent = newTitle;
-            if (description.innerHTML !== newDescription) description.innerHTML = newDescription;
+            detailTextRenderToken += 1;
+            const token = detailTextRenderToken;
+
+            title.classList.add('track-text-pending');
+            description.classList.add('track-text-pending');
+
+            title.textContent = newTitle;
+            description.innerHTML = newDescription;
             if (cover.src !== newCover) {
                 cover.src = newCover;
                 container.style.setProperty('--bg-url', `url(${newCover || ''})`);
@@ -475,6 +549,11 @@
             const newMeta = temp.querySelector('.track-meta-html')?.innerHTML ?? '';
             if (meta.innerHTML !== newMeta) meta.innerHTML = newMeta;
             if (link.href !== newLink) link.href = newLink;
+            renderTextWithAutoZh(token).catch(() => {
+                if (token !== detailTextRenderToken) return;
+                title.classList.remove('track-text-pending');
+                description.classList.remove('track-text-pending');
+            });
         };
 
         if (immediate) {
@@ -560,12 +639,10 @@
             const x = CONFIG.offsetX + Math.cos(rad) * CONFIG.radius - CONFIG.radius;
             const y = centerY - trackHeight / 2 + Math.sin(rad) * CONFIG.radius;
 
-            const isOnRightSide = Math.cos(rad) > 0;
             const isValidSource = sourceIndex >= 0 && sourceIndex < sourceTracks.length;
             const isActive = isValidSource && sourceIndex === activeIndex;
             const scale = isActive ? 1 : Math.max(0, 1 - Math.abs(sourceDiff) * 0.1) / CONFIG.scaleFactor;
-            const opacityBase = isActive ? 1 : Math.max(0, 1 - Math.abs(sourceDiff) * CONFIG.opacityFactor);
-            const shouldRender = isOnRightSide && isValidSource;
+            const shouldRender = isValidSource;
 
             if (shouldRender) {
                 const renderedIndex = Number(track.dataset.trackIndex || '-1');
@@ -576,36 +653,21 @@
                 }
             }
 
-            const readyAt = slotContentReadyAt[i] || 0;
-            const isRealContent = track.dataset.emptyCard !== '1';
-            const fadeProgress = readyAt > 0
-                ? clamp((performance.now() - readyAt) / Math.max(1, CONFIG.contentFadeInMs), 0, 1)
-                : 1;
-            const opacity = shouldRender ? opacityBase : 0;
-
-            track.style.display = shouldRender ? 'flex' : 'none';
             track.style.transform = `translate3d(${x}px, ${y}px, 0px) scale(${scale})`;
-            track.style.opacity = String(opacity);
             track.style.visibility = shouldRender ? 'visible' : 'hidden';
             track.style.pointerEvents = shouldRender ? 'auto' : 'none';
             track.classList.toggle('active', isActive);
             track.style.zIndex = String(CONFIG.activeZIndex - Math.round(Math.abs(sourceDiff)));
+            // 亮度曲线：中心 1.0，两侧从 0.75 递减到最外侧 0.35（由 :after 控制）
+            const distance = Math.abs(logicalSlot);
+            const t = clamp((distance - 1) / Math.max(1, halfVisible), 0, 1);
+            const brightness = isActive ? 1 : (0.75 - (0.75 - 0.35) * t);
+            track.style.setProperty('--track-brightness', String(brightness));
 
-            const contentOpacity = isRealContent ? String(fadeProgress) : '1';
-            const contentEl = track.querySelector('.track-content');
-            const coverEl = track.querySelector('.track-cover');
-            const imageEl = track.querySelector('.track-image');
-            const metaEl = track.querySelector('.track-meta-html');
-            if (contentEl) contentEl.style.opacity = contentOpacity;
-            if (coverEl) coverEl.style.opacity = contentOpacity;
-            if (imageEl) imageEl.style.opacity = contentOpacity;
-            if (metaEl) metaEl.style.opacity = contentOpacity;
-
-            // 强制图片和内容同节奏淡入
-            const imgs = track.querySelectorAll('.track-cover img, .track-image img');
-            imgs.forEach((img) => {
-                img.style.setProperty('opacity', contentOpacity, 'important');
-            });
+            // 兜底：只要可见且真实内容已写入，不允许残留 hidden
+            if (shouldRender && track.dataset.emptyCard !== '1' && slotPendingSourceIndex[i] === null) {
+                track.classList.remove('is-content-hidden');
+            }
         }
 
         if (activeIndex !== lastActiveIndex) {

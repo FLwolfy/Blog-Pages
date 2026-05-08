@@ -55,6 +55,23 @@
   var convertedText = new WeakMap();
   var convertedAttrs = new WeakMap();
 
+  if (!document.getElementById('zh-auto-pending-style')) {
+    var pendingStyle = document.createElement('style');
+    pendingStyle.id = 'zh-auto-pending-style';
+    pendingStyle.textContent = 'html.zh-auto-pending body{visibility:hidden;}';
+    document.head.appendChild(pendingStyle);
+  }
+
+  // 在最早阶段先挂起，避免出现“先简后繁”闪烁。
+  if (!document.documentElement.classList.contains('zh-auto-pending')) {
+    document.documentElement.classList.add('zh-auto-pending');
+  }
+  if (!window.__zhAutoRevealTimer) {
+    window.__zhAutoRevealTimer = window.setTimeout(function () {
+      reveal();
+    }, 3200);
+  }
+
   function reveal() {
     if (window.__zhAutoRevealTimer) {
       window.clearTimeout(window.__zhAutoRevealTimer);
@@ -305,7 +322,7 @@
   }
 
   function decide() {
-    // 不妥协策略：仅使用 IP 判定；失败则不转换
+    // 严格仅使用 IP 判定：失败则不转换。
     return detectCountryByIp().then(function (country) {
       if (!country) return false;
       return country !== 'CN';
