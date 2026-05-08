@@ -846,6 +846,9 @@
   max-width: 100%;
   overflow: auto;
 }
+.track-detail .track-info-description.track-md h1 .anchor::before {
+  content: "" !important;
+}
 /* ==============================
    track-info-readmore：阅读更多按钮
    ============================== */

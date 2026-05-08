@@ -14,14 +14,15 @@
         touchDirection: -1,        // 触控方向：1 为默认，-1 为反向
         animateSpeed: 5,           // 动画速度（数值越大越快）
         touchMoveFactor: 0.05,     // 触屏/拖拽灵敏度
-        opacityFactor: 0.15,       // 不透明度衰减因子
         scaleFactor: 1.5,          // 激活条目的缩放比例
         offsetX: 0,                // X 轴偏移
         snapDelay: 150,            // 自动吸附延迟（ms）
         detailFadeDelay: 500,      // detail 区淡出延迟（ms）
         gapThreshold: 0.01,        // 位置差异阈值（小于该值时认为已到达目标位置）
         asyncRenderInternal: 30,   // 触发下一个 slot 异步渲染的时间间隔（ms）
-        contentFadeInMs: 220       // 异步内容回填后的淡入时长（ms）
+        contentFadeInMs: 220,      // 异步内容回填后的淡入时长（ms）
+        wheelStopSpeed: 0.55,      // 真实停止判定：速度阈值（offset/s）
+        wheelStopStableMs: 120     // 真实停止判定：持续低速时长（ms）
     };
 
     // ================================
@@ -54,7 +55,6 @@
     let slotUpdateTokens = [];
     let slotPendingSourceIndex = [];
     let slotPendingToken = [];
-    let slotContentReadyAt = [];
     let currentPoolHeadSource = 0;
     let truncationRafId = null;
     let slotRenderCursor = 0;
@@ -62,9 +62,14 @@
     let slotRenderRafId = null;
     let offset = 0;
     let targetOffset = 0;
-    let wheelIdleTimer = null;
+    let wheelInputActive = false;
+    let wheelDecayElapsedMs = 0;
+    let wheelPrevSpeed = Infinity;
     let detailTextRenderToken = 0;
     let postCssReadyPromise = null;
+    let detailReadyForBg = false;
+    let detailNeedsRefreshAfterScroll = false;
+    let isNavigatingAway = false;
 
     function getPoolSize() {
         return Math.max(2, CONFIG.visibleCount * 2);
@@ -74,12 +79,28 @@
         return CONFIG.visibleCount - 1;
     }
 
+    function getTrackCount() {
+        return sourceTracks.length;
+    }
+
+    function getMaxOffset() {
+        return Math.max(0, getTrackCount() - 1);
+    }
+
+    function clampOffset(value) {
+        return clamp(value, 0, getMaxOffset());
+    }
+
+    function isValidSourceIndex(index) {
+        return index >= 0 && index < getTrackCount();
+    }
+
     function sliderToOffset(value) {
-        return sourceTracks.length - 1 - Number(value);
+        return getTrackCount() - 1 - Number(value);
     }
 
     function offsetToSlider(value) {
-        return sourceTracks.length - 1 - value;
+        return getTrackCount() - 1 - value;
     }
 
     function clamp(num, min, max) {
@@ -99,8 +120,8 @@
         const ratio = isPortrait
             ? clamp((rect.bottom - clientY) / rect.height, 0, 1)
             : clamp((clientX - rect.left) / rect.width, 0, 1);
-        const sliderValue = ratio * Math.max(0, sourceTracks.length - 1);
-        targetOffset = clamp(sliderToOffset(sliderValue), 0, Math.max(0, sourceTracks.length - 1));
+        const sliderValue = ratio * getMaxOffset();
+        targetOffset = clampOffset(sliderToOffset(sliderValue));
     }
 
     function ensurePostCssReady() {
@@ -135,6 +156,18 @@
         });
 
         return postCssReadyPromise;
+    }
+
+    function clearSnapTimer() {
+        if (!snapTimer) return;
+        clearTimeout(snapTimer);
+        snapTimer = null;
+    }
+
+    function resetWheelStopState() {
+        wheelInputActive = false;
+        wheelDecayElapsedMs = 0;
+        wheelPrevSpeed = Infinity;
     }
 
     // ================================
@@ -282,6 +315,11 @@
         slot.dataset.height = '0';
     }
 
+    function clearSlotPending(slotIndex) {
+        slotPendingSourceIndex[slotIndex] = null;
+        slotPendingToken[slotIndex] = 0;
+    }
+
     function bindSlotSourceAsync(slotIndex, sourceIndex) {
         const slot = trackPool[slotIndex];
         if (!slot) return;
@@ -292,15 +330,13 @@
         slotPendingToken[slotIndex] = token;
         poolAssignments[slotIndex] = sourceIndex;
 
-        if (sourceIndex >= 0 && sourceIndex < sourceTracks.length) {
+        if (isValidSourceIndex(sourceIndex)) {
             slot.classList.add('is-content-hidden');
             applyEmptyCardToSlot(slot, sourceTracks[sourceIndex], sourceIndex);
         } else {
             applyEmptySlot(slot);
             slot.classList.remove('is-content-hidden');
         }
-        slotContentReadyAt[slotIndex] = 0;
-
         if (slotRenderRafId === null) {
             slotRenderRafId = requestAnimationFrame(processSlotRenderQueue);
         }
@@ -310,12 +346,11 @@
         const slot = trackPool[slotIndex];
         if (!slot) return;
 
-        slotPendingSourceIndex[slotIndex] = null;
-        slotPendingToken[slotIndex] = 0;
+        clearSlotPending(slotIndex);
         poolAssignments[slotIndex] = sourceIndex;
         slotUpdateTokens[slotIndex] = (slotUpdateTokens[slotIndex] || 0) + 1;
 
-        if (sourceIndex >= 0 && sourceIndex < sourceTracks.length) {
+        if (isValidSourceIndex(sourceIndex)) {
             applyTrackDataToSlot(slot, sourceTracks[sourceIndex], sourceIndex);
             slot.classList.remove('is-content-hidden');
         } else {
@@ -323,7 +358,6 @@
             slot.classList.remove('is-content-hidden');
         }
         // 首屏同步渲染不做淡入，直接完整显示
-        slotContentReadyAt[slotIndex] = 0;
     }
 
     function hasPendingSlotRenders() {
@@ -333,7 +367,7 @@
         return false;
     }
 
-    function processOneSlotRender(slotIndex, now) {
+    function processOneSlotRender(slotIndex) {
         const sourceIndex = slotPendingSourceIndex[slotIndex];
         if (sourceIndex === null || sourceIndex === undefined) return;
         const token = slotPendingToken[slotIndex] || 0;
@@ -349,26 +383,23 @@
 
         // 若 pending 已过期（不是当前应该渲染的 index），直接丢弃，等待新任务。
         if (sourceIndex !== expectedIndex) {
-            slotPendingSourceIndex[slotIndex] = null;
-            slotPendingToken[slotIndex] = 0;
+            clearSlotPending(slotIndex);
             return;
         }
 
         // 仅保留该 slot 最新一次 async 请求结果
         if (token !== slotUpdateTokens[slotIndex]) {
-            slotPendingSourceIndex[slotIndex] = null;
-            slotPendingToken[slotIndex] = 0;
+            clearSlotPending(slotIndex);
             return;
         }
 
         // 已经是正确 index 且不是空卡，直接跳过，不重复渲染。
         if (renderedIndex === expectedIndex && !isEmptyCard) {
-            slotPendingSourceIndex[slotIndex] = null;
-            slotPendingToken[slotIndex] = 0;
+            clearSlotPending(slotIndex);
             return;
         }
 
-        if (sourceIndex >= 0 && sourceIndex < sourceTracks.length) {
+        if (isValidSourceIndex(sourceIndex)) {
             applyTrackDataToSlot(slot, sourceTracks[sourceIndex], sourceIndex);
             slot.style.setProperty('--track-reveal-ms', `${Math.max(1, CONFIG.contentFadeInMs)}ms`);
             slot.classList.add('is-content-hidden');
@@ -382,20 +413,17 @@
                 if (Number(slot.dataset.trackIndex || '-1') !== sourceIndex) return;
                 slot.classList.remove('is-content-hidden');
             });
-            slotContentReadyAt[slotIndex] = now;
         } else {
             applyEmptySlot(slot);
             slot.classList.remove('is-content-hidden');
-            slotContentReadyAt[slotIndex] = 0;
         }
-        slotPendingSourceIndex[slotIndex] = null;
-        slotPendingToken[slotIndex] = 0;
+        clearSlotPending(slotIndex);
         scheduleTitleTruncation();
     }
 
     function processSlotRenderQueue(timestamp) {
         slotRenderRafId = null;
-        if (!trackPool.length || !sourceTracks.length) return;
+        if (!trackPool.length || !getTrackCount()) return;
 
         // 当前 fade-in 尚未结束，必须等待后续帧再处理下一个 slot。
         if (timestamp < slotRenderUnlockAt) {
@@ -416,7 +444,7 @@
         }
 
         if (picked >= 0) {
-            processOneSlotRender(picked, timestamp);
+            processOneSlotRender(picked);
             slotRenderCursor = (picked + 1) % count;
             slotRenderUnlockAt = timestamp + Math.max(1, CONFIG.asyncRenderInternal);
         }
@@ -441,7 +469,6 @@
         slotUpdateTokens = new Array(poolSize).fill(0);
         slotPendingSourceIndex = new Array(poolSize).fill(null);
         slotPendingToken = new Array(poolSize).fill(0);
-        slotContentReadyAt = new Array(poolSize).fill(0);
         slotRenderCursor = 0;
         slotRenderUnlockAt = 0;
         currentPoolHeadSource = -getLeadSlotCount();
@@ -473,7 +500,11 @@
             let touchMoved = false;
             const activate = () => {
                 const idx = Number(track.dataset.trackIndex || '-1');
-                if (idx >= 0 && idx < sourceTracks.length) {
+                if (isValidSourceIndex(idx)) {
+                    // 点击切换 track 时，和滚轮一致：先隐藏 detail，等 settle 后再显示
+                    if (Math.round(targetOffset) !== idx || Math.abs(offset - idx) > CONFIG.gapThreshold) {
+                        hideDetailDuringScroll();
+                    }
                     targetOffset = idx;
                 }
             };
@@ -519,18 +550,56 @@
     // 自动吸附函数
     // ================================
     function startSnapTimer() {
-        if (snapTimer) clearTimeout(snapTimer);
-        if (wheelIdleTimer) clearTimeout(wheelIdleTimer);
+        clearSnapTimer();
         snapTimer = setTimeout(() => {
             targetOffset = Math.round(targetOffset);
+            snapTimer = null;
         }, CONFIG.snapDelay);
     }
 
-    function startWheelIdleSnapTimer() {
-        if (wheelIdleTimer) clearTimeout(wheelIdleTimer);
-        wheelIdleTimer = setTimeout(() => {
-            startSnapTimer();
-        }, CONFIG.snapDelay);
+    function markWheelInputActive() {
+        wheelInputActive = true;
+        wheelDecayElapsedMs = 0;
+        wheelPrevSpeed = Infinity;
+        clearSnapTimer();
+    }
+
+    function maybeSnapOnPhysicalStop(deltaSec) {
+        if (!wheelInputActive || deltaSec <= 0) return;
+        const speed = Math.abs(targetOffset - offset) / deltaSec;
+        const isDecaying = speed <= wheelPrevSpeed + 0.0001;
+        wheelPrevSpeed = speed;
+
+        if (isDecaying && speed <= CONFIG.wheelStopSpeed) {
+            wheelDecayElapsedMs += deltaSec * 1000;
+        } else {
+            wheelDecayElapsedMs = 0;
+        }
+
+        if (wheelDecayElapsedMs >= CONFIG.wheelStopStableMs) {
+            resetWheelStopState();
+            targetOffset = Math.round(targetOffset);
+        }
+    }
+
+    function setDetailHiddenState({ refreshNeeded = false, navigating = false } = {}) {
+        const elems = getDetailElements();
+        if (!elems) return;
+
+        if (navigating) isNavigatingAway = true;
+        elems.detail.classList.remove('fade-in');
+        elems.detail.classList.add('fade-out');
+        detailReadyForBg = false;
+        if (refreshNeeded) detailNeedsRefreshAfterScroll = true;
+        container?.classList.remove('show-bg');
+    }
+
+    function hideDetailDuringScroll() {
+        setDetailHiddenState({ refreshNeeded: true });
+    }
+
+    function hideDetailImmediatelyForNavigate() {
+        setDetailHiddenState({ navigating: true });
     }
 
     // ================================
@@ -560,8 +629,11 @@
         };
 
         const apply = () => {
-            detail.classList.remove('fade-out');
-            detail.classList.add('fade-in');
+            // 新一轮 detail 更新开始：背景必须先隐藏，避免旧图先露出
+            detailReadyForBg = false;
+            container?.classList.remove('show-bg');
+            detail.classList.remove('fade-in');
+            detail.classList.add('fade-out');
 
             const newTitle = activeTrackData.title || '';
             const newDescription = activeTrackData.description || '';
@@ -575,7 +647,7 @@
             description.classList.add('track-text-pending');
 
             title.textContent = newTitle;
-            description.innerHTML = newDescription;
+            description.innerHTML = '';
             if (cover.src !== newCover) {
                 cover.src = newCover;
                 container.style.setProperty('--bg-url', `url(${newCover || ''})`);
@@ -586,11 +658,34 @@
             const newMeta = temp.querySelector('.track-meta-html')?.innerHTML ?? '';
             if (meta.innerHTML !== newMeta) meta.innerHTML = newMeta;
             if (link.href !== newLink) link.href = newLink;
+            description.innerHTML = newDescription;
+
             renderTextWithAutoZh(token).catch(() => {
                 if (token !== detailTextRenderToken) return;
                 title.classList.remove('track-text-pending');
                 description.classList.remove('track-text-pending');
             });
+
+            // 内容、翻译流程已进入稳定态后，再放行背景动画
+            if (token === detailTextRenderToken) {
+                detailReadyForBg = true;
+                requestAnimationFrame(() => {
+                    if (token !== detailTextRenderToken) return;
+                    if (!detailReadyForBg) return;
+                    // 先让 detail 进场
+                    detail.classList.remove('fade-out');
+                    detail.classList.add('fade-in');
+
+                    // 再触发背景淡入，确保 transition 生效而非瞬间出现
+                    container?.classList.remove('show-bg');
+                    void container?.offsetWidth;
+                    requestAnimationFrame(() => {
+                        if (token !== detailTextRenderToken) return;
+                        if (!detailReadyForBg) return;
+                        container?.classList.add('show-bg');
+                    });
+                });
+            }
         };
 
         if (immediate) {
@@ -602,7 +697,9 @@
         detail.classList.remove('fade-in');
         detail.classList.add('fade-out');
         if (detailTimer) clearTimeout(detailTimer);
-        detailTimer = setTimeout(apply, CONFIG.detailFadeDelay);
+        detailTimer = setTimeout(() => {
+            apply();
+        }, CONFIG.detailFadeDelay);
     }
 
     function syncPoolAssignments() {
@@ -654,10 +751,10 @@
     // 渲染函数
     // ================================
     function render() {
-        if (!sourceTracks.length || !trackPool.length) return;
+        if (!getTrackCount() || !trackPool.length) return;
 
         const centerY = osuWheel.clientHeight / 2;
-        const activeIndex = clamp(Math.round(offset), 0, sourceTracks.length - 1);
+        const activeIndex = clampOffset(Math.round(offset));
         const base = Math.floor(offset);
         const frac = offset - base;
 
@@ -676,7 +773,7 @@
             const x = CONFIG.offsetX + Math.cos(rad) * CONFIG.radius - CONFIG.radius;
             const y = centerY - trackHeight / 2 + Math.sin(rad) * CONFIG.radius;
 
-            const isValidSource = sourceIndex >= 0 && sourceIndex < sourceTracks.length;
+            const isValidSource = isValidSourceIndex(sourceIndex);
             const isActive = isValidSource && sourceIndex === activeIndex;
             const scale = isActive ? 1 : Math.max(0, 1 - Math.abs(sourceDiff) * 0.1) / CONFIG.scaleFactor;
             const shouldRender = isValidSource;
@@ -695,10 +792,10 @@
             track.style.pointerEvents = shouldRender ? 'auto' : 'none';
             track.classList.toggle('active', isActive);
             track.style.zIndex = String(CONFIG.activeZIndex - Math.round(Math.abs(sourceDiff)));
-            // 亮度曲线：中心 1.0，两侧从 0.75 递减到最外侧 0.35（由 :after 控制）
+            // 亮度曲线：中心 1.0，两侧从 0.75 递减到最外侧 0.15（由 :after 控制）
             const distance = Math.abs(logicalSlot);
             const t = clamp((distance - 1) / Math.max(1, halfVisible), 0, 1);
-            const brightness = isActive ? 1 : (0.75 - (0.75 - 0.35) * t);
+            const brightness = isActive ? 1 : (0.75 - (0.75 - 0.15) * t);
             track.style.setProperty('--track-brightness', String(brightness));
 
             // 兜底：只要可见且真实内容已写入，不允许残留 hidden
@@ -707,13 +804,26 @@
             }
         }
 
-        if (activeIndex !== lastActiveIndex) {
-            const isFirstDetailPaint = lastActiveIndex === -1;
-            lastActiveIndex = activeIndex;
-            updateDetail(sourceTracks[activeIndex], isFirstDetailPaint);
-        } else if (Math.abs(offset - targetOffset) < CONFIG.gapThreshold) {
-            container.classList.add('show-bg');
+        const settled = Math.abs(offset - targetOffset) < CONFIG.gapThreshold
+            && Math.abs(targetOffset - Math.round(targetOffset)) < CONFIG.gapThreshold;
+        if (isNavigatingAway) {
+            detailReadyForBg = false;
+            container.classList.remove('show-bg');
+        } else if (settled) {
+            const snappedIndex = clampOffset(Math.round(targetOffset));
+            const shouldRefresh = snappedIndex !== lastActiveIndex || detailNeedsRefreshAfterScroll;
+            if (shouldRefresh) {
+                const isFirstDetailPaint = lastActiveIndex === -1;
+                lastActiveIndex = snappedIndex;
+                detailNeedsRefreshAfterScroll = false;
+                updateDetail(sourceTracks[snappedIndex], isFirstDetailPaint);
+            } else if (detailReadyForBg) {
+                container.classList.add('show-bg');
+            } else {
+                container.classList.remove('show-bg');
+            }
         } else {
+            detailReadyForBg = false;
             container.classList.remove('show-bg');
         }
 
@@ -731,9 +841,9 @@
         if (e.target.closest('.track-detail')) return;
 
         const deltaOffset = (e.deltaY / CONFIG.scrollUnit) * CONFIG.scrollDirection;
-        targetOffset = Math.max(0, Math.min(sourceTracks.length - 1, targetOffset + deltaOffset));
-        // 仅在 wheel 输入结束（idle）后才触发 snap
-        startWheelIdleSnapTimer();
+        targetOffset = clampOffset(targetOffset + deltaOffset);
+        markWheelInputActive();
+        hideDetailDuringScroll();
     }
 
     // ================================
@@ -747,8 +857,8 @@
         isTouchDragging = true;
         startY = e.touches[0].clientY;
         startOffset = targetOffset;
-        if (wheelIdleTimer) clearTimeout(wheelIdleTimer);
-        if (snapTimer) clearTimeout(snapTimer);
+        clearSnapTimer();
+        resetWheelStopState();
     }
 
     function handleTouchMove(e) {
@@ -760,7 +870,8 @@
         const deltaY = e.touches[0].clientY - startY;
         const touchDirection = CONFIG.touchDirection;
         targetOffset = startOffset + deltaY * CONFIG.touchMoveFactor * touchDirection;
-        targetOffset = Math.max(0, Math.min(sourceTracks.length - 1, targetOffset));
+        targetOffset = clampOffset(targetOffset);
+        hideDetailDuringScroll();
     }
 
     function handleTouchEnd() {
@@ -780,6 +891,7 @@
 
             if (delta > 0) {
                 offset += (targetOffset - offset) * delta * CONFIG.animateSpeed;
+                maybeSnapOnPhysicalStop(delta);
             }
 
             render();
@@ -798,7 +910,8 @@
         }
         slotRenderUnlockAt = 0;
         slotRenderCursor = 0;
-        if (snapTimer) clearTimeout(snapTimer);
+        clearSnapTimer();
+        resetWheelStopState();
         if (detailTimer) clearTimeout(detailTimer);
         if (resizeObserver) resizeObserver.disconnect();
         if (titleResizeHandler) {
@@ -807,11 +920,36 @@
         }
 
         lastActiveIndex = -1;
+        detailReadyForBg = false;
+        detailNeedsRefreshAfterScroll = false;
         container = document.querySelector('.osu-container');
         osuWheel = document.querySelector('.osu-wheel');
         const timeline = document.querySelector('.osu-timeline');
         timelineSlider = document.getElementById('osu-timeline-slider');
         if (!container || !osuWheel) return;
+
+        if (!container.dataset.navHideBound) {
+            const shouldHandleNavHide = (target) => {
+                if (!(target instanceof Element)) return false;
+                const anchor = target.closest('a');
+                if (!anchor) return false;
+                const href = anchor.getAttribute('href') || '';
+                if (!href || href === '#') return false;
+                return Boolean(anchor.closest('.track-detail, .track-title'));
+            };
+
+            container.addEventListener('pointerdown', (e) => {
+                if (!shouldHandleNavHide(e.target)) return;
+                hideDetailImmediatelyForNavigate();
+            }, true);
+
+            container.addEventListener('click', (e) => {
+                const target = e.target;
+                if (!shouldHandleNavHide(target)) return;
+                hideDetailImmediatelyForNavigate();
+            }, true);
+            container.dataset.navHideBound = '1';
+        }
 
         if (timeline) {
             // 吞掉事件，避免 timeline 面板滚动/拖动触发页面或外层 wheel 行为
@@ -823,30 +961,31 @@
             timeline.addEventListener('wheel', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                if (!sourceTracks.length) return;
+                if (!getTrackCount()) return;
                 const deltaOffset = (e.deltaY / CONFIG.scrollUnit) * CONFIG.scrollDirection;
-                targetOffset = clamp(targetOffset + deltaOffset, 0, Math.max(0, sourceTracks.length - 1));
-                // timeline 上 wheel 也遵循“输入结束后才 snap”
-                startWheelIdleSnapTimer();
+                targetOffset = clampOffset(targetOffset + deltaOffset);
+                markWheelInputActive();
+                hideDetailDuringScroll();
             }, { passive: false });
 
             timeline.addEventListener('touchstart', (e) => {
                 e.stopPropagation();
-                if (!isPortraitMode() || e.touches.length !== 1 || !sourceTracks.length) return;
+                if (!isPortraitMode() || e.touches.length !== 1 || !getTrackCount()) return;
                 isTimelineTouchDragging = true;
                 timelineTouchStartY = e.touches[0].clientY;
                 startOffset = targetOffset;
-                if (wheelIdleTimer) clearTimeout(wheelIdleTimer);
-                if (snapTimer) clearTimeout(snapTimer);
+                clearSnapTimer();
+                resetWheelStopState();
             }, { passive: true });
 
             timeline.addEventListener('touchmove', (e) => {
                 e.stopPropagation();
-                if (!isTimelineTouchDragging || !isPortraitMode() || e.touches.length !== 1 || !sourceTracks.length) return;
+                if (!isTimelineTouchDragging || !isPortraitMode() || e.touches.length !== 1 || !getTrackCount()) return;
                 e.preventDefault();
                 const deltaY = e.touches[0].clientY - timelineTouchStartY;
                 const touchDirection = CONFIG.touchDirection;
-                targetOffset = clamp(startOffset + deltaY * CONFIG.touchMoveFactor * touchDirection, 0, Math.max(0, sourceTracks.length - 1));
+                targetOffset = clampOffset(startOffset + deltaY * CONFIG.touchMoveFactor * touchDirection);
+                hideDetailDuringScroll();
             }, { passive: false });
 
             timeline.addEventListener('touchend', (e) => {
@@ -865,19 +1004,20 @@
         }
 
         initTracks();
-        if (!sourceTracks.length) return;
-        offset = Math.max(0, sourceTracks.length - 1);
+        if (!getTrackCount()) return;
+        offset = getMaxOffset();
         targetOffset = offset;
 
         if (timelineSlider) {
             timelineSlider.min = '0';
-            timelineSlider.max = String(Math.max(0, sourceTracks.length - 1));
+            timelineSlider.max = String(getMaxOffset());
             timelineSlider.step = '0.01';
-            timelineSlider.value = String(Math.max(0, sourceTracks.length - 1));
+            timelineSlider.value = String(getMaxOffset());
 
             timelineSlider.addEventListener('input', () => {
                 if (!isSliderDragging) {
-                    targetOffset = clamp(sliderToOffset(timelineSlider.value), 0, Math.max(0, sourceTracks.length - 1));
+                    targetOffset = clampOffset(sliderToOffset(timelineSlider.value));
+                    hideDetailDuringScroll();
                 }
             });
 
@@ -893,6 +1033,7 @@
                 if (!isSliderDragging || (sliderPointerId !== null && e.pointerId !== sliderPointerId)) return;
                 e.preventDefault();
                 setSliderTargetFromPointer(e.clientX, e.clientY);
+                hideDetailDuringScroll();
             });
 
             timelineSlider.addEventListener('pointerup', (e) => {
