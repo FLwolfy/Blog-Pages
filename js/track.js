@@ -20,7 +20,7 @@
         snapDelay: 150,            // 自动吸附延迟（ms）
         detailFadeDelay: 500,      // detail 区淡出延迟（ms）
         gapThreshold: 0.01,        // 位置差异阈值（小于该值时认为已到达目标位置）
-        asyncRenderInternal: 22,   // 触发下一个 slot 异步渲染的时间间隔（ms）
+        asyncRenderInternal: 30,   // 触发下一个 slot 异步渲染的时间间隔（ms）
         contentFadeInMs: 220       // 异步内容回填后的淡入时长（ms）
     };
 
@@ -61,6 +61,7 @@
     let slotRenderRafId = null;
     let offset = 0;
     let targetOffset = 0;
+    let wheelIdleTimer = null;
 
     function getPoolSize() {
         return Math.max(2, CONFIG.visibleCount * 2);
@@ -432,8 +433,16 @@
     // ================================
     function startSnapTimer() {
         if (snapTimer) clearTimeout(snapTimer);
+        if (wheelIdleTimer) clearTimeout(wheelIdleTimer);
         snapTimer = setTimeout(() => {
             targetOffset = Math.round(targetOffset);
+        }, CONFIG.snapDelay);
+    }
+
+    function startWheelIdleSnapTimer() {
+        if (wheelIdleTimer) clearTimeout(wheelIdleTimer);
+        wheelIdleTimer = setTimeout(() => {
+            startSnapTimer();
         }, CONFIG.snapDelay);
     }
 
@@ -624,7 +633,8 @@
 
         const deltaOffset = (e.deltaY / CONFIG.scrollUnit) * CONFIG.scrollDirection;
         targetOffset = Math.max(0, Math.min(sourceTracks.length - 1, targetOffset + deltaOffset));
-        startSnapTimer();
+        // 仅在 wheel 输入结束（idle）后才触发 snap
+        startWheelIdleSnapTimer();
     }
 
     // ================================
@@ -638,6 +648,7 @@
         isTouchDragging = true;
         startY = e.touches[0].clientY;
         startOffset = targetOffset;
+        if (wheelIdleTimer) clearTimeout(wheelIdleTimer);
         if (snapTimer) clearTimeout(snapTimer);
     }
 
@@ -716,7 +727,8 @@
                 if (!sourceTracks.length) return;
                 const deltaOffset = (e.deltaY / CONFIG.scrollUnit) * CONFIG.scrollDirection;
                 targetOffset = clamp(targetOffset + deltaOffset, 0, Math.max(0, sourceTracks.length - 1));
-                startSnapTimer();
+                // timeline 上 wheel 也遵循“输入结束后才 snap”
+                startWheelIdleSnapTimer();
             }, { passive: false });
 
             timeline.addEventListener('touchstart', (e) => {
@@ -725,6 +737,7 @@
                 isTimelineTouchDragging = true;
                 timelineTouchStartY = e.touches[0].clientY;
                 startOffset = targetOffset;
+                if (wheelIdleTimer) clearTimeout(wheelIdleTimer);
                 if (snapTimer) clearTimeout(snapTimer);
             }, { passive: true });
 
