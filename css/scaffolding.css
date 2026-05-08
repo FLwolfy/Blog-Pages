@@ -4148,6 +4148,21 @@ use.stop-animation {
   --waline-info-bg-color: var(--grey-2);
   --waline-info-color: var(--grey-6);
 }
+#comments .wl-editor,
+#comments .wl-input {
+  background-image: none !important;
+  box-shadow: none;
+  text-decoration: none;
+  -webkit-appearance: none;
+  appearance: none;
+  padding-left: 0.65rem;
+  padding-right: 0.65rem;
+  box-sizing: border-box;
+}
+#comments .wl-editor:focus,
+#comments .wl-input:focus {
+  box-shadow: 0 0 0 1px var(--waline-active-color) inset !important;
+}
 #MusicPlayerRoot {
   background-color: var(--grey-6-a2);
   color: var(--text-color);

@@ -1,19 +1,14 @@
 (function () {
   'use strict';
 
-  var STORAGE_KEY = 'zh-auto-variant';
   var OPENCC_CDN = 'https://cdn.jsdelivr.net/npm/opencc-js@1.3.0/dist/umd/full.js';
   var IP_TIMEOUT = 1800;
   var OPENCC_TIMEOUT = 2500;
   var ATTRS = ['title', 'alt', 'placeholder', 'aria-label'];
-  var USER_CONTENT_SELECTOR = [
-    '#new-comment .item',
-    '#comments .wl-content',
-    '#comments .wl-nick',
-    '#comments .tk-content',
-    '#comments .tk-nick',
-    '#comments .tk-nick-link'
-  ].join(',');
+
+  // ==============================
+  // 转换策略（唯一真源）
+  // ==============================
   var SKIP_TAGS = new Set([
     'SCRIPT',
     'STYLE',
@@ -21,14 +16,35 @@
     'PRE',
     'KBD',
     'SAMP',
-    'TEXTAREA',
-    'INPUT',
     'SELECT',
     'OPTION',
     'SVG',
     'CANVAS',
     'IFRAME'
   ]);
+
+  // 不转换清单：命中即跳过
+  var SKIP_SELECTORS = [
+    '.no-opencc',
+    '.no-translate',
+    '[data-no-opencc]',
+    '#new-comment .item',
+    '#comments .wl-content',
+    '#comments .wl-nick',
+    '#comments .tk-content',
+    '#comments .tk-nick',
+    '#comments .tk-nick-link'
+  ];
+
+  // 强制转换清单：命中即转换（优先级高于 SKIP）
+  var FORCE_SELECTORS = [
+    '#comments textarea',
+    '#comments input',
+    '#comments [contenteditable="true"]',
+    '#comments .wl-editor',
+    '#comments .wl-input'
+  ];
+
   var converter = null;
   var openCCPromise = null;
   var readyPromise = null;
@@ -92,25 +108,33 @@
     });
   }
 
-  function isLocalhost() {
-    var host = (window.location.hostname || '').toLowerCase();
-    return host === 'localhost' || host === '127.0.0.1' || host === '::1';
+  function hasChinese(text) {
+    return /[\u3400-\u9fff]/.test(text);
   }
 
-  function shouldSkipElement(el) {
-    for (var node = el; node && node.nodeType === 1; node = node.parentElement) {
-      if (SKIP_TAGS.has(node.tagName)) return true;
-      if (node.classList && (node.classList.contains('no-opencc') || node.classList.contains('no-translate'))) {
-        return true;
-      }
-      if (node.matches && node.matches(USER_CONTENT_SELECTOR)) return true;
-      if (node.hasAttribute && node.hasAttribute('data-no-opencc')) return true;
+  function matchesAnySelector(el, selectors) {
+    if (!el || !el.matches) return false;
+    for (var i = 0; i < selectors.length; i++) {
+      if (el.matches(selectors[i])) return true;
     }
     return false;
   }
 
-  function hasChinese(text) {
-    return /[\u3400-\u9fff]/.test(text);
+  function shouldForceElement(el) {
+    for (var node = el; node && node.nodeType === 1; node = node.parentElement) {
+      if (matchesAnySelector(node, FORCE_SELECTORS)) return true;
+    }
+    return false;
+  }
+
+  function shouldSkipElement(el) {
+    if (shouldForceElement(el)) return false;
+
+    for (var node = el; node && node.nodeType === 1; node = node.parentElement) {
+      if (SKIP_TAGS.has(node.tagName)) return true;
+      if (matchesAnySelector(node, SKIP_SELECTORS)) return true;
+    }
+    return false;
   }
 
   function convertText(text) {
@@ -281,16 +305,33 @@
   }
 
   function decide() {
-    var queryVariant = new URLSearchParams(window.location.search).get('zh');
-    if (queryVariant === 'cn') return Promise.resolve(false);
-    if (queryVariant === 'tw') return Promise.resolve(true);
-
-    var saved = localStorage.getItem(STORAGE_KEY);
-    if (saved === 'zh-CN') return Promise.resolve(false);
-    if (saved === 'zh-TW') return Promise.resolve(true);
-
+    // 不妥协策略：仅使用 IP 判定；失败则不转换
     return detectCountryByIp().then(function (country) {
-      return country ? country !== 'CN' : isLocalhost();
+      if (!country) return false;
+      return country !== 'CN';
+    });
+  }
+
+  function maybeAwait(fn, fallbackCtx) {
+    if (typeof fn !== 'function') return Promise.resolve();
+    try {
+      return Promise.resolve(fn(fallbackCtx));
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }
+
+  function convertRegion(options) {
+    var opts = options || {};
+    var root = opts.root || document.getElementById('main') || document.body;
+    return init().then(function (enabled) {
+      if (!enabled) return false;
+      return maybeAwait(opts.beforeRender, { root: root, enabled: true }).then(function () {
+        refresh(root);
+        return maybeAwait(opts.afterRender, { root: root, enabled: true }).then(function () {
+          return true;
+        });
+      });
     });
   }
 
@@ -317,17 +358,12 @@
   window.AutoZh = {
     ready: init(),
     refresh: function (root) {
-      return init().then(function (enabled) {
-        if (enabled) refresh(root);
-        return enabled;
-      });
-    }
-  };
-
-  window.setZhAutoVariant = function (variant) {
-    if (variant === 'zh-CN' || variant === 'zh-TW') {
-      localStorage.setItem(STORAGE_KEY, variant);
-      window.location.reload();
+      return convertRegion({ root: root });
+    },
+    convertRegion: convertRegion,
+    config: {
+      skipSelectors: SKIP_SELECTORS,
+      forceSelectors: FORCE_SELECTORS
     }
   };
 })();
