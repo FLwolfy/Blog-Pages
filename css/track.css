@@ -762,14 +762,19 @@
   position: relative;
   font-size: 1rem;
   line-height: 1.2rem;
-  overflow: hidden;
+  overflow: auto;
   flex: 1 1 auto; /* 填充剩余空间 */
   min-height: 0;
+  max-height: 100%;
+  width: 100%;
+  box-sizing: border-box;
   margin-top: 1rem;
   margin-bottom: 0;
   display: block;
   white-space: normal;
   word-break: break-word;
+  overflow-wrap: anywhere;
+  overscroll-behavior: contain;
   padding-bottom: 2.6rem;
   -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 78%, transparent 100%);
   mask-image: linear-gradient(to bottom, #000 0%, #000 78%, transparent 100%);
@@ -800,6 +805,46 @@
 }
 .track-info-description.track-text-pending {
   opacity: 0;
+}
+/* 仅供主题脚本探测使用，不参与 track 布局 */
+#track-post-sentinel.post.block {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+/* track 内的 post 包裹容器：保留语义但不干扰布局 */
+.track-detail .track-post-proxy.post.block {
+  padding: 0 !important;
+  margin: 0 !important;
+  width: 100%;
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+/* track-md 容器 */
+.track-detail .track-info-description.track-md {
+  display: block;
+  white-space: normal;
+  font-size: inherit;
+  line-height: inherit;
+  word-break: break-word;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+.track-detail .track-info-description.track-md * {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+.track-detail .track-info-description.track-md pre,
+.track-detail .track-info-description.track-md .table-container,
+.track-detail .track-info-description.track-md .katex-display {
+  max-width: 100%;
+  overflow: auto;
 }
 /* ==============================
    track-info-readmore：阅读更多按钮

@@ -64,6 +64,7 @@
     let targetOffset = 0;
     let wheelIdleTimer = null;
     let detailTextRenderToken = 0;
+    let postCssReadyPromise = null;
 
     function getPoolSize() {
         return Math.max(2, CONFIG.visibleCount * 2);
@@ -100,6 +101,40 @@
             : clamp((clientX - rect.left) / rect.width, 0, 1);
         const sliderValue = ratio * Math.max(0, sourceTracks.length - 1);
         targetOffset = clamp(sliderToOffset(sliderValue), 0, Math.max(0, sourceTracks.length - 1));
+    }
+
+    function ensurePostCssReady() {
+        if (postCssReadyPromise) return postCssReadyPromise;
+
+        postCssReadyPromise = new Promise((resolve) => {
+            const hrefSuffix = '/css/post.css';
+            const existing = Array.from(document.querySelectorAll('link[rel="stylesheet"]'))
+                .find((el) => {
+                    const href = el.getAttribute('href') || '';
+                    return href.endsWith(hrefSuffix) || href.includes(`${hrefSuffix}?`);
+                });
+
+            if (existing) {
+                const sheet = existing.sheet;
+                if (sheet) {
+                    resolve();
+                    return;
+                }
+                existing.addEventListener('load', () => resolve(), { once: true });
+                existing.addEventListener('error', () => resolve(), { once: true });
+                return;
+            }
+
+            const link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = hrefSuffix;
+            link.dataset.trackPostCss = '1';
+            link.addEventListener('load', () => resolve(), { once: true });
+            link.addEventListener('error', () => resolve(), { once: true });
+            document.head.appendChild(link);
+        });
+
+        return postCssReadyPromise;
     }
 
     // ================================
@@ -507,6 +542,8 @@
 
         const { detail, cover, title, description, meta, link } = elems;
         const renderTextWithAutoZh = async (token) => {
+            await ensurePostCssReady();
+            if (token !== detailTextRenderToken) return;
             if (window.AutoZh?.ready) await window.AutoZh.ready;
             if (token !== detailTextRenderToken) return;
             if (window.AutoZh?.refresh) {
