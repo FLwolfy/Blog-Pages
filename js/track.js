@@ -70,6 +70,9 @@
     let detailReadyForBg = false;
     let detailNeedsRefreshAfterScroll = false;
     let isNavigatingAway = false;
+    let detailRenderUnlockAt = 0;
+    let pendingDetailIndex = -1;
+    let pendingDetailImmediate = false;
 
     function getPoolSize() {
         return Math.max(2, CONFIG.visibleCount * 2);
@@ -266,6 +269,7 @@
     }
 
     function captureTrackData(track) {
+        const metaHtml = track.querySelector('.track-meta-html')?.innerHTML || '';
         return {
             created: track.dataset.created || '',
             title: track.dataset.title || '',
@@ -273,7 +277,8 @@
             cover: track.dataset.cover || '',
             link: track.dataset.link || '#',
             height: track.offsetHeight || track.getBoundingClientRect().height || 0,
-            html: track.innerHTML
+            html: track.innerHTML,
+            metaHtml
         };
     }
 
@@ -602,6 +607,37 @@
         setDetailHiddenState({ navigating: true });
     }
 
+    function queueDetailRender(index, immediate = false) {
+        if (!isValidSourceIndex(index)) return;
+        pendingDetailIndex = index;
+        if (immediate) pendingDetailImmediate = true;
+    }
+
+    function flushQueuedDetailRender(nowMs) {
+        if (pendingDetailIndex < 0 || isNavigatingAway) return;
+
+        const immediate = pendingDetailImmediate;
+        if (!immediate && nowMs < detailRenderUnlockAt) return;
+
+        const index = pendingDetailIndex;
+        pendingDetailIndex = -1;
+        pendingDetailImmediate = false;
+        detailRenderUnlockAt = nowMs + Math.max(1, CONFIG.asyncRenderInternal);
+
+        const isFirstDetailPaint = lastActiveIndex === -1;
+        lastActiveIndex = index;
+        detailNeedsRefreshAfterScroll = false;
+        updateDetail(sourceTracks[index], immediate || isFirstDetailPaint);
+    }
+
+    function onPageShow() {
+        // 浏览器返回（bfcache）后，清掉“正在离开页面”残留状态
+        isNavigatingAway = false;
+        detailReadyForBg = false;
+        detailNeedsRefreshAfterScroll = true;
+        container?.classList.remove('show-bg');
+    }
+
     function shouldHandleNavHideTarget(target) {
         if (!(target instanceof Element)) return false;
         const anchor = target.closest('a');
@@ -725,19 +761,16 @@
             title.classList.add('track-text-pending');
             description.classList.add('track-text-pending');
 
-            title.textContent = newTitle;
-            description.innerHTML = '';
+            if (title.textContent !== newTitle) title.textContent = newTitle;
             if (cover.src !== newCover) {
                 cover.src = newCover;
                 container.style.setProperty('--bg-url', `url(${newCover || ''})`);
             }
 
-            const temp = document.createElement('div');
-            temp.innerHTML = activeTrackData.html || '';
-            const newMeta = temp.querySelector('.track-meta-html')?.innerHTML ?? '';
+            const newMeta = activeTrackData.metaHtml || '';
             if (meta.innerHTML !== newMeta) meta.innerHTML = newMeta;
-            if (link.href !== newLink) link.href = newLink;
-            description.innerHTML = newDescription;
+            if (link.getAttribute('href') !== newLink) link.setAttribute('href', newLink);
+            if (description.innerHTML !== newDescription) description.innerHTML = newDescription;
 
             renderTextWithAutoZh(token).catch(() => {
                 if (token !== detailTextRenderToken) return;
@@ -883,27 +916,28 @@
             }
         }
 
-        const settled = Math.abs(offset - targetOffset) < CONFIG.gapThreshold
-            && Math.abs(targetOffset - Math.round(targetOffset)) < CONFIG.gapThreshold;
+        const nowMs = performance.now();
         if (isNavigatingAway) {
             detailReadyForBg = false;
             container.classList.remove('show-bg');
-        } else if (settled) {
+            pendingDetailIndex = -1;
+            pendingDetailImmediate = false;
+        } else {
             const snappedIndex = clampOffset(Math.round(targetOffset));
-            const shouldRefresh = snappedIndex !== lastActiveIndex || detailNeedsRefreshAfterScroll;
-            if (shouldRefresh) {
-                const isFirstDetailPaint = lastActiveIndex === -1;
-                lastActiveIndex = snappedIndex;
-                detailNeedsRefreshAfterScroll = false;
-                updateDetail(sourceTracks[snappedIndex], isFirstDetailPaint);
-            } else if (detailReadyForBg) {
+            const shouldQueueUpdate = snappedIndex !== lastActiveIndex || detailNeedsRefreshAfterScroll;
+            if (shouldQueueUpdate) {
+                // 实时写入缓冲：不论快慢滚动，始终保持最新目标 index
+                const immediate = lastActiveIndex === -1;
+                queueDetailRender(snappedIndex, immediate);
+            }
+            // 异步渲染 + 节流：使用 asyncRenderInternal 作为最小渲染间隔
+            flushQueuedDetailRender(nowMs);
+
+            if (detailReadyForBg && pendingDetailIndex < 0) {
                 container.classList.add('show-bg');
             } else {
                 container.classList.remove('show-bg');
             }
-        } else {
-            detailReadyForBg = false;
-            container.classList.remove('show-bg');
         }
 
         if (timelineSlider) {
@@ -989,6 +1023,9 @@
         }
         slotRenderUnlockAt = 0;
         slotRenderCursor = 0;
+        detailRenderUnlockAt = 0;
+        pendingDetailIndex = -1;
+        pendingDetailImmediate = false;
         clearSnapTimer();
         resetWheelStopState();
         if (detailTimer) clearTimeout(detailTimer);
@@ -1001,6 +1038,7 @@
         lastActiveIndex = -1;
         detailReadyForBg = false;
         detailNeedsRefreshAfterScroll = false;
+        isNavigatingAway = false;
         container = document.querySelector('.osu-container');
         osuWheel = document.querySelector('.osu-wheel');
         const timeline = document.querySelector('.osu-timeline');
@@ -1077,5 +1115,6 @@
 
     window.initOsuWheel = initOsuWheel;
     window.forceOsuTitleTruncation = forceTitleTruncation;
+    window.addEventListener('pageshow', onPageShow);
 
 })();
