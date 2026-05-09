@@ -65,7 +65,7 @@
     let wheelInputActive = false;
     let wheelDecayElapsedMs = 0;
     let wheelPrevSpeed = Infinity;
-    let detailTextRenderToken = 0;
+    let detailFlowToken = 0;
     let postCssReadyPromise = null;
     let detailReadyForBg = false;
     let detailNeedsRefreshAfterScroll = false;
@@ -73,6 +73,8 @@
     let detailRenderUnlockAt = 0;
     let pendingDetailIndex = -1;
     let pendingDetailImmediate = false;
+    let detailDisplayedIndex = -1;
+    let detailElementsCache = null;
 
     function getPoolSize() {
         return Math.max(2, CONFIG.visibleCount * 2);
@@ -127,6 +129,13 @@
         targetOffset = clampOffset(sliderToOffset(sliderValue));
     }
 
+    function resetDetailQueueState() {
+        detailRenderUnlockAt = 0;
+        pendingDetailIndex = -1;
+        pendingDetailImmediate = false;
+        detailDisplayedIndex = -1;
+    }
+
     function ensurePostCssReady() {
         if (postCssReadyPromise) return postCssReadyPromise;
 
@@ -177,8 +186,10 @@
     // DOM 查询 / IO 操作
     // ================================
     function getDetailElements() {
+        if (detailElementsCache?.detail?.isConnected) return detailElementsCache;
+
         const detail = document.querySelector('.track-detail');
-        return detail ? {
+        detailElementsCache = detail ? {
             detail,
             cover: detail.querySelector('.track-cover img'),
             title: detail.querySelector('.track-info-title'),
@@ -186,6 +197,7 @@
             meta: detail.querySelector('.track-info-meta'),
             link: detail.querySelector('.track-info-readmore')
         } : null;
+        return detailElementsCache;
     }
 
     function truncateTextToFit(text, maxWidth, font) {
@@ -215,8 +227,7 @@
         return text.slice(0, low) + suffix;
     }
 
-    function applyManualTitleTruncation() {
-        const anchors = document.querySelectorAll('.osu-container .track-content .track-title a');
+    function truncateAnchors(anchors) {
         anchors.forEach((anchor) => {
             if (!anchor.dataset.fullTitle) {
                 anchor.dataset.fullTitle = (anchor.textContent || '').trim();
@@ -235,37 +246,25 @@
         });
     }
 
+    function applyTitleTruncation() {
+        truncateAnchors(document.querySelectorAll('.osu-container .track-content .track-title a'));
+    }
+
     function forceTitleTruncation() {
-        applyManualTitleTruncation();
+        applyTitleTruncation();
     }
 
     function scheduleTitleTruncation() {
         if (truncationRafId !== null) return;
         truncationRafId = requestAnimationFrame(() => {
             truncationRafId = null;
-            applyManualTitleTruncation();
+            applyTitleTruncation();
         });
     }
 
     function applySlotTitleTruncation(slot) {
         if (!slot) return;
-        const anchors = slot.querySelectorAll('.track-content .track-title a');
-        anchors.forEach((anchor) => {
-            if (!anchor.dataset.fullTitle) {
-                anchor.dataset.fullTitle = (anchor.textContent || '').trim();
-            }
-            const fullTitle = anchor.dataset.fullTitle || '';
-            const titleWrap = anchor.closest('.track-title');
-            if (!titleWrap) return;
-
-            const styles = window.getComputedStyle(anchor);
-            const rightInset = parseFloat(styles.right) || 0;
-            const safeWidth = Math.max(0, titleWrap.clientWidth - rightInset);
-            if (safeWidth <= 0) return;
-
-            const font = `${styles.fontStyle} ${styles.fontVariant} ${styles.fontWeight} ${styles.fontSize} / ${styles.lineHeight} ${styles.fontFamily}`;
-            anchor.textContent = truncateTextToFit(fullTitle, safeWidth, font);
-        });
+        truncateAnchors(slot.querySelectorAll('.track-content .track-title a'));
     }
 
     function captureTrackData(track) {
@@ -365,12 +364,7 @@
         // 首屏同步渲染不做淡入，直接完整显示
     }
 
-    function hasPendingSlotRenders() {
-        for (let i = 0; i < slotPendingSourceIndex.length; i++) {
-            if (slotPendingSourceIndex[i] !== null) return true;
-        }
-        return false;
-    }
+    const hasPendingSlotRenders = () => slotPendingSourceIndex.some((idx) => idx !== null);
 
     function processOneSlotRender(slotIndex) {
         const sourceIndex = slotPendingSourceIndex[slotIndex];
@@ -592,8 +586,14 @@
         if (!elems) return;
 
         if (navigating) isNavigatingAway = true;
+        detailFlowToken += 1;
+        if (detailTimer) {
+            clearTimeout(detailTimer);
+            detailTimer = null;
+        }
         elems.detail.classList.remove('fade-in');
         elems.detail.classList.add('fade-out');
+        elems.detail.classList.add('pending-lock');
         detailReadyForBg = false;
         if (refreshNeeded) detailNeedsRefreshAfterScroll = true;
         container?.classList.remove('show-bg');
@@ -605,6 +605,18 @@
 
     function hideDetailImmediatelyForNavigate() {
         setDetailHiddenState({ navigating: true });
+    }
+
+    function getCurrentDetailIndex() {
+        if (lastActiveIndex >= 0) return lastActiveIndex;
+        return clampOffset(Math.round(offset));
+    }
+
+    function hideDetailIfSwitching(nextOffset) {
+        const nextIndex = clampOffset(Math.round(nextOffset));
+        const currentIndex = getCurrentDetailIndex();
+        if (nextIndex === currentIndex) return;
+        hideDetailDuringScroll();
     }
 
     function queueDetailRender(index, immediate = false) {
@@ -625,9 +637,13 @@
         detailRenderUnlockAt = nowMs + Math.max(1, CONFIG.asyncRenderInternal);
 
         const isFirstDetailPaint = lastActiveIndex === -1;
+        const isSwitch = index !== detailDisplayedIndex;
+        const needsRefresh = detailNeedsRefreshAfterScroll;
         lastActiveIndex = index;
         detailNeedsRefreshAfterScroll = false;
-        updateDetail(sourceTracks[index], immediate || isFirstDetailPaint);
+        // refresh 场景也走过渡，避免偶发“直接闪现”
+        updateDetail(sourceTracks[index], immediate || isFirstDetailPaint, isSwitch || needsRefresh);
+        detailDisplayedIndex = index;
     }
 
     function onPageShow() {
@@ -635,7 +651,29 @@
         isNavigatingAway = false;
         detailReadyForBg = false;
         detailNeedsRefreshAfterScroll = true;
+        resetDetailQueueState();
         container?.classList.remove('show-bg');
+    }
+
+    function resetWheelRuntimeState() {
+        clearSnapTimer();
+        resetWheelStopState();
+        if (detailTimer) clearTimeout(detailTimer);
+        if (resizeObserver) resizeObserver.disconnect();
+        if (truncationRafId !== null) {
+            cancelAnimationFrame(truncationRafId);
+            truncationRafId = null;
+        }
+        if (titleResizeHandler) {
+            window.removeEventListener('resize', titleResizeHandler);
+            titleResizeHandler = null;
+        }
+
+        lastActiveIndex = -1;
+        detailReadyForBg = false;
+        detailNeedsRefreshAfterScroll = false;
+        isNavigatingAway = false;
+        resetDetailQueueState();
     }
 
     function shouldHandleNavHideTarget(target) {
@@ -664,7 +702,7 @@
     }
 
     function bindTimelineEvents(timeline) {
-        if (!timeline) return;
+        if (!timeline || timeline.dataset.trackTimelineBound) return;
 
         // 吞掉事件，避免 timeline 面板滚动/拖动触发页面或外层 wheel 行为
         const absorbEvents = ['pointerdown', 'pointermove', 'pointerup', 'mousedown', 'mouseup', 'click'];
@@ -677,9 +715,10 @@
             e.stopPropagation();
             if (!getTrackCount()) return;
             const deltaOffset = (e.deltaY / CONFIG.scrollUnit) * CONFIG.scrollDirection;
-            targetOffset = clampOffset(targetOffset + deltaOffset);
+            const nextOffset = clampOffset(targetOffset + deltaOffset);
+            hideDetailIfSwitching(nextOffset);
+            targetOffset = nextOffset;
             markWheelInputActive();
-            hideDetailDuringScroll();
         }, { passive: false });
 
         timeline.addEventListener('touchstart', (e) => {
@@ -698,8 +737,9 @@
             e.preventDefault();
             const deltaY = e.touches[0].clientY - timelineTouchStartY;
             const touchDirection = CONFIG.touchDirection;
-            targetOffset = clampOffset(startOffset + deltaY * CONFIG.touchMoveFactor * touchDirection);
-            hideDetailDuringScroll();
+            const nextOffset = clampOffset(startOffset + deltaY * CONFIG.touchMoveFactor * touchDirection);
+            hideDetailIfSwitching(nextOffset);
+            targetOffset = nextOffset;
         }, { passive: false });
 
         timeline.addEventListener('touchend', (e) => {
@@ -715,48 +755,60 @@
             isTimelineTouchDragging = false;
             startSnapTimer();
         }, { passive: true });
+
+        timeline.dataset.trackTimelineBound = '1';
     }
 
     // ================================
     // 更新右侧 detail 区内容
     // ================================
-    function updateDetail(activeTrackData, immediate = false) {
+    function updateDetail(activeTrackData, immediate = false, withTransition = true) {
         const elems = getDetailElements();
         if (!elems || !activeTrackData) return;
 
+        detailFlowToken += 1;
+        const flowToken = detailFlowToken;
+        if (detailTimer) {
+            clearTimeout(detailTimer);
+            detailTimer = null;
+        }
+
         const { detail, cover, title, description, meta, link } = elems;
+
+        // 统一动画起点：只要要求过渡，就先回到隐藏态，避免浏览器复用旧样式导致“直接闪现”
+        if (withTransition) {
+            detail.classList.remove('fade-in');
+            detail.classList.add('fade-out');
+            detail.classList.add('pending-lock');
+            container?.classList.remove('show-bg');
+            // 强制提交起点样式，确保后续 fade-in 一定触发
+            void detail.offsetWidth;
+        }
+
         const renderTextWithAutoZh = async (token) => {
             await ensurePostCssReady();
-            if (token !== detailTextRenderToken) return;
+            if (token !== detailFlowToken) return;
             if (window.AutoZh?.ready) await window.AutoZh.ready;
-            if (token !== detailTextRenderToken) return;
+            if (token !== detailFlowToken) return;
             if (window.AutoZh?.refresh) {
                 await window.AutoZh.refresh(title);
-                if (token !== detailTextRenderToken) return;
+                if (token !== detailFlowToken) return;
                 await window.AutoZh.refresh(description);
             }
-            if (token !== detailTextRenderToken) return;
+            if (token !== detailFlowToken) return;
             requestAnimationFrame(() => {
-                if (token !== detailTextRenderToken) return;
+                if (token !== detailFlowToken) return;
                 title.classList.remove('track-text-pending');
                 description.classList.remove('track-text-pending');
             });
         };
 
-        const apply = () => {
-            // 新一轮 detail 更新开始：背景必须先隐藏，避免旧图先露出
-            detailReadyForBg = false;
-            container?.classList.remove('show-bg');
-            detail.classList.remove('fade-in');
-            detail.classList.add('fade-out');
-
+        const apply = (token) => {
+            if (token !== detailFlowToken) return;
             const newTitle = activeTrackData.title || '';
             const newDescription = activeTrackData.description || '';
             const newCover = activeTrackData.cover || '';
             const newLink = activeTrackData.link || '#';
-
-            detailTextRenderToken += 1;
-            const token = detailTextRenderToken;
 
             title.classList.add('track-text-pending');
             description.classList.add('track-text-pending');
@@ -772,45 +824,52 @@
             if (link.getAttribute('href') !== newLink) link.setAttribute('href', newLink);
             if (description.innerHTML !== newDescription) description.innerHTML = newDescription;
 
-            renderTextWithAutoZh(token).catch(() => {
-                if (token !== detailTextRenderToken) return;
+            // 关键：等待文字/翻译就绪后再进场，避免 fade 结束后再闪一次
+            const textReady = renderTextWithAutoZh(token).catch(() => {
+                if (token !== detailFlowToken) return;
                 title.classList.remove('track-text-pending');
                 description.classList.remove('track-text-pending');
             });
 
-            // 内容、翻译流程已进入稳定态后，再放行背景动画
-            if (token === detailTextRenderToken) {
+            textReady.then(() => {
+                if (token !== detailFlowToken) return;
                 detailReadyForBg = true;
                 requestAnimationFrame(() => {
-                    if (token !== detailTextRenderToken) return;
+                    if (token !== detailFlowToken) return;
                     if (!detailReadyForBg) return;
-                    // 先让 detail 进场
-                    detail.classList.remove('fade-out');
-                    detail.classList.add('fade-in');
-
-                    // 再触发背景淡入，确保 transition 生效而非瞬间出现
-                    container?.classList.remove('show-bg');
-                    void container?.offsetWidth;
-                    requestAnimationFrame(() => {
-                        if (token !== detailTextRenderToken) return;
-                        if (!detailReadyForBg) return;
+                    if (withTransition) {
+                        // 切换条目：先 detail 进场，再背景淡入
+                        requestAnimationFrame(() => {
+                            if (token !== detailFlowToken) return;
+                            if (!detailReadyForBg) return;
+                            detail.classList.remove('pending-lock');
+                            detail.classList.remove('fade-out');
+                            detail.classList.add('fade-in');
+                            requestAnimationFrame(() => {
+                                if (token !== detailFlowToken) return;
+                                if (!detailReadyForBg) return;
+                                container?.classList.add('show-bg');
+                            });
+                        });
+                    } else {
+                        // 同条目刷新：保持显示，避免二次闪动
+                        detail.classList.remove('pending-lock');
+                        detail.classList.remove('fade-out');
+                        detail.classList.add('fade-in');
                         container?.classList.add('show-bg');
-                    });
+                    }
                 });
-            }
+            });
         };
 
         if (immediate) {
-            if (detailTimer) clearTimeout(detailTimer);
-            apply();
+            apply(flowToken);
             return;
         }
 
-        detail.classList.remove('fade-in');
-        detail.classList.add('fade-out');
-        if (detailTimer) clearTimeout(detailTimer);
         detailTimer = setTimeout(() => {
-            apply();
+            apply(flowToken);
+            if (flowToken === detailFlowToken) detailTimer = null;
         }, CONFIG.detailFadeDelay);
     }
 
@@ -920,8 +979,7 @@
         if (isNavigatingAway) {
             detailReadyForBg = false;
             container.classList.remove('show-bg');
-            pendingDetailIndex = -1;
-            pendingDetailImmediate = false;
+            resetDetailQueueState();
         } else {
             const snappedIndex = clampOffset(Math.round(targetOffset));
             const shouldQueueUpdate = snappedIndex !== lastActiveIndex || detailNeedsRefreshAfterScroll;
@@ -933,11 +991,8 @@
             // 异步渲染 + 节流：使用 asyncRenderInternal 作为最小渲染间隔
             flushQueuedDetailRender(nowMs);
 
-            if (detailReadyForBg && pendingDetailIndex < 0) {
-                container.classList.add('show-bg');
-            } else {
-                container.classList.remove('show-bg');
-            }
+            // 背景显隐由 updateDetail / hideDetailDuringScroll 统一管理，
+            // 避免 render 循环抢写 class 导致“无过渡直接出现”。
         }
 
         if (timelineSlider) {
@@ -954,9 +1009,10 @@
         if (e.target.closest('.track-detail')) return;
 
         const deltaOffset = (e.deltaY / CONFIG.scrollUnit) * CONFIG.scrollDirection;
-        targetOffset = clampOffset(targetOffset + deltaOffset);
+        const nextOffset = clampOffset(targetOffset + deltaOffset);
+        hideDetailIfSwitching(nextOffset);
+        targetOffset = nextOffset;
         markWheelInputActive();
-        hideDetailDuringScroll();
     }
 
     // ================================
@@ -982,9 +1038,9 @@
 
         const deltaY = e.touches[0].clientY - startY;
         const touchDirection = CONFIG.touchDirection;
-        targetOffset = startOffset + deltaY * CONFIG.touchMoveFactor * touchDirection;
-        targetOffset = clampOffset(targetOffset);
-        hideDetailDuringScroll();
+        const nextOffset = clampOffset(startOffset + deltaY * CONFIG.touchMoveFactor * touchDirection);
+        hideDetailIfSwitching(nextOffset);
+        targetOffset = nextOffset;
     }
 
     function handleTouchEnd() {
@@ -1023,22 +1079,8 @@
         }
         slotRenderUnlockAt = 0;
         slotRenderCursor = 0;
-        detailRenderUnlockAt = 0;
-        pendingDetailIndex = -1;
-        pendingDetailImmediate = false;
-        clearSnapTimer();
-        resetWheelStopState();
-        if (detailTimer) clearTimeout(detailTimer);
-        if (resizeObserver) resizeObserver.disconnect();
-        if (titleResizeHandler) {
-            window.removeEventListener('resize', titleResizeHandler);
-            titleResizeHandler = null;
-        }
-
-        lastActiveIndex = -1;
-        detailReadyForBg = false;
-        detailNeedsRefreshAfterScroll = false;
-        isNavigatingAway = false;
+        resetWheelRuntimeState();
+        detailElementsCache = null;
         container = document.querySelector('.osu-container');
         osuWheel = document.querySelector('.osu-wheel');
         const timeline = document.querySelector('.osu-timeline');
@@ -1059,58 +1101,68 @@
             timelineSlider.step = '0.01';
             timelineSlider.value = String(getMaxOffset());
 
-            timelineSlider.addEventListener('input', () => {
-                if (!isSliderDragging) {
-                    targetOffset = clampOffset(sliderToOffset(timelineSlider.value));
-                    hideDetailDuringScroll();
-                }
-            });
+            if (!timelineSlider.dataset.trackSliderBound) {
+                timelineSlider.addEventListener('input', () => {
+                    if (!isSliderDragging) {
+                        const nextOffset = clampOffset(sliderToOffset(timelineSlider.value));
+                        hideDetailIfSwitching(nextOffset);
+                        targetOffset = nextOffset;
+                    }
+                });
 
-            timelineSlider.addEventListener('pointerdown', (e) => {
-                e.preventDefault();
-                isSliderDragging = true;
-                sliderPointerId = e.pointerId;
-                timelineSlider.setPointerCapture?.(e.pointerId);
-                setSliderTargetFromPointer(e.clientX, e.clientY);
-            });
+                timelineSlider.addEventListener('pointerdown', (e) => {
+                    e.preventDefault();
+                    isSliderDragging = true;
+                    sliderPointerId = e.pointerId;
+                    timelineSlider.setPointerCapture?.(e.pointerId);
+                    setSliderTargetFromPointer(e.clientX, e.clientY);
+                });
 
-            timelineSlider.addEventListener('pointermove', (e) => {
-                if (!isSliderDragging || (sliderPointerId !== null && e.pointerId !== sliderPointerId)) return;
-                e.preventDefault();
-                setSliderTargetFromPointer(e.clientX, e.clientY);
-                hideDetailDuringScroll();
-            });
+                timelineSlider.addEventListener('pointermove', (e) => {
+                    if (!isSliderDragging || (sliderPointerId !== null && e.pointerId !== sliderPointerId)) return;
+                    e.preventDefault();
+                    const prevOffset = targetOffset;
+                    setSliderTargetFromPointer(e.clientX, e.clientY);
+                    if (targetOffset !== prevOffset) {
+                        hideDetailIfSwitching(targetOffset);
+                    }
+                });
 
-            timelineSlider.addEventListener('pointerup', (e) => {
-                if (sliderPointerId !== null && e.pointerId !== sliderPointerId) return;
-                isSliderDragging = false;
-                sliderPointerId = null;
-                startSnapTimer();
-            });
+                timelineSlider.addEventListener('pointerup', (e) => {
+                    if (sliderPointerId !== null && e.pointerId !== sliderPointerId) return;
+                    isSliderDragging = false;
+                    sliderPointerId = null;
+                    startSnapTimer();
+                });
 
-            timelineSlider.addEventListener('pointercancel', (e) => {
-                if (sliderPointerId !== null && e.pointerId !== sliderPointerId) return;
-                isSliderDragging = false;
-                sliderPointerId = null;
-                startSnapTimer();
-            });
+                timelineSlider.addEventListener('pointercancel', (e) => {
+                    if (sliderPointerId !== null && e.pointerId !== sliderPointerId) return;
+                    isSliderDragging = false;
+                    sliderPointerId = null;
+                    startSnapTimer();
+                });
+                timelineSlider.dataset.trackSliderBound = '1';
+            }
         }
 
         initTrackInteraction();
         observeTrackHeights();
         syncPoolAssignments();
         forceTitleTruncation();
-        titleResizeHandler = () => applyManualTitleTruncation();
+        titleResizeHandler = applyTitleTruncation;
         window.addEventListener('resize', titleResizeHandler);
 
-        container.addEventListener('wheel', handleWheel, { passive: false });
-        container.addEventListener('touchstart', handleTouchStart, { passive: true });
-        container.addEventListener('touchmove', handleTouchMove, { passive: false });
-        container.addEventListener('touchend', handleTouchEnd);
+        if (!container.dataset.trackWheelBound) {
+            container.addEventListener('wheel', handleWheel, { passive: false });
+            container.addEventListener('touchstart', handleTouchStart, { passive: true });
+            container.addEventListener('touchmove', handleTouchMove, { passive: false });
+            container.addEventListener('touchend', handleTouchEnd);
+            container.dataset.trackWheelBound = '1';
+        }
 
         lastTime = null;
         animate();
-        render(performance.now());
+        render();
     }
 
     window.initOsuWheel = initOsuWheel;

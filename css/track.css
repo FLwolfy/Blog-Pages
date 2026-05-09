@@ -581,6 +581,9 @@
    track-detail：右侧详情区域
    ============================== */
 .track-detail {
+  --track-detail-fade-ms: 180ms;
+  --track-detail-fade-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --track-detail-shift-x: 36px;
   background: var(--grey-0-a7);
   position: absolute;
   right: 0%;
@@ -595,15 +598,19 @@
 /* 动画效果 */
   opacity: 1;
   transform: translateX(0);
-  transition: opacity 0.3s ease, transform 0.3s ease;
+  transition-property: opacity, transform;
+  transition-duration: var(--track-detail-fade-ms), var(--track-detail-fade-ms);
+  transition-timing-function: var(--track-detail-fade-ease), var(--track-detail-fade-ease);
+  transition-delay: 0ms, 0ms;
 /* ==============================
      fade-out / fade-in 动画类
      ============================== */
+/* 进入前锁：任何中途切换都先锁在隐藏态，避免闪现 */
 /* 响应式 */
 }
 .track-detail.fade-out {
   opacity: 0;
-  transform: translateX(20px); /* 向右淡出 */
+  transform: translateX(var(--track-detail-shift-x)); /* 向右淡出 */
 }
 @media (max-width: 820px) and (orientation: portrait) {
   .track-detail.fade-out {
@@ -613,6 +620,15 @@
 .track-detail.fade-in {
   opacity: 1;
   transform: translateX(0); /* 从右淡入 */
+}
+.track-detail.pending-lock {
+  opacity: 0;
+  transform: translateX(var(--track-detail-shift-x));
+}
+@media (max-width: 820px) and (orientation: portrait) {
+  .track-detail.pending-lock {
+    transform: translateX(0);
+  }
 }
 @media (max-width: 820px) {
   .track-detail {
@@ -762,7 +778,8 @@
   position: relative;
   font-size: 1rem;
   line-height: 1.2rem;
-  overflow: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
   flex: 1 1 auto; /* 填充剩余空间 */
   min-height: 0;
   max-height: 100%;
@@ -775,6 +792,7 @@
   word-break: break-word;
   overflow-wrap: anywhere;
   overscroll-behavior: contain;
+  scrollbar-gutter: stable both-edges;
   padding-bottom: 2.6rem;
   -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 78%, transparent 100%);
   mask-image: linear-gradient(to bottom, #000 0%, #000 78%, transparent 100%);
@@ -835,6 +853,8 @@
 }
 /* track-md 容器 */
 .track-detail .track-info-description.track-md {
+  --track-md-inline: 0.76rem; /* 正文 / note / 标题装饰 的统一左右基准 */
+  --track-md-gap: 0.58rem; /* 标题文字与装饰伪元素间距 */
   display: block;
   white-space: normal;
   font-size: inherit;
@@ -842,9 +862,18 @@
   word-break: break-word;
   max-width: 100%;
   overflow-wrap: anywhere;
+  padding-left: var(--track-md-inline);
+  padding-right: var(--track-md-inline);
+  scrollbar-width: none;
 /* 水平状态：紧凑（但不激进） */
   font-size: 0.9em;
-  line-height: 1.24;
+  line-height: 1.42;
+/* 正文块左右边界统一 */
+/* 标题居中 + 两侧装饰严格对称 */
+}
+.track-detail .track-info-description.track-md::-webkit-scrollbar {
+  width: 0;
+  height: 0;
 }
 .track-detail .track-info-description.track-md * {
   max-width: 100%;
@@ -856,16 +885,30 @@
   max-width: 100%;
   overflow: auto;
 }
-.track-detail .track-info-description.track-md h1 .anchor::before {
-  content: "" !important;
-}
 .track-detail .track-info-description.track-md p,
 .track-detail .track-info-description.track-md li,
 .track-detail .track-info-description.track-md blockquote,
 .track-detail .track-info-description.track-md td,
 .track-detail .track-info-description.track-md th {
   font-size: 0.94em;
-  line-height: 1.24;
+}
+.track-detail .track-info-description.track-md p,
+.track-detail .track-info-description.track-md li,
+.track-detail .track-info-description.track-md blockquote p,
+.track-detail .track-info-description.track-md td,
+.track-detail .track-info-description.track-md th,
+.track-detail .track-info-description.track-md .note p,
+.track-detail .track-info-description.track-md .note li {
+  line-height: 1.42 !important;
+}
+.track-detail .track-info-description.track-md p,
+.track-detail .track-info-description.track-md ul,
+.track-detail .track-info-description.track-md ol,
+.track-detail .track-info-description.track-md blockquote,
+.track-detail .track-info-description.track-md table,
+.track-detail .track-info-description.track-md pre {
+  margin-left: 0;
+  margin-right: 0;
 }
 .track-detail .track-info-description.track-md h1,
 .track-detail .track-info-description.track-md h2,
@@ -877,11 +920,51 @@
   line-height: 1.16;
   margin-top: 0.34rem;
   margin-bottom: 0.18rem;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  text-align: center;
+}
+.track-detail .track-info-description.track-md h1,
+.track-detail .track-info-description.track-md h2 {
+  width: 100%;
+  box-sizing: border-box;
+}
+.track-detail .track-info-description.track-md h1,
+.track-detail .track-info-description.track-md h2 {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  padding-left: 0;
+  padding-right: 0;
+}
+.track-detail .track-info-description.track-md h1::before,
+.track-detail .track-info-description.track-md h1::after {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 0.75rem;
+}
+.track-detail .track-info-description.track-md h1::before {
+  margin-right: var(--track-md-gap);
+}
+.track-detail .track-info-description.track-md h1::after {
+  margin-left: var(--track-md-gap);
+}
+.track-detail .track-info-description.track-md h2::before,
+.track-detail .track-info-description.track-md h2::after {
+  flex: 1 1 0;
+  min-width: 0;
+  border-top-width: 0.125rem;
+}
+.track-detail .track-info-description.track-md h2::before {
+  margin-right: var(--track-md-gap);
+}
+.track-detail .track-info-description.track-md h2::after {
+  margin-left: var(--track-md-gap);
 }
 .track-detail .track-info-description.track-md .note {
   font-size: 0.9em;
   line-height: 1.16;
-  padding: 0.72rem 0.76rem 0.72rem 2rem;
+  padding: 0.72rem 0.72rem 0.72rem 2rem;
 }
 .track-detail .track-info-description.track-md .note::before {
   top: 50%;
@@ -892,8 +975,10 @@
 }
 @media (max-width: 820px) and (orientation: portrait) {
   .track-detail .track-info-description.track-md {
+    --track-md-inline: 0.6rem;
+    --track-md-gap: 0.46rem;
     font-size: 0.74em;
-    line-height: 1.12;
+    line-height: 1.3;
   }
   .track-detail .track-info-description.track-md p,
   .track-detail .track-info-description.track-md li,
@@ -901,7 +986,15 @@
   .track-detail .track-info-description.track-md td,
   .track-detail .track-info-description.track-md th {
     font-size: 0.84em;
-    line-height: 1.16;
+  }
+  .track-detail .track-info-description.track-md p,
+  .track-detail .track-info-description.track-md li,
+  .track-detail .track-info-description.track-md blockquote p,
+  .track-detail .track-info-description.track-md td,
+  .track-detail .track-info-description.track-md th,
+  .track-detail .track-info-description.track-md .note p,
+  .track-detail .track-info-description.track-md .note li {
+    line-height: 1.3 !important;
   }
   .track-detail .track-info-description.track-md h1,
   .track-detail .track-info-description.track-md h2,
@@ -919,20 +1012,20 @@
     height: 0.56rem;
   }
   .track-detail .track-info-description.track-md h1::before {
-    margin-right: 0.58rem;
+    margin-right: var(--track-md-gap);
   }
   .track-detail .track-info-description.track-md h1::after {
-    margin-left: 0.58rem;
+    margin-left: var(--track-md-gap);
   }
   .track-detail .track-info-description.track-md h2::before,
   .track-detail .track-info-description.track-md h2::after {
     border-top-width: 0.09rem;
   }
   .track-detail .track-info-description.track-md h2::before {
-    margin-right: 0.52rem;
+    margin-right: var(--track-md-gap);
   }
   .track-detail .track-info-description.track-md h2::after {
-    margin-left: 0.52rem;
+    margin-left: var(--track-md-gap);
   }
   .track-detail .track-info-description.track-md h3::before,
   .track-detail .track-info-description.track-md h3::after {
@@ -952,7 +1045,7 @@
   .track-detail .track-info-description.track-md .note {
     font-size: 0.8em;
     line-height: 1.08;
-    padding: 0.54rem 0.6rem 0.54rem 1.68rem;
+    padding: 0.54rem var(--track-md-inline) 0.54rem 1.68rem;
   }
   .track-detail .track-info-description.track-md .note::before {
     top: 50%;
@@ -1033,4 +1126,9 @@
 }
 .track-info-readmore:hover::before {
   transform: translateZ(-2.5rem);
+}
+.anchor::before,
+.anchor::after {
+  content: none !important;
+  display: none !important;
 }
