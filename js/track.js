@@ -602,6 +602,85 @@
         setDetailHiddenState({ navigating: true });
     }
 
+    function shouldHandleNavHideTarget(target) {
+        if (!(target instanceof Element)) return false;
+        const anchor = target.closest('a');
+        if (!anchor) return false;
+        const href = anchor.getAttribute('href') || '';
+        if (!href || href === '#') return false;
+        return Boolean(anchor.closest('.track-detail, .track-title'));
+    }
+
+    function bindNavHideEvents() {
+        if (!container || container.dataset.navHideBound) return;
+
+        container.addEventListener('pointerdown', (e) => {
+            if (!shouldHandleNavHideTarget(e.target)) return;
+            hideDetailImmediatelyForNavigate();
+        }, true);
+
+        container.addEventListener('click', (e) => {
+            if (!shouldHandleNavHideTarget(e.target)) return;
+            hideDetailImmediatelyForNavigate();
+        }, true);
+
+        container.dataset.navHideBound = '1';
+    }
+
+    function bindTimelineEvents(timeline) {
+        if (!timeline) return;
+
+        // 吞掉事件，避免 timeline 面板滚动/拖动触发页面或外层 wheel 行为
+        const absorbEvents = ['pointerdown', 'pointermove', 'pointerup', 'mousedown', 'mouseup', 'click'];
+        absorbEvents.forEach((eventName) => {
+            timeline.addEventListener(eventName, (e) => e.stopPropagation(), { passive: true });
+        });
+
+        timeline.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (!getTrackCount()) return;
+            const deltaOffset = (e.deltaY / CONFIG.scrollUnit) * CONFIG.scrollDirection;
+            targetOffset = clampOffset(targetOffset + deltaOffset);
+            markWheelInputActive();
+            hideDetailDuringScroll();
+        }, { passive: false });
+
+        timeline.addEventListener('touchstart', (e) => {
+            e.stopPropagation();
+            if (!isPortraitMode() || e.touches.length !== 1 || !getTrackCount()) return;
+            isTimelineTouchDragging = true;
+            timelineTouchStartY = e.touches[0].clientY;
+            startOffset = targetOffset;
+            clearSnapTimer();
+            resetWheelStopState();
+        }, { passive: true });
+
+        timeline.addEventListener('touchmove', (e) => {
+            e.stopPropagation();
+            if (!isTimelineTouchDragging || !isPortraitMode() || e.touches.length !== 1 || !getTrackCount()) return;
+            e.preventDefault();
+            const deltaY = e.touches[0].clientY - timelineTouchStartY;
+            const touchDirection = CONFIG.touchDirection;
+            targetOffset = clampOffset(startOffset + deltaY * CONFIG.touchMoveFactor * touchDirection);
+            hideDetailDuringScroll();
+        }, { passive: false });
+
+        timeline.addEventListener('touchend', (e) => {
+            e.stopPropagation();
+            if (!isTimelineTouchDragging) return;
+            isTimelineTouchDragging = false;
+            startSnapTimer();
+        }, { passive: true });
+
+        timeline.addEventListener('touchcancel', (e) => {
+            e.stopPropagation();
+            if (!isTimelineTouchDragging) return;
+            isTimelineTouchDragging = false;
+            startSnapTimer();
+        }, { passive: true });
+    }
+
     // ================================
     // 更新右侧 detail 区内容
     // ================================
@@ -928,80 +1007,8 @@
         timelineSlider = document.getElementById('osu-timeline-slider');
         if (!container || !osuWheel) return;
 
-        if (!container.dataset.navHideBound) {
-            const shouldHandleNavHide = (target) => {
-                if (!(target instanceof Element)) return false;
-                const anchor = target.closest('a');
-                if (!anchor) return false;
-                const href = anchor.getAttribute('href') || '';
-                if (!href || href === '#') return false;
-                return Boolean(anchor.closest('.track-detail, .track-title'));
-            };
-
-            container.addEventListener('pointerdown', (e) => {
-                if (!shouldHandleNavHide(e.target)) return;
-                hideDetailImmediatelyForNavigate();
-            }, true);
-
-            container.addEventListener('click', (e) => {
-                const target = e.target;
-                if (!shouldHandleNavHide(target)) return;
-                hideDetailImmediatelyForNavigate();
-            }, true);
-            container.dataset.navHideBound = '1';
-        }
-
-        if (timeline) {
-            // 吞掉事件，避免 timeline 面板滚动/拖动触发页面或外层 wheel 行为
-            const absorbEvents = ['pointerdown', 'pointermove', 'pointerup', 'mousedown', 'mouseup', 'click'];
-            absorbEvents.forEach((eventName) => {
-                timeline.addEventListener(eventName, (e) => e.stopPropagation(), { passive: true });
-            });
-
-            timeline.addEventListener('wheel', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                if (!getTrackCount()) return;
-                const deltaOffset = (e.deltaY / CONFIG.scrollUnit) * CONFIG.scrollDirection;
-                targetOffset = clampOffset(targetOffset + deltaOffset);
-                markWheelInputActive();
-                hideDetailDuringScroll();
-            }, { passive: false });
-
-            timeline.addEventListener('touchstart', (e) => {
-                e.stopPropagation();
-                if (!isPortraitMode() || e.touches.length !== 1 || !getTrackCount()) return;
-                isTimelineTouchDragging = true;
-                timelineTouchStartY = e.touches[0].clientY;
-                startOffset = targetOffset;
-                clearSnapTimer();
-                resetWheelStopState();
-            }, { passive: true });
-
-            timeline.addEventListener('touchmove', (e) => {
-                e.stopPropagation();
-                if (!isTimelineTouchDragging || !isPortraitMode() || e.touches.length !== 1 || !getTrackCount()) return;
-                e.preventDefault();
-                const deltaY = e.touches[0].clientY - timelineTouchStartY;
-                const touchDirection = CONFIG.touchDirection;
-                targetOffset = clampOffset(startOffset + deltaY * CONFIG.touchMoveFactor * touchDirection);
-                hideDetailDuringScroll();
-            }, { passive: false });
-
-            timeline.addEventListener('touchend', (e) => {
-                e.stopPropagation();
-                if (!isTimelineTouchDragging) return;
-                isTimelineTouchDragging = false;
-                startSnapTimer();
-            }, { passive: true });
-
-            timeline.addEventListener('touchcancel', (e) => {
-                e.stopPropagation();
-                if (!isTimelineTouchDragging) return;
-                isTimelineTouchDragging = false;
-                startSnapTimer();
-            }, { passive: true });
-        }
+        bindNavHideEvents();
+        bindTimelineEvents(timeline);
 
         initTracks();
         if (!getTrackCount()) return;
