@@ -75,6 +75,7 @@
     let pendingDetailImmediate = false;
     let detailDisplayedIndex = -1;
     let detailElementsCache = null;
+    const detailHtmlCache = new WeakMap();
 
     function getPoolSize() {
         return Math.max(2, CONFIG.visibleCount * 2);
@@ -285,6 +286,12 @@
         Object.keys(el.dataset).forEach((key) => {
             delete el.dataset[key];
         });
+    }
+
+    function updateCachedHtml(el, html) {
+        if (detailHtmlCache.get(el) === html) return;
+        el.innerHTML = html;
+        detailHtmlCache.set(el, html);
     }
 
     function applyTrackDataToSlot(slot, trackData, sourceIndex) {
@@ -682,7 +689,7 @@
         if (!anchor) return false;
         const href = anchor.getAttribute('href') || '';
         if (!href || href === '#') return false;
-        return Boolean(anchor.closest('.track-detail, .track-title'));
+        return Boolean(anchor.closest('.track-title'));
     }
 
     function bindNavHideEvents() {
@@ -781,8 +788,6 @@
             detail.classList.add('fade-out');
             detail.classList.add('pending-lock');
             container?.classList.remove('show-bg');
-            // 强制提交起点样式，确保后续 fade-in 一定触发
-            void detail.offsetWidth;
         }
 
         const renderTextWithAutoZh = async (token) => {
@@ -820,9 +825,9 @@
             }
 
             const newMeta = activeTrackData.metaHtml || '';
-            if (meta.innerHTML !== newMeta) meta.innerHTML = newMeta;
+            updateCachedHtml(meta, newMeta);
             if (link.getAttribute('href') !== newLink) link.setAttribute('href', newLink);
-            if (description.innerHTML !== newDescription) description.innerHTML = newDescription;
+            updateCachedHtml(description, newDescription);
 
             // 关键：等待文字/翻译就绪后再进场，避免 fade 结束后再闪一次
             const textReady = renderTextWithAutoZh(token).catch(() => {
