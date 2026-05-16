@@ -15,16 +15,20 @@
         animateSpeed: 5,           // 动画速度（数值越大越快）
         touchMoveFactor: 0.05,     // 触屏/拖拽灵敏度
         scaleFactor: 1.5,          // 激活条目的缩放比例
+        transformFollowMs: 200,    // JS 模拟 transform 0.2s 的追随时长
         offsetX: 0,                // X 轴偏移
-        snapDelay: 150,            // 自动吸附延迟（ms）
-        detailFadeDelay: 500,      // detail 区淡出延迟（ms）
+        snapDelay: 70,             // 自动吸附延迟（ms）
+        detailFadeDelay: 160,      // detail 区淡出延迟（ms）
         gapThreshold: 0.01,        // 位置差异阈值（小于该值时认为已到达目标位置）
+        settleThreshold: 0.002,    // 贴近目标后直接钉住，避免静止态仍反复写 transform
         asyncRenderInternal: 30,   // 触发下一个 slot 异步渲染的时间间隔（ms）
         contentFadeInMs: 220,      // 异步内容回填后的淡入时长（ms）
         wheelStopSpeed: 0.55,      // 真实停止判定：速度阈值（offset/s）
         wheelStopStableMs: 120,    // 真实停止判定：持续低速时长（ms）
-        detailChunkNodeLimit: 4,   // detail 正文每帧最多回填的顶层节点数
-        detailChunkCharLimit: 900  // detail 正文每帧最多回填的近似 HTML 字符数
+        detailPreviewMaxBlocks: 36,
+        detailPreviewFillRatio: 1.08,
+        sliderSyncThreshold: 0.01,
+        wheelPriorityDelay: 80
     };
 
     // ================================
@@ -59,9 +63,11 @@
     let slotPendingToken = [];
     let currentPoolHeadSource = 0;
     let truncationRafId = null;
+    let resizeRafId = null;
     let slotRenderCursor = 0;
     let slotRenderUnlockAt = 0;
     let slotRenderRafId = null;
+    let slotRenderMode = null;
     let offset = 0;
     let targetOffset = 0;
     let wheelInputActive = false;
@@ -76,7 +82,12 @@
     let pendingDetailIndex = -1;
     let pendingDetailImmediate = false;
     let detailDisplayedIndex = -1;
+    let highlightedTrackIndex = -1;
     let detailElementsCache = null;
+    let cachedWheelCenterY = 0;
+    let lastTimelineValue = NaN;
+    let lastWheelMovingState = false;
+    let trackVisualStates = new WeakMap();
 
     function getPoolSize() {
         return Math.max(2, CONFIG.visibleCount * 2);
@@ -118,6 +129,71 @@
         return window.matchMedia('(orientation: portrait)').matches;
     }
 
+    function updateWheelMetrics() {
+        cachedWheelCenterY = osuWheel ? osuWheel.clientHeight / 2 : 0;
+    }
+
+    function handleResize() {
+        if (resizeRafId !== null) return;
+        resizeRafId = requestAnimationFrame(() => {
+            resizeRafId = null;
+            updateWheelMetrics();
+            applyTitleTruncation();
+
+            if (detailDisplayedIndex >= 0) {
+                detailFlowToken += 1;
+                if (detailTimer) {
+                    clearTimeout(detailTimer);
+                    detailTimer = null;
+                }
+                detailNeedsRefreshAfterScroll = true;
+            }
+        });
+    }
+
+    function getTransformFollowFactor(deltaSec) {
+        if (!deltaSec || deltaSec <= 0) return 1;
+        return 1 - Math.pow(0.001, Math.min(1, deltaSec / (CONFIG.transformFollowMs / 1000)));
+    }
+
+    function resetTrackVisualState(track) {
+        if (!track) return;
+        track.dataset.visualReset = '1';
+    }
+
+    function syncTrackHighlight(index) {
+        highlightedTrackIndex = index;
+        for (let i = 0; i < trackPool.length; i++) {
+            const track = trackPool[i];
+            const isHighlighted = Number(track?.dataset.trackIndex || '-1') === index;
+            track?.classList.toggle('active', isHighlighted);
+            if (isHighlighted) {
+                track.style.setProperty('--track-brightness', '1');
+            }
+        }
+    }
+
+    function isWheelMoving() {
+        return (
+            isTouchDragging ||
+            isTimelineTouchDragging ||
+            isSliderDragging ||
+            Math.abs(targetOffset - offset) > CONFIG.gapThreshold
+        );
+    }
+
+    function isWheelInteracting() {
+        return isTouchDragging || isTimelineTouchDragging || isSliderDragging || wheelInputActive;
+    }
+
+    function isTargetSnapped() {
+        return Math.abs(targetOffset - Math.round(targetOffset)) <= CONFIG.settleThreshold;
+    }
+
+    function canCommitSelectionWork() {
+        return !isWheelInteracting() && isTargetSnapped();
+    }
+
     function setSliderTargetFromPointer(clientX, clientY) {
         if (!timelineSlider) return;
         const rect = timelineSlider.getBoundingClientRect();
@@ -136,6 +212,7 @@
         pendingDetailIndex = -1;
         pendingDetailImmediate = false;
         detailDisplayedIndex = -1;
+        highlightedTrackIndex = -1;
     }
 
     function ensurePostCssReady() {
@@ -291,8 +368,14 @@
         });
     }
 
-    function nextFrame() {
-        return new Promise((resolve) => requestAnimationFrame(resolve));
+    function yieldToIdle() {
+        return new Promise((resolve) => {
+            if (window.requestIdleCallback) {
+                window.requestIdleCallback(() => resolve(), { timeout: 120 });
+                return;
+            }
+            setTimeout(resolve, 0);
+        });
     }
 
     function splitDetailHtmlIntoBlocks(html) {
@@ -316,92 +399,214 @@
         return blocks.length ? blocks : [source];
     }
 
-    function groupDetailHtmlBlocks(blocks) {
-        const groups = [];
-        let current = [];
-        let charCount = 0;
+    function createDetailMeasureBox(el) {
+        const rect = el.getBoundingClientRect();
+        const root = document.createElement('div');
+        root.className = 'track-detail';
+        root.style.position = 'fixed';
+        root.style.left = '-10000px';
+        root.style.top = '0';
+        root.style.width = `${Math.max(1, rect.width || el.clientWidth)}px`;
+        root.style.height = 'auto';
+        root.style.border = '0';
+        root.style.padding = '0';
+        root.style.opacity = '0';
+        root.style.pointerEvents = 'none';
+        root.style.visibility = 'hidden';
+        root.style.contain = 'layout style paint';
 
-        blocks.forEach((block) => {
-            const size = block.length;
-            if (
-                current.length > 0 &&
-                (current.length >= CONFIG.detailChunkNodeLimit || charCount + size > CONFIG.detailChunkCharLimit)
-            ) {
-                groups.push(current.join(''));
-                current = [];
-                charCount = 0;
-            }
+        const proxy = document.createElement('div');
+        proxy.className = 'track-post-proxy post block';
+        proxy.style.width = '100%';
+        proxy.style.height = 'auto';
+        proxy.style.maxHeight = 'none';
+        proxy.style.minHeight = '0';
+        proxy.style.overflow = 'visible';
+        proxy.style.padding = '0';
+        proxy.style.margin = '0';
 
-            current.push(block);
-            charCount += size;
-        });
-
-        if (current.length) groups.push(current.join(''));
-        return groups;
+        const box = el.cloneNode(false);
+        box.removeAttribute('id');
+        box.classList.remove('track-text-pending');
+        box.style.width = '100%';
+        box.style.height = 'auto';
+        box.style.maxHeight = 'none';
+        box.style.minHeight = '0';
+        box.style.overflow = 'visible';
+        proxy.appendChild(box);
+        root.appendChild(proxy);
+        document.body.appendChild(root);
+        return box;
     }
 
-    async function prepareDetailChunk(html, isStale) {
-        const template = document.createElement('template');
-        template.innerHTML = html;
+    function removeDetailMeasureBox(box) {
+        const root = box?.parentNode;
+        if (root?.parentNode) root.parentNode.removeChild(root);
+    }
 
-        if (window.AutoZh?.refresh) await window.AutoZh.refresh(template.content);
+    function getDetailPreviewTargetHeight(el) {
+        const proxy = el.closest('.track-post-proxy');
+        const proxyHeight = proxy?.getBoundingClientRect().height || proxy?.clientHeight || 0;
+        if (proxyHeight > 20) return proxyHeight * CONFIG.detailPreviewFillRatio;
+
+        const rectHeight = el.getBoundingClientRect().height || 0;
+        const ownHeight = Math.max(el.clientHeight || 0, rectHeight);
+        if (ownHeight > 20) return ownHeight * CONFIG.detailPreviewFillRatio;
+
+        const card = el.closest('.track-card');
+        const cardHeight = card?.getBoundingClientRect().height || 0;
+        const metaHeight = card?.querySelector('.track-info-meta')?.getBoundingClientRect().height || 0;
+        const linkHeight = card?.querySelector('.track-info-readmore')?.getBoundingClientRect().height || 0;
+        const styles = window.getComputedStyle(el);
+        const marginTop = parseFloat(styles.marginTop) || 0;
+        const marginBottom = parseFloat(styles.marginBottom) || 0;
+        const fallback = Math.max(80, cardHeight - metaHeight - linkHeight - marginTop - marginBottom);
+        return fallback * CONFIG.detailPreviewFillRatio;
+    }
+
+    function getInsertedNodesSince(parent, startIndex) {
+        return Array.from(parent.childNodes).slice(startIndex);
+    }
+
+    function removeNodes(nodes) {
+        nodes.forEach((node) => node.parentNode?.removeChild(node));
+    }
+
+    function splitOversizedPreviewBlock(blockHtml) {
+        const template = document.createElement('template');
+        template.innerHTML = blockHtml;
+        const element = Array.from(template.content.children)[0];
+        if (!element) return [];
+
+        const tag = element.tagName.toLowerCase();
+        if ((tag === 'ul' || tag === 'ol') && element.children.length > 1) {
+            const attrs = Array.from(element.attributes)
+                .map((attr) => ` ${attr.name}="${attr.value.replace(/"/g, '&quot;')}"`)
+                .join('');
+            return Array.from(element.children).map((child) => `<${tag}${attrs}>${child.outerHTML}</${tag}>`);
+        }
+
+        if ((tag === 'div' || tag === 'section' || tag === 'blockquote') && element.children.length > 1) {
+            return Array.from(element.children).map((child) => child.outerHTML);
+        }
+
+        return [];
+    }
+
+    function tryAppendMeasuredBlock(measureBox, html, targetHeight, picked, { allowOverflowFirst = true } = {}) {
+        const startIndex = measureBox.childNodes.length;
+        const previousHeight = measureBox.scrollHeight;
+        measureBox.insertAdjacentHTML('beforeend', html);
+        const inserted = getInsertedNodesSince(measureBox, startIndex);
+        const nextHeight = measureBox.scrollHeight;
+        const wouldOverflow = nextHeight > targetHeight;
+
+        if (wouldOverflow && previousHeight >= targetHeight && (picked.length > 0 || !allowOverflowFirst)) {
+            removeNodes(inserted);
+            return 'rejected';
+        }
+
+        picked.push(html);
+        return wouldOverflow ? 'overflow-kept' : 'fit';
+    }
+
+    async function selectDetailPreviewBlocks(el, blocks, isStale) {
+        if (!blocks.length) return '';
+
+        await yieldToIdle();
         if (isStale()) return null;
 
-        return Array.from(template.content.childNodes);
+        const targetHeight = Math.max(1, getDetailPreviewTargetHeight(el));
+        const measureBox = createDetailMeasureBox(el);
+        const picked = [];
+
+        try {
+            for (const block of blocks) {
+                if (picked.length >= CONFIG.detailPreviewMaxBlocks) break;
+                await yieldToIdle();
+                if (isStale()) return null;
+
+                const blockResult = tryAppendMeasuredBlock(measureBox, block, targetHeight, picked);
+                if (blockResult === 'fit') continue;
+                if (blockResult === 'overflow-kept') break;
+
+                const fragments = splitOversizedPreviewBlock(block);
+                if (!fragments.length) break;
+
+                let appendedFragment = false;
+                let stoppedInsideFragment = false;
+                for (const fragment of fragments) {
+                    if (picked.length >= CONFIG.detailPreviewMaxBlocks) break;
+                    await yieldToIdle();
+                    if (isStale()) return null;
+                    const fragmentResult = tryAppendMeasuredBlock(measureBox, fragment, targetHeight, picked, { allowOverflowFirst: false });
+                    if (fragmentResult === 'rejected') {
+                        stoppedInsideFragment = true;
+                        break;
+                    }
+                    appendedFragment = true;
+                    if (fragmentResult === 'overflow-kept') {
+                        stoppedInsideFragment = true;
+                        break;
+                    }
+                }
+
+                if (!appendedFragment) break;
+                if (appendedFragment || stoppedInsideFragment) break;
+            }
+        } finally {
+            removeDetailMeasureBox(measureBox);
+        }
+
+        return (picked.length ? picked : blocks.slice(0, 1)).join('');
     }
 
-    function appendDetailNodes(el, nodes, token) {
-        if (!el || !nodes || token !== detailFlowToken) return;
+    async function prepareDetailHtml(el, html, isStale) {
+        const blocks = splitDetailHtmlIntoBlocks(html);
+        const preparedBlocks = [];
 
-        const fragment = document.createDocumentFragment();
-        const revealNodes = [];
+        for (const block of blocks) {
+            await yieldToIdle();
+            if (isStale()) return null;
 
-        nodes.forEach((node) => {
-            if (node.nodeType === Node.ELEMENT_NODE) {
-                node.classList.add('track-detail-chunk-reveal');
-                revealNodes.push(node);
-            }
-            fragment.appendChild(node);
-        });
+            const template = document.createElement('template');
+            template.innerHTML = block;
 
-        el.appendChild(fragment);
-        requestAnimationFrame(() => {
-            if (token !== detailFlowToken) return;
-            revealNodes.forEach((node) => {
-                node.classList.add('is-visible');
+            if (window.AutoZh?.refresh) await window.AutoZh.refresh(template.content);
+            if (isStale()) return null;
+
+            preparedBlocks.push(template.innerHTML);
+        }
+
+        await yieldToIdle();
+        if (isStale()) return null;
+        return selectDetailPreviewBlocks(el, preparedBlocks, isStale);
+    }
+
+    function commitDetailHtml(el, html, token) {
+        return new Promise((resolve) => {
+            requestAnimationFrame(() => {
+                if (token !== detailFlowToken) {
+                    resolve(false);
+                    return;
+                }
+                if (el.innerHTML !== html) el.innerHTML = html;
+                resolve(true);
             });
         });
     }
 
-    async function streamDetailHtml(el, html, token, onFirstChunk) {
+    async function renderDetailHtml(el, html, token) {
         if (!el) return;
+        const source = String(html || '');
 
-        el.replaceChildren();
-
-        await ensurePostCssReady();
-        if (token !== detailFlowToken) return;
-        if (window.AutoZh?.ready) await window.AutoZh.ready;
-        if (token !== detailFlowToken) return;
-
-        const groups = groupDetailHtmlBlocks(splitDetailHtmlIntoBlocks(html));
-        if (!groups.length) {
-            onFirstChunk?.();
-            return;
-        }
-
-        let didReveal = false;
-        for (const groupHtml of groups) {
+        try {
+            const preparedHtml = await prepareDetailHtml(el, source, () => token !== detailFlowToken);
+            if (token !== detailFlowToken || preparedHtml === null) return;
+            await commitDetailHtml(el, preparedHtml, token);
+        } catch (err) {
             if (token !== detailFlowToken) return;
-            const nodes = await prepareDetailChunk(groupHtml, () => token !== detailFlowToken);
-            if (token !== detailFlowToken || !nodes) return;
-
-            if (!didReveal) {
-                didReveal = true;
-                onFirstChunk?.();
-            }
-
-            appendDetailNodes(el, nodes, token);
-            await nextFrame();
+            await commitDetailHtml(el, source, token);
         }
     }
 
@@ -414,7 +619,7 @@
         slot.dataset.cover = trackData.cover;
         slot.dataset.link = trackData.link;
         slot.dataset.trackIndex = String(sourceIndex);
-        slot.dataset.height = slot.offsetHeight || slot.getBoundingClientRect().height || 0;
+        slot.dataset.height = String(trackData.height || 0);
         slot.dataset.emptyCard = '0';
     }
 
@@ -442,6 +647,35 @@
         slotPendingToken[slotIndex] = 0;
     }
 
+    function cancelSlotRenderQueue() {
+        if (slotRenderRafId === null) return;
+        if (slotRenderMode === 'idle' && window.cancelIdleCallback) {
+            window.cancelIdleCallback(slotRenderRafId);
+        } else if (slotRenderMode === 'timeout') {
+            clearTimeout(slotRenderRafId);
+        } else {
+            cancelAnimationFrame(slotRenderRafId);
+        }
+        slotRenderRafId = null;
+        slotRenderMode = null;
+    }
+
+    function scheduleSlotRenderQueue(delay = 0) {
+        if (slotRenderRafId !== null) return;
+        if (delay > 0) {
+            slotRenderMode = 'timeout';
+            slotRenderRafId = setTimeout(() => processSlotRenderQueue(performance.now()), delay);
+            return;
+        }
+        if (window.requestIdleCallback) {
+            slotRenderMode = 'idle';
+            slotRenderRafId = window.requestIdleCallback(() => processSlotRenderQueue(performance.now()), { timeout: 180 });
+            return;
+        }
+        slotRenderMode = 'raf';
+        slotRenderRafId = requestAnimationFrame(processSlotRenderQueue);
+    }
+
     function bindSlotSourceAsync(slotIndex, sourceIndex) {
         const slot = trackPool[slotIndex];
         if (!slot) return;
@@ -459,9 +693,7 @@
             applyEmptySlot(slot);
             slot.classList.remove('is-content-hidden');
         }
-        if (slotRenderRafId === null) {
-            slotRenderRafId = requestAnimationFrame(processSlotRenderQueue);
-        }
+        scheduleSlotRenderQueue();
     }
 
     function bindSlotSourceSync(slotIndex, sourceIndex) {
@@ -520,9 +752,7 @@
             applyTrackDataToSlot(slot, sourceTracks[sourceIndex], sourceIndex);
             slot.style.setProperty('--track-reveal-ms', `${Math.max(1, CONFIG.contentFadeInMs)}ms`);
             slot.classList.add('is-content-hidden');
-            // 在 hidden 状态完成排版，然后仅用 opacity 过渡显示
             applySlotTitleTruncation(slot);
-            void slot.offsetHeight;
 
             const revealToken = token;
             requestAnimationFrame(() => {
@@ -540,12 +770,18 @@
 
     function processSlotRenderQueue(timestamp) {
         slotRenderRafId = null;
+        slotRenderMode = null;
         if (!trackPool.length || !getTrackCount()) return;
+
+        if (isWheelMoving()) {
+            if (hasPendingSlotRenders()) scheduleSlotRenderQueue(CONFIG.wheelPriorityDelay);
+            return;
+        }
 
         // 当前 fade-in 尚未结束，必须等待后续帧再处理下一个 slot。
         if (timestamp < slotRenderUnlockAt) {
             if (hasPendingSlotRenders()) {
-                slotRenderRafId = requestAnimationFrame(processSlotRenderQueue);
+                scheduleSlotRenderQueue();
             }
             return;
         }
@@ -567,7 +803,7 @@
         }
 
         if (hasPendingSlotRenders()) {
-            slotRenderRafId = requestAnimationFrame(processSlotRenderQueue);
+            scheduleSlotRenderQueue();
         }
     }
 
@@ -582,6 +818,7 @@
 
         const poolSize = getPoolSize();
         trackPool = [];
+        trackVisualStates = new WeakMap();
         poolAssignments = new Array(poolSize).fill(-1);
         slotUpdateTokens = new Array(poolSize).fill(0);
         slotPendingSourceIndex = new Array(poolSize).fill(null);
@@ -589,10 +826,7 @@
         slotRenderCursor = 0;
         slotRenderUnlockAt = 0;
         currentPoolHeadSource = -getLeadSlotCount();
-        if (slotRenderRafId !== null) {
-            cancelAnimationFrame(slotRenderRafId);
-            slotRenderRafId = null;
-        }
+        cancelSlotRenderQueue();
 
         osuWheel.innerHTML = '';
 
@@ -604,6 +838,7 @@
             slot.style.top = '0';
             slot.style.transformOrigin = 'left center';
             slot.style.willChange = 'transform, opacity';
+            resetTrackVisualState(slot);
             trackPool.push(slot);
             osuWheel.appendChild(slot);
         }
@@ -612,10 +847,19 @@
     // ================================
     // track 点击 / 触摸激活
     // ================================
+    function isNavigableAnchorTarget(target) {
+        if (!(target instanceof Element)) return false;
+        const anchor = target.closest('a');
+        if (!anchor) return false;
+        const href = anchor.getAttribute('href') || '';
+        return Boolean(href && href !== '#');
+    }
+
     function initTrackInteraction() {
         trackPool.forEach((track) => {
             let touchMoved = false;
-            const activate = () => {
+            const activate = (event) => {
+                if (event && isNavigableAnchorTarget(event.target)) return;
                 const idx = Number(track.dataset.trackIndex || '-1');
                 if (isValidSourceIndex(idx)) {
                     // 点击切换 track 时，和滚轮一致：先隐藏 detail，等 settle 后再显示
@@ -634,9 +878,10 @@
                 touchMoved = true;
             }, { passive: true });
             track.addEventListener('touchend', (e) => {
+                if (isNavigableAnchorTarget(e.target)) return;
                 if (!touchMoved) {
                     e.preventDefault();
-                    activate();
+                    activate(e);
                 }
             });
         });
@@ -670,6 +915,7 @@
         clearSnapTimer();
         snapTimer = setTimeout(() => {
             targetOffset = Math.round(targetOffset);
+            resetWheelStopState();
             snapTimer = null;
         }, CONFIG.snapDelay);
     }
@@ -709,9 +955,7 @@
             clearTimeout(detailTimer);
             detailTimer = null;
         }
-        elems.detail.classList.remove('fade-in');
-        elems.detail.classList.add('fade-out');
-        elems.detail.classList.add('pending-lock');
+        elems.detail.classList.remove('is-visible');
         detailReadyForBg = false;
         if (refreshNeeded) detailNeedsRefreshAfterScroll = true;
         container?.classList.remove('show-bg');
@@ -719,10 +963,6 @@
 
     function hideDetailDuringScroll() {
         setDetailHiddenState({ refreshNeeded: true });
-    }
-
-    function hideDetailImmediatelyForNavigate() {
-        setDetailHiddenState({ navigating: true });
     }
 
     function getCurrentDetailIndex() {
@@ -782,6 +1022,10 @@
             cancelAnimationFrame(truncationRafId);
             truncationRafId = null;
         }
+        if (resizeRafId !== null) {
+            cancelAnimationFrame(resizeRafId);
+            resizeRafId = null;
+        }
         if (titleResizeHandler) {
             window.removeEventListener('resize', titleResizeHandler);
             titleResizeHandler = null;
@@ -792,31 +1036,6 @@
         detailNeedsRefreshAfterScroll = false;
         isNavigatingAway = false;
         resetDetailQueueState();
-    }
-
-    function shouldHandleNavHideTarget(target) {
-        if (!(target instanceof Element)) return false;
-        const anchor = target.closest('a');
-        if (!anchor) return false;
-        const href = anchor.getAttribute('href') || '';
-        if (!href || href === '#') return false;
-        return Boolean(anchor.closest('.track-title'));
-    }
-
-    function bindNavHideEvents() {
-        if (!container || container.dataset.navHideBound) return;
-
-        container.addEventListener('pointerdown', (e) => {
-            if (!shouldHandleNavHideTarget(e.target)) return;
-            hideDetailImmediatelyForNavigate();
-        }, true);
-
-        container.addEventListener('click', (e) => {
-            if (!shouldHandleNavHideTarget(e.target)) return;
-            hideDetailImmediatelyForNavigate();
-        }, true);
-
-        container.dataset.navHideBound = '1';
     }
 
     function bindTimelineEvents(timeline) {
@@ -893,27 +1112,25 @@
 
         const { detail, cover, title, description, meta, link } = elems;
 
-        // 统一动画起点：只要要求过渡，就先回到隐藏态，避免浏览器复用旧样式导致“直接闪现”
         if (withTransition) {
-            detail.classList.remove('fade-in');
-            detail.classList.add('fade-out');
-            detail.classList.add('pending-lock');
+            detail.classList.remove('is-visible');
             container?.classList.remove('show-bg');
         }
 
         const revealDetail = (token) => {
             detailReadyForBg = true;
+            const revealIndex = sourceTracks.indexOf(activeTrackData);
             requestAnimationFrame(() => {
                 if (token !== detailFlowToken) return;
                 if (!detailReadyForBg) return;
+                title.classList.remove('track-text-pending');
+                description.classList.remove('track-text-pending');
                 if (withTransition) {
-                    // 切换条目：先 detail 进场，再背景淡入
                     requestAnimationFrame(() => {
                         if (token !== detailFlowToken) return;
                         if (!detailReadyForBg) return;
-                        detail.classList.remove('pending-lock');
-                        detail.classList.remove('fade-out');
-                        detail.classList.add('fade-in');
+                        if (isValidSourceIndex(revealIndex)) syncTrackHighlight(revealIndex);
+                        detail.classList.add('is-visible');
                         requestAnimationFrame(() => {
                             if (token !== detailFlowToken) return;
                             if (!detailReadyForBg) return;
@@ -921,24 +1138,38 @@
                         });
                     });
                 } else {
-                    // 同条目刷新：保持显示，避免二次闪动
-                    detail.classList.remove('pending-lock');
-                    detail.classList.remove('fade-out');
-                    detail.classList.add('fade-in');
+                    if (isValidSourceIndex(revealIndex)) syncTrackHighlight(revealIndex);
+                    detail.classList.add('is-visible');
                     container?.classList.add('show-bg');
                 }
             });
         };
 
-        const prepareVisibleText = async (token) => {
+        const prepareDetailForReveal = async (token, descriptionHtml) => {
             await ensurePostCssReady();
             if (token !== detailFlowToken) return;
             if (window.AutoZh?.ready) await window.AutoZh.ready;
             if (token !== detailFlowToken) return;
+
             if (window.AutoZh?.refresh) {
                 await window.AutoZh.refresh(title);
                 if (token !== detailFlowToken) return;
                 await window.AutoZh.refresh(meta);
+                if (token !== detailFlowToken) return;
+            }
+
+            await renderDetailHtml(description, descriptionHtml, token);
+            if (token !== detailFlowToken) return;
+
+            if (cover?.src && !cover.complete) {
+                const imageReady = typeof cover.decode === 'function'
+                    ? cover.decode().catch(() => {})
+                    : new Promise((resolve) => {
+                        cover.addEventListener('load', resolve, { once: true });
+                        cover.addEventListener('error', resolve, { once: true });
+                    });
+                const timeout = new Promise((resolve) => setTimeout(resolve, 500));
+                await Promise.race([imageReady, timeout]);
             }
         };
 
@@ -951,7 +1182,6 @@
 
             title.classList.add('track-text-pending');
             description.classList.add('track-text-pending');
-            description.replaceChildren();
 
             if (title.textContent !== newTitle) title.textContent = newTitle;
             if (cover.src !== newCover) {
@@ -964,24 +1194,15 @@
             if (link.getAttribute('href') !== newLink) link.setAttribute('href', newLink);
 
             try {
-                await prepareVisibleText(token);
+                await prepareDetailForReveal(token, newDescription);
                 if (token !== detailFlowToken) return;
 
-                await streamDetailHtml(description, newDescription, token, () => {
-                    if (token !== detailFlowToken) return;
-                    requestAnimationFrame(() => {
-                        if (token !== detailFlowToken) return;
-                        title.classList.remove('track-text-pending');
-                        description.classList.remove('track-text-pending');
-                    });
-                    revealDetail(token);
-                });
+                revealDetail(token);
             } catch (err) {
                 if (token !== detailFlowToken) return;
-                title.classList.remove('track-text-pending');
-                description.classList.remove('track-text-pending');
+                await prepareDetailForReveal(token, newDescription);
+                if (token !== detailFlowToken) return;
                 revealDetail(token);
-                await streamDetailHtml(description, newDescription, token);
             }
         };
 
@@ -1028,6 +1249,7 @@
             trackPool.push(firstTrack);
             poolAssignments.push(firstAssign);
             slotUpdateTokens.push(firstToken);
+            resetTrackVisualState(firstTrack);
 
             currentPoolHeadSource += 1;
             const tailIndex = trackPool.length - 1;
@@ -1043,6 +1265,7 @@
             trackPool.unshift(lastTrack);
             poolAssignments.unshift(lastAssign);
             slotUpdateTokens.unshift(lastToken);
+            resetTrackVisualState(lastTrack);
 
             currentPoolHeadSource -= 1;
             bindSlotSourceAsync(0, currentPoolHeadSource);
@@ -1052,13 +1275,21 @@
     // ================================
     // 渲染函数
     // ================================
-    function render() {
+    function render(deltaSec = 0) {
         if (!getTrackCount() || !trackPool.length) return;
 
-        const centerY = osuWheel.clientHeight / 2;
-        const activeIndex = clampOffset(Math.round(offset));
+        const centerY = cachedWheelCenterY || osuWheel.clientHeight / 2;
+        const activeIndex = clampOffset(Math.round(canCommitSelectionWork() ? targetOffset : offset));
         const base = Math.floor(offset);
         const frac = offset - base;
+        const spacing = getSpacing();
+        const wheelMoving = isWheelMoving();
+        const followFactor = getTransformFollowFactor(deltaSec);
+
+        if (wheelMoving !== lastWheelMovingState) {
+            container?.classList.toggle('is-wheel-moving', wheelMoving);
+            lastWheelMovingState = wheelMoving;
+        }
 
         syncPoolAssignments();
 
@@ -1068,16 +1299,17 @@
             const sourceDiff = sourceIndex - offset;
 
             const logicalSlot = (i - frac) - getLeadSlotCount();
-            const angle = logicalSlot * getSpacing();
+            const angle = logicalSlot * spacing;
             const rad = angle * Math.PI / 180;
-            const trackHeight = Number(track.dataset.height) || track.offsetHeight || track.getBoundingClientRect().height || 0;
+            const trackHeight = Number(track.dataset.height) || 0;
 
             const x = CONFIG.offsetX + Math.cos(rad) * CONFIG.radius - CONFIG.radius;
             const y = centerY - trackHeight / 2 + Math.sin(rad) * CONFIG.radius;
 
             const isValidSource = isValidSourceIndex(sourceIndex);
-            const isActive = isValidSource && sourceIndex === activeIndex;
-            const scale = isActive ? 1 : Math.max(0, 1 - Math.abs(sourceDiff) * 0.1) / CONFIG.scaleFactor;
+            const isSelected = isValidSource && sourceIndex === activeIndex;
+            const isHighlighted = isValidSource && sourceIndex === highlightedTrackIndex;
+            const scale = isSelected ? 1 : Math.max(0, 1 - Math.abs(sourceDiff) * 0.1) / CONFIG.scaleFactor;
             const shouldRender = isValidSource;
 
             if (shouldRender) {
@@ -1089,15 +1321,27 @@
                 }
             }
 
-            track.style.transform = `translate3d(${x}px, ${y}px, 0px) scale(${scale})`;
             track.style.visibility = shouldRender ? 'visible' : 'hidden';
             track.style.pointerEvents = shouldRender ? 'auto' : 'none';
-            track.classList.toggle('active', isActive);
+
+            let visual = trackVisualStates.get(track);
+            if (!visual || track.dataset.visualReset === '1' || !shouldRender) {
+                visual = { x, y, scale };
+                trackVisualStates.set(track, visual);
+                delete track.dataset.visualReset;
+            } else {
+                visual.x += (x - visual.x) * followFactor;
+                visual.y += (y - visual.y) * followFactor;
+                visual.scale += (scale - visual.scale) * followFactor;
+            }
+
+            track.style.transform = `translate3d(${visual.x}px, ${visual.y}px, 0px) scale(${visual.scale})`;
+            track.classList.toggle('active', isHighlighted);
             track.style.zIndex = String(CONFIG.activeZIndex - Math.round(Math.abs(sourceDiff)));
             // 亮度曲线：中心 1.0，两侧从 0.75 递减到最外侧 0.15（由 :after 控制）
             const distance = Math.abs(logicalSlot);
             const t = clamp((distance - 1) / Math.max(1, halfVisible), 0, 1);
-            const brightness = isActive ? 1 : (0.75 - (0.75 - 0.15) * t);
+            const brightness = isHighlighted ? 1 : (0.75 - (0.75 - 0.15) * t);
             track.style.setProperty('--track-brightness', String(brightness));
 
             // 兜底：只要可见且真实内容已写入，不允许残留 hidden
@@ -1120,14 +1364,20 @@
                 queueDetailRender(snappedIndex, immediate);
             }
             // 异步渲染 + 节流：使用 asyncRenderInternal 作为最小渲染间隔
-            flushQueuedDetailRender(nowMs);
+            if (canCommitSelectionWork()) {
+                flushQueuedDetailRender(nowMs);
+            }
 
             // 背景显隐由 updateDetail / hideDetailDuringScroll 统一管理，
             // 避免 render 循环抢写 class 导致“无过渡直接出现”。
         }
 
         if (timelineSlider) {
-            timelineSlider.value = String(offsetToSlider(offset));
+            const nextTimelineValue = offsetToSlider(offset);
+            if (!Number.isFinite(lastTimelineValue) || Math.abs(nextTimelineValue - lastTimelineValue) >= CONFIG.sliderSyncThreshold) {
+                timelineSlider.value = String(nextTimelineValue);
+                lastTimelineValue = nextTimelineValue;
+            }
         }
     }
 
@@ -1144,6 +1394,7 @@
         hideDetailIfSwitching(nextOffset);
         targetOffset = nextOffset;
         markWheelInputActive();
+        startSnapTimer();
     }
 
     // ================================
@@ -1191,10 +1442,13 @@
 
             if (delta > 0) {
                 offset += (targetOffset - offset) * delta * CONFIG.animateSpeed;
+                if (Math.abs(targetOffset - offset) <= CONFIG.settleThreshold) {
+                    offset = targetOffset;
+                }
                 maybeSnapOnPhysicalStop(delta);
             }
 
-            render();
+            render(delta);
         }
         animationFrameId = requestAnimationFrame(animate);
     }
@@ -1204,10 +1458,7 @@
     // ================================
     function initOsuWheel() {
         if (animationFrameId) cancelAnimationFrame(animationFrameId);
-        if (slotRenderRafId !== null) {
-            cancelAnimationFrame(slotRenderRafId);
-            slotRenderRafId = null;
-        }
+        cancelSlotRenderQueue();
         slotRenderUnlockAt = 0;
         slotRenderCursor = 0;
         resetWheelRuntimeState();
@@ -1217,8 +1468,9 @@
         const timeline = document.querySelector('.osu-timeline');
         timelineSlider = document.getElementById('osu-timeline-slider');
         if (!container || !osuWheel) return;
+        updateWheelMetrics();
+        lastTimelineValue = NaN;
 
-        bindNavHideEvents();
         bindTimelineEvents(timeline);
 
         initTracks();
@@ -1280,7 +1532,7 @@
         observeTrackHeights();
         syncPoolAssignments();
         forceTitleTruncation();
-        titleResizeHandler = applyTitleTruncation;
+        titleResizeHandler = handleResize;
         window.addEventListener('resize', titleResizeHandler);
 
         if (!container.dataset.trackWheelBound) {

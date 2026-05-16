@@ -113,6 +113,7 @@
   width: 70%;
   height: 100%;
   overflow: hidden;
+  z-index: 90;
 }
 @media (max-width: 820px) {
   .osu-wheel {
@@ -340,7 +341,7 @@
 .track {
   position: absolute;
   transform-origin: left center; /* 左边缘中间 */
-  transition: transform 0.2s;
+  transition: none;
   width: 90%;
   height: 9rem;
   display: flex;
@@ -351,6 +352,8 @@
   backdrop-filter: blur(0.375rem);
   -webkit-backdrop-filter: blur(0.375rem);
   border-radius: 0 0.375rem 0.375rem 0;
+  box-shadow: 0 0.5rem 1rem rgba(0,0,0,0);
+  transition: box-shadow var(--track-detail-fade-ms, 180ms) var(--track-detail-fade-ease, cubic-bezier(0.22, 0.61, 0.36, 1));
   will-change: transform;
   backface-visibility: hidden;
 /* inactive 禁用点击 */
@@ -385,6 +388,15 @@
     width: 95%;
     height: 5.5rem;
   }
+}
+.osu-container.is-wheel-moving .track {
+  transition: none !important;
+}
+.osu-container.is-wheel-moving .track::after {
+  transition: none !important;
+}
+.osu-container.is-wheel-moving .track.active {
+  box-shadow: 0 0.35rem 0.8rem rgba(0,0,0,0.12);
 }
 /* 异步切换 source 的过渡态：只隐藏内容层，不清空容器 */
 .track .track-content,
@@ -598,37 +610,20 @@
   gap: 0;
   z-index: 80;
 /* 动画效果 */
-  opacity: 1;
-  transform: translateX(0);
+  opacity: 0;
+  transform: translateX(var(--track-detail-shift-x));
   transition-property: opacity, transform;
   transition-duration: var(--track-detail-fade-ms), var(--track-detail-fade-ms);
   transition-timing-function: var(--track-detail-fade-ease), var(--track-detail-fade-ease);
   transition-delay: 0ms, 0ms;
-/* ==============================
-     fade-out / fade-in 动画类
-     ============================== */
-/* 进入前锁：任何中途切换都先锁在隐藏态，避免闪现 */
 /* 响应式 */
 }
-.track-detail.fade-out {
-  opacity: 0;
-  transform: translateX(var(--track-detail-shift-x)); /* 向右淡出 */
-}
-@media (max-width: 820px) and (orientation: portrait) {
-  .track-detail.fade-out {
-    transform: translateX(0);
-  }
-}
-.track-detail.fade-in {
+.track-detail.is-visible {
   opacity: 1;
-  transform: translateX(0); /* 从右淡入 */
-}
-.track-detail.pending-lock {
-  opacity: 0;
-  transform: translateX(var(--track-detail-shift-x));
+  transform: translateX(0);
 }
 @media (max-width: 820px) and (orientation: portrait) {
-  .track-detail.pending-lock {
+  .track-detail:not(.is-visible) {
     transform: translateX(0);
   }
 }
@@ -710,7 +705,6 @@
   text-overflow: ellipsis; /* 省略号 */
   word-break: break-word; /* 避免长单词撑开 */
   opacity: 1;
-  transition: opacity 0.22s ease;
 }
 @media (max-width: 820px) {
   .track-cover .track-info-title {
@@ -803,7 +797,6 @@
   -webkit-mask-repeat: no-repeat;
   mask-repeat: no-repeat;
   opacity: 1;
-  transition: opacity 0.22s ease;
 }
 .track-info-description p {
   margin: 0 0 0.35rem 0;
@@ -833,15 +826,6 @@
 .track-info-description.track-text-pending {
   opacity: 0;
 }
-.track-info-description .track-detail-chunk-reveal {
-  opacity: 0;
-  transform: translateY(0.22rem);
-  transition: opacity 0.2s ease, transform 0.2s ease;
-}
-.track-info-description .track-detail-chunk-reveal.is-visible {
-  opacity: 1;
-  transform: translateY(0);
-}
 /* 仅供主题脚本探测使用，不参与 track 布局 */
 #track-post-sentinel.post.block {
   display: none !important;
@@ -853,11 +837,14 @@
 }
 /* track 内的 post 包裹容器：保留语义但不干扰布局 */
 .track-detail .track-post-proxy.post.block {
+  display: flex;
+  flex-direction: column;
   padding: 0 !important;
   margin: 0 !important;
   width: 100%;
   flex: 1 1 auto;
   min-height: 0;
+  height: 100%;
   max-height: 100%;
   overflow: hidden;
   box-sizing: border-box;
@@ -867,6 +854,9 @@
   --track-md-inline: var(--track-detail-content-padding); /* 正文 / note / 标题装饰 的统一左右基准 */
   --track-md-gap: 0.58rem; /* 标题文字与装饰伪元素间距 */
   display: block;
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100%;
   white-space: normal;
   font-size: inherit;
   line-height: inherit;
