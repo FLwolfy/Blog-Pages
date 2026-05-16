@@ -833,6 +833,15 @@
 .track-info-description.track-text-pending {
   opacity: 0;
 }
+.track-info-description .track-detail-chunk-reveal {
+  opacity: 0;
+  transform: translateY(0.22rem);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.track-info-description .track-detail-chunk-reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
 /* 仅供主题脚本探测使用，不参与 track 布局 */
 #track-post-sentinel.post.block {
   display: none !important;

@@ -22,7 +22,9 @@
         asyncRenderInternal: 30,   // 触发下一个 slot 异步渲染的时间间隔（ms）
         contentFadeInMs: 220,      // 异步内容回填后的淡入时长（ms）
         wheelStopSpeed: 0.55,      // 真实停止判定：速度阈值（offset/s）
-        wheelStopStableMs: 120     // 真实停止判定：持续低速时长（ms）
+        wheelStopStableMs: 120,    // 真实停止判定：持续低速时长（ms）
+        detailChunkNodeLimit: 4,   // detail 正文每帧最多回填的顶层节点数
+        detailChunkCharLimit: 900  // detail 正文每帧最多回填的近似 HTML 字符数
     };
 
     // ================================
@@ -75,7 +77,6 @@
     let pendingDetailImmediate = false;
     let detailDisplayedIndex = -1;
     let detailElementsCache = null;
-    const detailHtmlCache = new WeakMap();
 
     function getPoolSize() {
         return Math.max(2, CONFIG.visibleCount * 2);
@@ -190,11 +191,13 @@
         if (detailElementsCache?.detail?.isConnected) return detailElementsCache;
 
         const detail = document.querySelector('.track-detail');
+        const description = detail?.querySelector('.track-info-description');
+        if (description) description.dataset.noOpencc = '1';
         detailElementsCache = detail ? {
             detail,
             cover: detail.querySelector('.track-cover img'),
             title: detail.querySelector('.track-info-title'),
-            description: detail.querySelector('.track-info-description'),
+            description,
             meta: detail.querySelector('.track-info-meta'),
             link: detail.querySelector('.track-info-readmore')
         } : null;
@@ -288,10 +291,118 @@
         });
     }
 
-    function updateCachedHtml(el, html) {
-        if (detailHtmlCache.get(el) === html) return;
-        el.innerHTML = html;
-        detailHtmlCache.set(el, html);
+    function nextFrame() {
+        return new Promise((resolve) => requestAnimationFrame(resolve));
+    }
+
+    function splitDetailHtmlIntoBlocks(html) {
+        const source = String(html || '');
+        if (!source) return [];
+
+        const blockRegex = /<(p|h[1-6]|ul|ol|blockquote|pre|table|figure)[^>]*>[\s\S]*?<\/\1>/gi;
+        const blocks = [];
+        let lastIndex = 0;
+        let match = null;
+
+        while ((match = blockRegex.exec(source)) !== null) {
+            const before = source.slice(lastIndex, match.index).trim();
+            if (before) blocks.push(before);
+            blocks.push(match[0]);
+            lastIndex = blockRegex.lastIndex;
+        }
+
+        const tail = source.slice(lastIndex).trim();
+        if (tail) blocks.push(tail);
+        return blocks.length ? blocks : [source];
+    }
+
+    function groupDetailHtmlBlocks(blocks) {
+        const groups = [];
+        let current = [];
+        let charCount = 0;
+
+        blocks.forEach((block) => {
+            const size = block.length;
+            if (
+                current.length > 0 &&
+                (current.length >= CONFIG.detailChunkNodeLimit || charCount + size > CONFIG.detailChunkCharLimit)
+            ) {
+                groups.push(current.join(''));
+                current = [];
+                charCount = 0;
+            }
+
+            current.push(block);
+            charCount += size;
+        });
+
+        if (current.length) groups.push(current.join(''));
+        return groups;
+    }
+
+    async function prepareDetailChunk(html, isStale) {
+        const template = document.createElement('template');
+        template.innerHTML = html;
+
+        if (window.AutoZh?.refresh) await window.AutoZh.refresh(template.content);
+        if (isStale()) return null;
+
+        return Array.from(template.content.childNodes);
+    }
+
+    function appendDetailNodes(el, nodes, token) {
+        if (!el || !nodes || token !== detailFlowToken) return;
+
+        const fragment = document.createDocumentFragment();
+        const revealNodes = [];
+
+        nodes.forEach((node) => {
+            if (node.nodeType === Node.ELEMENT_NODE) {
+                node.classList.add('track-detail-chunk-reveal');
+                revealNodes.push(node);
+            }
+            fragment.appendChild(node);
+        });
+
+        el.appendChild(fragment);
+        requestAnimationFrame(() => {
+            if (token !== detailFlowToken) return;
+            revealNodes.forEach((node) => {
+                node.classList.add('is-visible');
+            });
+        });
+    }
+
+    async function streamDetailHtml(el, html, token, onFirstChunk) {
+        if (!el) return;
+
+        el.replaceChildren();
+
+        await ensurePostCssReady();
+        if (token !== detailFlowToken) return;
+        if (window.AutoZh?.ready) await window.AutoZh.ready;
+        if (token !== detailFlowToken) return;
+
+        const groups = groupDetailHtmlBlocks(splitDetailHtmlIntoBlocks(html));
+        if (!groups.length) {
+            onFirstChunk?.();
+            return;
+        }
+
+        let didReveal = false;
+        for (const groupHtml of groups) {
+            if (token !== detailFlowToken) return;
+            const nodes = await prepareDetailChunk(groupHtml, () => token !== detailFlowToken);
+            if (token !== detailFlowToken || !nodes) return;
+
+            if (!didReveal) {
+                didReveal = true;
+                onFirstChunk?.();
+            }
+
+            appendDetailNodes(el, nodes, token);
+            await nextFrame();
+        }
     }
 
     function applyTrackDataToSlot(slot, trackData, sourceIndex) {
@@ -790,7 +901,36 @@
             container?.classList.remove('show-bg');
         }
 
-        const renderTextWithAutoZh = async (token) => {
+        const revealDetail = (token) => {
+            detailReadyForBg = true;
+            requestAnimationFrame(() => {
+                if (token !== detailFlowToken) return;
+                if (!detailReadyForBg) return;
+                if (withTransition) {
+                    // 切换条目：先 detail 进场，再背景淡入
+                    requestAnimationFrame(() => {
+                        if (token !== detailFlowToken) return;
+                        if (!detailReadyForBg) return;
+                        detail.classList.remove('pending-lock');
+                        detail.classList.remove('fade-out');
+                        detail.classList.add('fade-in');
+                        requestAnimationFrame(() => {
+                            if (token !== detailFlowToken) return;
+                            if (!detailReadyForBg) return;
+                            container?.classList.add('show-bg');
+                        });
+                    });
+                } else {
+                    // 同条目刷新：保持显示，避免二次闪动
+                    detail.classList.remove('pending-lock');
+                    detail.classList.remove('fade-out');
+                    detail.classList.add('fade-in');
+                    container?.classList.add('show-bg');
+                }
+            });
+        };
+
+        const prepareVisibleText = async (token) => {
             await ensurePostCssReady();
             if (token !== detailFlowToken) return;
             if (window.AutoZh?.ready) await window.AutoZh.ready;
@@ -798,17 +938,11 @@
             if (window.AutoZh?.refresh) {
                 await window.AutoZh.refresh(title);
                 if (token !== detailFlowToken) return;
-                await window.AutoZh.refresh(description);
+                await window.AutoZh.refresh(meta);
             }
-            if (token !== detailFlowToken) return;
-            requestAnimationFrame(() => {
-                if (token !== detailFlowToken) return;
-                title.classList.remove('track-text-pending');
-                description.classList.remove('track-text-pending');
-            });
         };
 
-        const apply = (token) => {
+        const apply = async (token) => {
             if (token !== detailFlowToken) return;
             const newTitle = activeTrackData.title || '';
             const newDescription = activeTrackData.description || '';
@@ -817,6 +951,7 @@
 
             title.classList.add('track-text-pending');
             description.classList.add('track-text-pending');
+            description.replaceChildren();
 
             if (title.textContent !== newTitle) title.textContent = newTitle;
             if (cover.src !== newCover) {
@@ -825,55 +960,46 @@
             }
 
             const newMeta = activeTrackData.metaHtml || '';
-            updateCachedHtml(meta, newMeta);
+            meta.innerHTML = newMeta;
             if (link.getAttribute('href') !== newLink) link.setAttribute('href', newLink);
-            updateCachedHtml(description, newDescription);
 
-            // 关键：等待文字/翻译就绪后再进场，避免 fade 结束后再闪一次
-            const textReady = renderTextWithAutoZh(token).catch(() => {
+            try {
+                await prepareVisibleText(token);
+                if (token !== detailFlowToken) return;
+
+                await streamDetailHtml(description, newDescription, token, () => {
+                    if (token !== detailFlowToken) return;
+                    requestAnimationFrame(() => {
+                        if (token !== detailFlowToken) return;
+                        title.classList.remove('track-text-pending');
+                        description.classList.remove('track-text-pending');
+                    });
+                    revealDetail(token);
+                });
+            } catch (err) {
+                if (token !== detailFlowToken) return;
+                title.classList.remove('track-text-pending');
+                description.classList.remove('track-text-pending');
+                revealDetail(token);
+                await streamDetailHtml(description, newDescription, token);
+            }
+        };
+
+        const runApply = (token) => {
+            apply(token).catch(() => {
                 if (token !== detailFlowToken) return;
                 title.classList.remove('track-text-pending');
                 description.classList.remove('track-text-pending');
             });
-
-            textReady.then(() => {
-                if (token !== detailFlowToken) return;
-                detailReadyForBg = true;
-                requestAnimationFrame(() => {
-                    if (token !== detailFlowToken) return;
-                    if (!detailReadyForBg) return;
-                    if (withTransition) {
-                        // 切换条目：先 detail 进场，再背景淡入
-                        requestAnimationFrame(() => {
-                            if (token !== detailFlowToken) return;
-                            if (!detailReadyForBg) return;
-                            detail.classList.remove('pending-lock');
-                            detail.classList.remove('fade-out');
-                            detail.classList.add('fade-in');
-                            requestAnimationFrame(() => {
-                                if (token !== detailFlowToken) return;
-                                if (!detailReadyForBg) return;
-                                container?.classList.add('show-bg');
-                            });
-                        });
-                    } else {
-                        // 同条目刷新：保持显示，避免二次闪动
-                        detail.classList.remove('pending-lock');
-                        detail.classList.remove('fade-out');
-                        detail.classList.add('fade-in');
-                        container?.classList.add('show-bg');
-                    }
-                });
-            });
         };
 
         if (immediate) {
-            apply(flowToken);
+            runApply(flowToken);
             return;
         }
 
         detailTimer = setTimeout(() => {
-            apply(flowToken);
+            runApply(flowToken);
             if (flowToken === detailFlowToken) detailTimer = null;
         }, CONFIG.detailFadeDelay);
     }
