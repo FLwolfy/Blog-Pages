@@ -142,10 +142,7 @@
 
             if (detailDisplayedIndex >= 0) {
                 detailFlowToken += 1;
-                if (detailTimer) {
-                    clearTimeout(detailTimer);
-                    detailTimer = null;
-                }
+                clearDetailTimer();
                 detailNeedsRefreshAfterScroll = true;
             }
         });
@@ -253,6 +250,12 @@
         if (!snapTimer) return;
         clearTimeout(snapTimer);
         snapTimer = null;
+    }
+
+    function clearDetailTimer() {
+        if (!detailTimer) return;
+        clearTimeout(detailTimer);
+        detailTimer = null;
     }
 
     function resetWheelStopState() {
@@ -778,7 +781,7 @@
             return;
         }
 
-        // 当前 fade-in 尚未结束，必须等待后续帧再处理下一个 slot。
+        // 当前内容淡入尚未结束，延后处理下一个 slot，避免抢 wheel 动画帧。
         if (timestamp < slotRenderUnlockAt) {
             if (hasPendingSlotRenders()) {
                 scheduleSlotRenderQueue();
@@ -951,10 +954,7 @@
 
         if (navigating) isNavigatingAway = true;
         detailFlowToken += 1;
-        if (detailTimer) {
-            clearTimeout(detailTimer);
-            detailTimer = null;
-        }
+        clearDetailTimer();
         elems.detail.classList.remove('is-visible');
         detailReadyForBg = false;
         if (refreshNeeded) detailNeedsRefreshAfterScroll = true;
@@ -1016,7 +1016,7 @@
     function resetWheelRuntimeState() {
         clearSnapTimer();
         resetWheelStopState();
-        if (detailTimer) clearTimeout(detailTimer);
+        clearDetailTimer();
         if (resizeObserver) resizeObserver.disconnect();
         if (truncationRafId !== null) {
             cancelAnimationFrame(truncationRafId);
@@ -1105,10 +1105,7 @@
 
         detailFlowToken += 1;
         const flowToken = detailFlowToken;
-        if (detailTimer) {
-            clearTimeout(detailTimer);
-            detailTimer = null;
-        }
+        clearDetailTimer();
 
         const { detail, cover, title, description, meta, link } = elems;
 
@@ -1117,30 +1114,34 @@
             container?.classList.remove('show-bg');
         }
 
+        const commitPreparedDetail = (token, revealIndex, showBgImmediately = false) => {
+            if (token !== detailFlowToken) return;
+            if (!detailReadyForBg) return;
+            title.classList.remove('track-text-pending');
+            description.classList.remove('track-text-pending');
+            if (isValidSourceIndex(revealIndex)) syncTrackHighlight(revealIndex);
+            detail.classList.add('is-visible');
+
+            if (showBgImmediately) {
+                container?.classList.add('show-bg');
+                return;
+            }
+
+            requestAnimationFrame(() => {
+                if (token !== detailFlowToken) return;
+                if (!detailReadyForBg) return;
+                container?.classList.add('show-bg');
+            });
+        };
+
         const revealDetail = (token) => {
             detailReadyForBg = true;
             const revealIndex = sourceTracks.indexOf(activeTrackData);
             requestAnimationFrame(() => {
-                if (token !== detailFlowToken) return;
-                if (!detailReadyForBg) return;
-                title.classList.remove('track-text-pending');
-                description.classList.remove('track-text-pending');
                 if (withTransition) {
-                    requestAnimationFrame(() => {
-                        if (token !== detailFlowToken) return;
-                        if (!detailReadyForBg) return;
-                        if (isValidSourceIndex(revealIndex)) syncTrackHighlight(revealIndex);
-                        detail.classList.add('is-visible');
-                        requestAnimationFrame(() => {
-                            if (token !== detailFlowToken) return;
-                            if (!detailReadyForBg) return;
-                            container?.classList.add('show-bg');
-                        });
-                    });
+                    requestAnimationFrame(() => commitPreparedDetail(token, revealIndex));
                 } else {
-                    if (isValidSourceIndex(revealIndex)) syncTrackHighlight(revealIndex);
-                    detail.classList.add('is-visible');
-                    container?.classList.add('show-bg');
+                    commitPreparedDetail(token, revealIndex, true);
                 }
             });
         };
