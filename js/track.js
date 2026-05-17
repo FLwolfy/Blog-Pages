@@ -272,7 +272,10 @@
 
         const detail = document.querySelector('.track-detail');
         const description = detail?.querySelector('.track-info-description');
-        if (description) description.dataset.noOpencc = '1';
+        if (description) {
+            description.dataset.noOpencc = '1';
+            description.inert = true;
+        }
         detailElementsCache = detail ? {
             detail,
             cover: detail.querySelector('.track-cover img'),

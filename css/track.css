@@ -797,6 +797,7 @@
   -webkit-mask-repeat: no-repeat;
   mask-repeat: no-repeat;
   opacity: 1;
+  pointer-events: none;
 }
 .track-info-description p {
   margin: 0 0 0.35rem 0;
