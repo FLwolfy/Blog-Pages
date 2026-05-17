@@ -159,10 +159,10 @@
     }
 
     function syncTrackHighlight(index) {
-        highlightedTrackIndex = index;
+        highlightedTrackIndex = isValidSourceIndex(index) ? index : -1;
         for (let i = 0; i < trackPool.length; i++) {
             const track = trackPool[i];
-            const isHighlighted = Number(track?.dataset.trackIndex || '-1') === index;
+            const isHighlighted = Number(track?.dataset.trackIndex || '-1') === highlightedTrackIndex;
             track?.classList.toggle('active', isHighlighted);
             if (isHighlighted) {
                 track.style.setProperty('--track-brightness', '1');
@@ -209,7 +209,7 @@
         pendingDetailIndex = -1;
         pendingDetailImmediate = false;
         detailDisplayedIndex = -1;
-        highlightedTrackIndex = -1;
+        syncTrackHighlight(-1);
     }
 
     function ensurePostCssReady() {
@@ -956,6 +956,7 @@
         detailFlowToken += 1;
         clearDetailTimer();
         elems.detail.classList.remove('is-visible');
+        syncTrackHighlight(-1);
         detailReadyForBg = false;
         if (refreshNeeded) detailNeedsRefreshAfterScroll = true;
         container?.classList.remove('show-bg');
@@ -1286,6 +1287,10 @@
         const spacing = getSpacing();
         const wheelMoving = isWheelMoving();
         const followFactor = getTransformFollowFactor(deltaSec);
+        const detailVisible = Boolean(detailElementsCache?.detail?.classList.contains('is-visible'));
+        const visualHighlightIndex = detailVisible && highlightedTrackIndex >= 0
+            ? highlightedTrackIndex
+            : activeIndex;
 
         if (wheelMoving !== lastWheelMovingState) {
             container?.classList.toggle('is-wheel-moving', wheelMoving);
@@ -1309,7 +1314,7 @@
 
             const isValidSource = isValidSourceIndex(sourceIndex);
             const isSelected = isValidSource && sourceIndex === activeIndex;
-            const isHighlighted = isValidSource && sourceIndex === highlightedTrackIndex;
+            const isHighlighted = isValidSource && sourceIndex === visualHighlightIndex;
             const scale = isSelected ? 1 : Math.max(0, 1 - Math.abs(sourceDiff) * 0.1) / CONFIG.scaleFactor;
             const shouldRender = isValidSource;
 
