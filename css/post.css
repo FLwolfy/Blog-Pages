@@ -4238,6 +4238,61 @@ use.stop-animation {
   margin-top: 2.5rem;
   text-align: center;
 }
+.md .shiki-fold {
+  position: relative;
+  margin: 1rem 0;
+}
+.md .shiki-fold::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 5rem;
+  background: linear-gradient(to bottom, transparent, var(--grey-1));
+  pointer-events: none;
+  border-radius: 0 0 0.5rem 0.5rem;
+  transition: opacity 0.22s ease;
+}
+.md .shiki-fold.open::after {
+  opacity: 0;
+}
+.md .shiki-fold.open .shiki-fold-toggle .ic {
+  transform: rotate(180deg);
+}
+.md .shiki-fold-target {
+  display: block;
+  overflow: hidden;
+  transition: max-height 0.24s ease;
+}
+.md .shiki-fold-toggle {
+  position: absolute;
+  z-index: 2;
+  right: 50%;
+  bottom: 0.65rem;
+  width: 2.4rem;
+  height: 1.55rem;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: var(--grey-2-a7);
+  color: var(--text-color);
+  box-shadow: 0 0.2rem 0.65rem var(--box-bg-shadow);
+  cursor: pointer;
+  transform: translateX(50%);
+  backdrop-filter: blur(0.35rem);
+  -webkit-backdrop-filter: blur(0.35rem);
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+.md .shiki-fold-toggle:hover {
+  background: var(--color-pink-a3);
+  color: var(--color-pink);
+}
+.md .shiki-fold-toggle .ic {
+  display: inline-block;
+  line-height: 1.55rem;
+  transition: transform 0.24s ease;
+}
 .breadcrumb {
   display: inline-flex;
   font-size: 0.8125em;
