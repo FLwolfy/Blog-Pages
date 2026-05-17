@@ -622,6 +622,16 @@
   opacity: 1;
   transform: translateX(0);
 }
+@media (max-width: 820px) {
+  .track-detail.is-visible {
+    animation: track-detail-mobile-fade-in var(--track-detail-fade-ms) var(--track-detail-fade-ease) both;
+  }
+}
+@media (max-width: 820px) {
+  .track-detail:not(.is-visible) {
+    animation: track-detail-mobile-fade-out var(--track-detail-fade-ms) var(--track-detail-fade-ease) both;
+  }
+}
 @media (max-width: 820px) and (orientation: portrait) {
   .track-detail:not(.is-visible) {
     transform: translateX(0);
@@ -1133,4 +1143,68 @@
 .anchor::after {
   content: none !important;
   display: none !important;
+}
+@-moz-keyframes track-detail-mobile-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@-webkit-keyframes track-detail-mobile-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@-o-keyframes track-detail-mobile-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes track-detail-mobile-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@-moz-keyframes track-detail-mobile-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+@-webkit-keyframes track-detail-mobile-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+@-o-keyframes track-detail-mobile-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+@keyframes track-detail-mobile-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
 }
