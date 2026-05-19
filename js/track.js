@@ -188,7 +188,7 @@
     }
 
     function canCommitSelectionWork() {
-        return !isWheelInteracting() && isTargetSnapped();
+        return !container?.classList.contains('is-toggling') && !isWheelInteracting() && isTargetSnapped();
     }
 
     function setSliderTargetFromPointer(clientX, clientY) {
