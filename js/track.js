@@ -98,11 +98,13 @@
     let trackVisualStates = new WeakMap();
 
     function getPoolSize() {
-        return Math.max(2, CONFIG.visibleCount * 2);
+        // Keep one lightweight buffer slot while rendering only the right-side semicircle.
+        return Math.max(2, CONFIG.visibleCount + 1);
     }
 
     function getLeadSlotCount() {
-        return CONFIG.visibleCount - 1;
+        // Keep one extra logical slot at the opposite center as a hidden buffer slot.
+        return halfVisible + 1;
     }
 
     function getTrackCount() {
@@ -700,12 +702,9 @@
         slotPendingToken[slotIndex] = 0;
     }
 
-    function isSlotInRefreshZone(logicalSlot) {
-        // Refresh at the middle card on the left half (opposite side center).
-        const oppositeLogical = -halfVisible;
-        const tolerance = 0.75;
-        const distanceToOpposite = Math.abs(logicalSlot - oppositeLogical);
-        return distanceToOpposite <= tolerance;
+    function isSlotInRefreshZone(slotIndex) {
+        // One fixed hidden buffer slot only.
+        return slotIndex === 0;
     }
 
     function cancelSlotRenderQueue() {
@@ -1024,6 +1023,14 @@
         hideDetailDuringScroll();
     }
 
+    function setWheelTargetOffset(nextOffset, { markInput = false } = {}) {
+        if (!Number.isFinite(nextOffset) || nextOffset === targetOffset) return false;
+        hideDetailIfSwitching(nextOffset);
+        targetOffset = nextOffset;
+        if (markInput) markWheelInputActive();
+        return true;
+    }
+
     function queueDetailRender(index, immediate = false) {
         if (!isValidSourceIndex(index)) return;
         pendingDetailIndex = index;
@@ -1042,8 +1049,6 @@
         detailRenderUnlockAt = nowMs + Math.max(1, CONFIG.detailLoadMinInterval);
 
         const isFirstDetailPaint = lastActiveIndex === -1;
-        const isSwitch = index !== detailDisplayedIndex;
-        const needsRefresh = detailNeedsRefreshAfterScroll;
         lastActiveIndex = index;
         detailNeedsRefreshAfterScroll = false;
         // refresh 场景也走过渡，避免偶发“直接闪现”
@@ -1100,9 +1105,7 @@
             if (!getTrackCount()) return;
             const deltaOffset = (e.deltaY / CONFIG.scrollUnit) * CONFIG.scrollDirection;
             const nextOffset = clampOffset(targetOffset + deltaOffset);
-            hideDetailIfSwitching(nextOffset);
-            targetOffset = nextOffset;
-            markWheelInputActive();
+            setWheelTargetOffset(nextOffset, { markInput: true });
         }, { passive: false });
 
         timeline.addEventListener('touchstart', (e) => {
@@ -1122,8 +1125,7 @@
             const deltaY = e.touches[0].clientY - timelineTouchStartY;
             const touchDirection = CONFIG.touchDirection;
             const nextOffset = clampOffset(startOffset + deltaY * CONFIG.touchMoveFactor * touchDirection);
-            hideDetailIfSwitching(nextOffset);
-            targetOffset = nextOffset;
+            setWheelTargetOffset(nextOffset);
         }, { passive: false });
 
         timeline.addEventListener('touchend', (e) => {
@@ -1372,18 +1374,14 @@
 
         const frameNow = performance.now();
         const centerY = cachedWheelCenterY || osuWheel.clientHeight / 2;
-        const computedActiveIndex = clampOffset(Math.round(canCommitSelectionWork() ? targetOffset : offset));
+        const computedActiveIndex = clampOffset(Math.round(offset));
         const activeIndex = isValidSourceIndex(forcedActiveIndex) ? forcedActiveIndex : computedActiveIndex;
         const shouldSnapSelectionVisual = frameNow < forceSelectionVisualUntil;
-        const base = Math.floor(offset);
-        const frac = offset - base;
+        const frac = offset - Math.floor(offset);
         const spacing = getSpacing();
         const wheelMoving = isWheelMoving();
         const followFactor = getTransformFollowFactor(deltaSec);
-        const detailVisible = Boolean(detailElementsCache?.detail?.classList.contains('is-visible'));
-        const visualHighlightIndex = detailVisible && highlightedTrackIndex >= 0
-            ? highlightedTrackIndex
-            : activeIndex;
+        const visualHighlightIndex = activeIndex;
 
         if (wheelMoving !== lastWheelMovingState) {
             container?.classList.toggle('is-wheel-moving', wheelMoving);
@@ -1409,8 +1407,11 @@
             const isSelected = isValidSource && sourceIndex === activeIndex;
             const isHighlighted = isValidSource && sourceIndex === visualHighlightIndex;
             const scale = isSelected ? 1 : Math.max(0, 1 - Math.abs(sourceDiff) * 0.1) / CONFIG.scaleFactor;
-            const shouldRender = isValidSource;
-            const shouldRefreshHere = isSlotInRefreshZone(logicalSlot);
+            const shouldRefreshHere = isSlotInRefreshZone(i);
+            // One hidden buffer slot (opposite center) + visibleCount visible slots.
+            const isBufferSlot = shouldRefreshHere;
+            const isInVisibleRange = logicalSlot >= -halfVisible && logicalSlot <= halfVisible;
+            const shouldRender = isValidSource && !isBufferSlot && isInVisibleRange;
 
             if (shouldRender) {
                 const renderedIndex = slotRenderedSourceIndex[i] ?? -1;
@@ -1426,15 +1427,22 @@
                 if (slotDirty[i] && shouldRefreshHere && !hasPendingSameSource) {
                     bindSlotSourceAsync(i, sourceIndex);
                 }
-                // Drain guarantee: when wheel settles, enqueue any remaining dirty slots
-                // even if they are not at opposite trigger point.
-                if (!wheelMoving && slotDirty[i] && !hasPendingSameSource) {
+                // Keep feeding dirty queue even while wheel is moving.
+                if (slotDirty[i] && !hasPendingSameSource) {
                     bindSlotSourceAsync(i, sourceIndex);
                 }
             }
 
+            if (isBufferSlot) {
+                if (track.style.display !== 'none') track.style.display = 'none';
+                track.style.visibility = 'hidden';
+                track.style.pointerEvents = 'none';
+                continue;
+            }
+
             const nextVisibility = shouldRender ? 'visible' : 'hidden';
             const nextPointerEvents = shouldRender ? 'auto' : 'none';
+            const nextDisplay = shouldRender ? '' : 'none';
 
             let visual = trackVisualStates.get(track);
             if (!visual || track.dataset.visualReset === '1' || !shouldRender || shouldSnapSelectionVisual) {
@@ -1454,6 +1462,10 @@
             if (visual.pointerEvents !== nextPointerEvents) {
                 track.style.pointerEvents = nextPointerEvents;
                 visual.pointerEvents = nextPointerEvents;
+            }
+            if (visual.display !== nextDisplay) {
+                track.style.display = nextDisplay;
+                visual.display = nextDisplay;
             }
 
             const transformChanged =
@@ -1503,7 +1515,7 @@
         } else {
             processSlotRenderQueue(nowMs);
             // Keep interval-driven queue alive until all dirty slots converge.
-            if (!hasPendingSlotRenders() && hasDirtySlots() && !wheelMoving) {
+            if (!hasPendingSlotRenders() && hasDirtySlots()) {
                 for (let i = 0; i < trackPool.length; i++) {
                     const sourceIndex = poolAssignments[i];
                     if (!isValidSourceIndex(sourceIndex)) continue;
@@ -1548,9 +1560,7 @@
 
         const deltaOffset = (e.deltaY / CONFIG.scrollUnit) * CONFIG.scrollDirection;
         const nextOffset = clampOffset(targetOffset + deltaOffset);
-        hideDetailIfSwitching(nextOffset);
-        targetOffset = nextOffset;
-        markWheelInputActive();
+        setWheelTargetOffset(nextOffset, { markInput: true });
         startSnapTimer();
     }
 
@@ -1579,8 +1589,7 @@
         const deltaY = e.touches[0].clientY - startY;
         const touchDirection = CONFIG.touchDirection;
         const nextOffset = clampOffset(startOffset + deltaY * CONFIG.touchMoveFactor * touchDirection);
-        hideDetailIfSwitching(nextOffset);
-        targetOffset = nextOffset;
+        setWheelTargetOffset(nextOffset);
     }
 
     function handleTouchEnd() {
@@ -1646,9 +1655,7 @@
                 timelineSlider.addEventListener('input', () => {
                     setForcedActiveIndex(-1);
                     const nextOffset = clampOffset(sliderToOffset(timelineSlider.value));
-                    if (nextOffset === targetOffset) return;
-                    hideDetailIfSwitching(nextOffset);
-                    targetOffset = nextOffset;
+                    setWheelTargetOffset(nextOffset, { markInput: true });
                 });
 
                 timelineSlider.addEventListener('pointerdown', (e) => {
@@ -1659,17 +1666,15 @@
                     timelineSlider.setPointerCapture?.(e.pointerId);
                     const nextOffset = setSliderTargetFromPointer(e.clientX, e.clientY);
                     if (nextOffset === null) return;
-                    hideDetailIfSwitching(nextOffset);
-                    targetOffset = nextOffset;
+                    setWheelTargetOffset(nextOffset, { markInput: true });
                 });
 
                 timelineSlider.addEventListener('pointermove', (e) => {
                     if (!isSliderDragging || (sliderPointerId !== null && e.pointerId !== sliderPointerId)) return;
                     e.preventDefault();
                     const nextOffset = setSliderTargetFromPointer(e.clientX, e.clientY);
-                    if (nextOffset === null || nextOffset === targetOffset) return;
-                    hideDetailIfSwitching(nextOffset);
-                    targetOffset = nextOffset;
+                    if (nextOffset === null) return;
+                    setWheelTargetOffset(nextOffset, { markInput: true });
                 });
 
                 timelineSlider.addEventListener('pointerup', (e) => {

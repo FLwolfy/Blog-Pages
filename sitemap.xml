@@ -1,14 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://blog.wolfiora.site/compsci/frontend/shokax-fork/</loc>
-    <lastmod>2026-05-24</lastmod>
-  </url>
-  <url>
-    <loc>https://blog.wolfiora.site/other/announce/announce/</loc>
-    <lastmod>2026-05-24</lastmod>
-  </url>
-  <url>
     <loc>https://blog.wolfiora.site/acg/guide/lucario-guide/</loc>
     <lastmod>2026-05-24</lastmod>
   </url>
@@ -22,6 +14,14 @@
   </url>
   <url>
     <loc>https://blog.wolfiora.site/compsci/frontend/infinite-wheel/</loc>
+    <lastmod>2026-05-24</lastmod>
+  </url>
+  <url>
+    <loc>https://blog.wolfiora.site/compsci/frontend/shokax-fork/</loc>
+    <lastmod>2026-05-24</lastmod>
+  </url>
+  <url>
+    <loc>https://blog.wolfiora.site/other/announce/announce/</loc>
     <lastmod>2026-05-24</lastmod>
   </url>
 </urlset> 
