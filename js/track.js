@@ -19,6 +19,7 @@
         offsetX: 0,                // X 轴偏移
         snapDelay: 70,             // 自动吸附延迟（ms）
         detailFadeDelay: 160,      // detail 区淡出延迟（ms）
+        detailLoadMinInterval: 1000,// 两次 detail 加载之间的最小间隔（ms）
         gapThreshold: 0.01,        // 位置差异阈值（小于该值时认为已到达目标位置）
         settleThreshold: 0.002,    // 贴近目标后直接钉住，避免静止态仍反复写 transform
         asyncRenderInternal: 30,   // 触发下一个 slot 异步渲染的时间间隔（ms）
@@ -27,8 +28,7 @@
         wheelStopStableMs: 120,    // 真实停止判定：持续低速时长（ms）
         detailPreviewMaxBlocks: 36,
         detailPreviewFillRatio: 1.08,
-        sliderSyncThreshold: 0.01,
-        wheelPriorityDelay: 80
+        sliderSyncThreshold: 0.01
     };
 
     // ================================
@@ -61,13 +61,18 @@
     let slotUpdateTokens = [];
     let slotPendingSourceIndex = [];
     let slotPendingToken = [];
+    let slotRenderedSourceIndex = [];
+    let slotIsEmptyCard = [];
+    let slotHeights = [];
+    let slotDirty = [];
+    let sourceSignatures = [];
+    let slotRenderedSignature = [];
+    let poolInitialized = false;
     let currentPoolHeadSource = 0;
     let truncationRafId = null;
     let resizeRafId = null;
     let slotRenderCursor = 0;
     let slotRenderUnlockAt = 0;
-    let slotRenderRafId = null;
-    let slotRenderMode = null;
     let offset = 0;
     let targetOffset = 0;
     let wheelInputActive = false;
@@ -83,7 +88,10 @@
     let pendingDetailImmediate = false;
     let detailDisplayedIndex = -1;
     let highlightedTrackIndex = -1;
+    let forcedActiveIndex = -1;
+    let forceSelectionVisualUntil = 0;
     let detailElementsCache = null;
+    let detailHtmlCache = new Map();
     let cachedWheelCenterY = 0;
     let lastTimelineValue = NaN;
     let lastWheelMovingState = false;
@@ -159,15 +167,23 @@
     }
 
     function syncTrackHighlight(index) {
-        highlightedTrackIndex = isValidSourceIndex(index) ? index : -1;
+        const nextHighlight = isValidSourceIndex(index) ? index : -1;
+        if (nextHighlight === highlightedTrackIndex) return;
+        highlightedTrackIndex = nextHighlight;
         for (let i = 0; i < trackPool.length; i++) {
             const track = trackPool[i];
-            const isHighlighted = Number(track?.dataset.trackIndex || '-1') === highlightedTrackIndex;
+            const isHighlighted = (slotRenderedSourceIndex[i] ?? -1) === highlightedTrackIndex;
             track?.classList.toggle('active', isHighlighted);
             if (isHighlighted) {
                 track.style.setProperty('--track-brightness', '1');
             }
         }
+    }
+
+    function setForcedActiveIndex(index) {
+        const valid = isValidSourceIndex(index);
+        forcedActiveIndex = valid ? index : -1;
+        forceSelectionVisualUntil = valid ? performance.now() + 140 : 0;
     }
 
     function isWheelMoving() {
@@ -192,16 +208,16 @@
     }
 
     function setSliderTargetFromPointer(clientX, clientY) {
-        if (!timelineSlider) return;
+        if (!timelineSlider) return null;
         const rect = timelineSlider.getBoundingClientRect();
         const isPortrait = isPortraitMode();
-        if ((!isPortrait && rect.width <= 0) || (isPortrait && rect.height <= 0)) return;
+        if ((!isPortrait && rect.width <= 0) || (isPortrait && rect.height <= 0)) return null;
 
         const ratio = isPortrait
             ? clamp((rect.bottom - clientY) / rect.height, 0, 1)
             : clamp((clientX - rect.left) / rect.width, 0, 1);
         const sliderValue = ratio * getMaxOffset();
-        targetOffset = clampOffset(sliderToOffset(sliderValue));
+        return clampOffset(sliderToOffset(sliderValue));
     }
 
     function resetDetailQueueState() {
@@ -256,6 +272,17 @@
         if (!detailTimer) return;
         clearTimeout(detailTimer);
         detailTimer = null;
+    }
+
+    function waitForDetailFadeFrame(detailEl) {
+        return new Promise((resolve) => {
+            requestAnimationFrame(() => {
+                // Force style/layout flush so "hidden -> visible" is committed
+                // before we add .is-visible; this avoids occasional coalesced paint.
+                void detailEl.offsetWidth;
+                requestAnimationFrame(resolve);
+            });
+        });
     }
 
     function resetWheelStopState() {
@@ -366,6 +393,18 @@
             html: track.innerHTML,
             metaHtml
         };
+    }
+
+    function buildTrackSignature(trackData) {
+        if (!trackData) return '';
+        return [
+            trackData.title || '',
+            trackData.description || '',
+            trackData.cover || '',
+            trackData.link || '',
+            trackData.metaHtml || '',
+            trackData.html || ''
+        ].join('\u0001');
     }
 
     function clearDataset(el) {
@@ -602,13 +641,19 @@
         });
     }
 
-    async function renderDetailHtml(el, html, token) {
+    async function renderDetailHtml(el, html, token, cacheKey = null) {
         if (!el) return;
         const source = String(html || '');
+        const hasCacheKey = Number.isInteger(cacheKey) && cacheKey >= 0;
+        if (hasCacheKey && detailHtmlCache.has(cacheKey)) {
+            await commitDetailHtml(el, detailHtmlCache.get(cacheKey), token);
+            return;
+        }
 
         try {
             const preparedHtml = await prepareDetailHtml(el, source, () => token !== detailFlowToken);
             if (token !== detailFlowToken || preparedHtml === null) return;
+            if (hasCacheKey) detailHtmlCache.set(cacheKey, preparedHtml);
             await commitDetailHtml(el, preparedHtml, token);
         } catch (err) {
             if (token !== detailFlowToken) return;
@@ -616,7 +661,7 @@
         }
     }
 
-    function applyTrackDataToSlot(slot, trackData, sourceIndex) {
+    function applyTrackDataToSlot(slot, trackData, sourceIndex, slotIndex = -1) {
         clearDataset(slot);
         slot.innerHTML = trackData.html;
         slot.dataset.created = trackData.created;
@@ -627,25 +672,27 @@
         slot.dataset.trackIndex = String(sourceIndex);
         slot.dataset.height = String(trackData.height || 0);
         slot.dataset.emptyCard = '0';
+        if (slotIndex >= 0) {
+            slotRenderedSourceIndex[slotIndex] = sourceIndex;
+            slotIsEmptyCard[slotIndex] = false;
+            slotHeights[slotIndex] = Number(trackData.height || 0);
+            slotRenderedSignature[slotIndex] = sourceSignatures[sourceIndex] || '';
+            slotDirty[slotIndex] = false;
+        }
     }
 
-    function applyEmptyCardToSlot(slot, trackData, sourceIndex) {
-        clearDataset(slot);
-        slot.dataset.created = trackData.created;
-        slot.dataset.title = trackData.title;
-        slot.dataset.description = trackData.description;
-        slot.dataset.cover = trackData.cover;
-        slot.dataset.link = trackData.link;
-        slot.dataset.trackIndex = String(sourceIndex);
-        slot.dataset.height = String(trackData.height || 0);
-        slot.dataset.emptyCard = '1';
-    }
-
-    function applyEmptySlot(slot) {
+    function applyEmptySlot(slot, slotIndex = -1) {
         clearDataset(slot);
         slot.innerHTML = '';
         slot.dataset.trackIndex = '-1';
         slot.dataset.height = '0';
+        if (slotIndex >= 0) {
+            slotRenderedSourceIndex[slotIndex] = -1;
+            slotIsEmptyCard[slotIndex] = false;
+            slotHeights[slotIndex] = 0;
+            slotRenderedSignature[slotIndex] = '';
+            slotDirty[slotIndex] = false;
+        }
     }
 
     function clearSlotPending(slotIndex) {
@@ -653,33 +700,18 @@
         slotPendingToken[slotIndex] = 0;
     }
 
-    function cancelSlotRenderQueue() {
-        if (slotRenderRafId === null) return;
-        if (slotRenderMode === 'idle' && window.cancelIdleCallback) {
-            window.cancelIdleCallback(slotRenderRafId);
-        } else if (slotRenderMode === 'timeout') {
-            clearTimeout(slotRenderRafId);
-        } else {
-            cancelAnimationFrame(slotRenderRafId);
-        }
-        slotRenderRafId = null;
-        slotRenderMode = null;
+    function isSlotInRefreshZone(logicalSlot) {
+        // Refresh at the middle card on the left half (opposite side center).
+        const oppositeLogical = -halfVisible;
+        const tolerance = 0.75;
+        const distanceToOpposite = Math.abs(logicalSlot - oppositeLogical);
+        return distanceToOpposite <= tolerance;
     }
 
-    function scheduleSlotRenderQueue(delay = 0) {
-        if (slotRenderRafId !== null) return;
-        if (delay > 0) {
-            slotRenderMode = 'timeout';
-            slotRenderRafId = setTimeout(() => processSlotRenderQueue(performance.now()), delay);
-            return;
-        }
-        if (window.requestIdleCallback) {
-            slotRenderMode = 'idle';
-            slotRenderRafId = window.requestIdleCallback(() => processSlotRenderQueue(performance.now()), { timeout: 180 });
-            return;
-        }
-        slotRenderMode = 'raf';
-        slotRenderRafId = requestAnimationFrame(processSlotRenderQueue);
+    function cancelSlotRenderQueue() {
+        // Queue is driven directly from render(); keep only state reset here.
+        slotRenderUnlockAt = 0;
+        slotRenderCursor = 0;
     }
 
     function bindSlotSourceAsync(slotIndex, sourceIndex) {
@@ -691,15 +723,13 @@
         slotPendingSourceIndex[slotIndex] = sourceIndex;
         slotPendingToken[slotIndex] = token;
         poolAssignments[slotIndex] = sourceIndex;
+        slotDirty[slotIndex] = true;
 
-        if (isValidSourceIndex(sourceIndex)) {
-            slot.classList.add('is-content-hidden');
-            applyEmptyCardToSlot(slot, sourceTracks[sourceIndex], sourceIndex);
-        } else {
-            applyEmptySlot(slot);
+        if (!isValidSourceIndex(sourceIndex)) {
+            applyEmptySlot(slot, slotIndex);
             slot.classList.remove('is-content-hidden');
+            slotDirty[slotIndex] = false;
         }
-        scheduleSlotRenderQueue();
     }
 
     function bindSlotSourceSync(slotIndex, sourceIndex) {
@@ -711,16 +741,17 @@
         slotUpdateTokens[slotIndex] = (slotUpdateTokens[slotIndex] || 0) + 1;
 
         if (isValidSourceIndex(sourceIndex)) {
-            applyTrackDataToSlot(slot, sourceTracks[sourceIndex], sourceIndex);
+            applyTrackDataToSlot(slot, sourceTracks[sourceIndex], sourceIndex, slotIndex);
             slot.classList.remove('is-content-hidden');
         } else {
-            applyEmptySlot(slot);
+            applyEmptySlot(slot, slotIndex);
             slot.classList.remove('is-content-hidden');
         }
         // 首屏同步渲染不做淡入，直接完整显示
     }
 
     const hasPendingSlotRenders = () => slotPendingSourceIndex.some((idx) => idx !== null);
+    const hasDirtySlots = () => slotDirty.some(Boolean);
 
     function processOneSlotRender(slotIndex) {
         const sourceIndex = slotPendingSourceIndex[slotIndex];
@@ -733,41 +764,51 @@
 
         // 只按“应该渲染的文章 index”判定是否需要渲染。
         const expectedIndex = poolAssignments[slotIndex];
-        const renderedIndex = Number(slot.dataset.trackIndex || '-1');
-        const isEmptyCard = slot.dataset.emptyCard === '1';
+        const renderedIndex = slotRenderedSourceIndex[slotIndex] ?? -1;
+        const isEmptyCard = Boolean(slotIsEmptyCard[slotIndex]);
+        const isDirty = Boolean(slotDirty[slotIndex]);
 
         // 若 pending 已过期（不是当前应该渲染的 index），直接丢弃，等待新任务。
         if (sourceIndex !== expectedIndex) {
+            slot.classList.remove('is-content-hidden');
             clearSlotPending(slotIndex);
             return;
         }
 
         // 仅保留该 slot 最新一次 async 请求结果
         if (token !== slotUpdateTokens[slotIndex]) {
+            slot.classList.remove('is-content-hidden');
+            clearSlotPending(slotIndex);
+            return;
+        }
+
+        if (!isDirty) {
+            slot.classList.remove('is-content-hidden');
             clearSlotPending(slotIndex);
             return;
         }
 
         // 已经是正确 index 且不是空卡，直接跳过，不重复渲染。
         if (renderedIndex === expectedIndex && !isEmptyCard) {
-            clearSlotPending(slotIndex);
-            return;
+            const nextSignature = sourceSignatures[sourceIndex] || '';
+            const currentSignature = slotRenderedSignature[slotIndex] || '';
+            if (nextSignature === currentSignature) {
+                slotDirty[slotIndex] = false;
+                slot.classList.remove('is-content-hidden');
+                clearSlotPending(slotIndex);
+                return;
+            }
         }
 
         if (isValidSourceIndex(sourceIndex)) {
-            applyTrackDataToSlot(slot, sourceTracks[sourceIndex], sourceIndex);
+            applyTrackDataToSlot(slot, sourceTracks[sourceIndex], sourceIndex, slotIndex);
             slot.style.setProperty('--track-reveal-ms', `${Math.max(1, CONFIG.contentFadeInMs)}ms`);
             slot.classList.add('is-content-hidden');
             applySlotTitleTruncation(slot);
-
-            const revealToken = token;
-            requestAnimationFrame(() => {
-                if (slotUpdateTokens[slotIndex] !== revealToken) return;
-                if (Number(slot.dataset.trackIndex || '-1') !== sourceIndex) return;
-                slot.classList.remove('is-content-hidden');
-            });
+            // Synchronous reveal guarantees convergence (no stale rAF reveal loss).
+            slot.classList.remove('is-content-hidden');
         } else {
-            applyEmptySlot(slot);
+            applyEmptySlot(slot, slotIndex);
             slot.classList.remove('is-content-hidden');
         }
         clearSlotPending(slotIndex);
@@ -775,22 +816,10 @@
     }
 
     function processSlotRenderQueue(timestamp) {
-        slotRenderRafId = null;
-        slotRenderMode = null;
         if (!trackPool.length || !getTrackCount()) return;
 
-        if (isWheelMoving()) {
-            if (hasPendingSlotRenders()) scheduleSlotRenderQueue(CONFIG.wheelPriorityDelay);
-            return;
-        }
-
         // 当前内容淡入尚未结束，延后处理下一个 slot，避免抢 wheel 动画帧。
-        if (timestamp < slotRenderUnlockAt) {
-            if (hasPendingSlotRenders()) {
-                scheduleSlotRenderQueue();
-            }
-            return;
-        }
+        if (timestamp < slotRenderUnlockAt) return;
 
         const count = trackPool.length;
         let picked = -1;
@@ -808,9 +837,6 @@
             slotRenderUnlockAt = timestamp + Math.max(1, CONFIG.asyncRenderInternal);
         }
 
-        if (hasPendingSlotRenders()) {
-            scheduleSlotRenderQueue();
-        }
     }
 
     // ================================
@@ -821,6 +847,8 @@
             .sort((a, b) => new Date(b.dataset.created) - new Date(a.dataset.created));
 
         sourceTracks = rawTracks.map(captureTrackData);
+        sourceSignatures = sourceTracks.map(buildTrackSignature);
+        detailHtmlCache.clear();
 
         const poolSize = getPoolSize();
         trackPool = [];
@@ -829,6 +857,12 @@
         slotUpdateTokens = new Array(poolSize).fill(0);
         slotPendingSourceIndex = new Array(poolSize).fill(null);
         slotPendingToken = new Array(poolSize).fill(0);
+        slotRenderedSourceIndex = new Array(poolSize).fill(-1);
+        slotIsEmptyCard = new Array(poolSize).fill(false);
+        slotHeights = new Array(poolSize).fill(0);
+        slotDirty = new Array(poolSize).fill(false);
+        slotRenderedSignature = new Array(poolSize).fill('');
+        poolInitialized = false;
         slotRenderCursor = 0;
         slotRenderUnlockAt = 0;
         currentPoolHeadSource = -getLeadSlotCount();
@@ -839,6 +873,7 @@
         for (let i = 0; i < poolSize; i++) {
             const slot = document.createElement('div');
             slot.className = 'track';
+            slot.dataset.slotIndex = String(i);
             slot.style.position = 'absolute';
             slot.style.left = '0';
             slot.style.top = '0';
@@ -866,13 +901,18 @@
             let touchMoved = false;
             const activate = (event) => {
                 if (event && isNavigableAnchorTarget(event.target)) return;
+                const slotIndex = trackPool.indexOf(track);
                 const idx = Number(track.dataset.trackIndex || '-1');
-                if (isValidSourceIndex(idx)) {
+                // Prefer cached rendered index if available to avoid dataset parse.
+                const cachedIdx = slotIndex >= 0 ? slotRenderedSourceIndex[slotIndex] : -1;
+                const resolvedIdx = Number.isInteger(cachedIdx) && cachedIdx >= 0 ? cachedIdx : idx;
+                if (isValidSourceIndex(resolvedIdx)) {
+                    setForcedActiveIndex(resolvedIdx);
                     // 点击切换 track 时，和滚轮一致：先隐藏 detail，等 settle 后再显示
-                    if (Math.round(targetOffset) !== idx || Math.abs(offset - idx) > CONFIG.gapThreshold) {
+                    if (Math.round(targetOffset) !== resolvedIdx || Math.abs(offset - resolvedIdx) > CONFIG.gapThreshold) {
                         hideDetailDuringScroll();
                     }
-                    targetOffset = idx;
+                    targetOffset = resolvedIdx;
                 }
             };
 
@@ -899,7 +939,10 @@
     function observeTrackHeights() {
         resizeObserver = new ResizeObserver(entries => {
             for (const entry of entries) {
-                entry.target.dataset.height = entry.target.offsetHeight;
+                const h = entry.target.offsetHeight;
+                entry.target.dataset.height = h;
+                const idx = trackPool.indexOf(entry.target);
+                if (idx >= 0) slotHeights[idx] = h;
             }
         });
         trackPool.forEach(track => resizeObserver.observe(track));
@@ -996,7 +1039,7 @@
         const index = pendingDetailIndex;
         pendingDetailIndex = -1;
         pendingDetailImmediate = false;
-        detailRenderUnlockAt = nowMs + Math.max(1, CONFIG.asyncRenderInternal);
+        detailRenderUnlockAt = nowMs + Math.max(1, CONFIG.detailLoadMinInterval);
 
         const isFirstDetailPaint = lastActiveIndex === -1;
         const isSwitch = index !== detailDisplayedIndex;
@@ -1004,7 +1047,7 @@
         lastActiveIndex = index;
         detailNeedsRefreshAfterScroll = false;
         // refresh 场景也走过渡，避免偶发“直接闪现”
-        updateDetail(sourceTracks[index], immediate || isFirstDetailPaint, isSwitch || needsRefresh);
+        updateDetail(sourceTracks[index], index, immediate || isFirstDetailPaint, true);
         detailDisplayedIndex = index;
     }
 
@@ -1103,7 +1146,7 @@
     // ================================
     // 更新右侧 detail 区内容
     // ================================
-    function updateDetail(activeTrackData, immediate = false, withTransition = true) {
+    function updateDetail(activeTrackData, activeTrackIndex = -1, immediate = false, withTransition = true) {
         const elems = getDetailElements();
         if (!elems || !activeTrackData) return;
 
@@ -1115,6 +1158,7 @@
 
         if (withTransition) {
             detail.classList.remove('is-visible');
+            void detail.offsetWidth;
             container?.classList.remove('show-bg');
         }
 
@@ -1138,16 +1182,18 @@
             });
         };
 
-        const revealDetail = (token) => {
+        const revealDetail = async (token) => {
             detailReadyForBg = true;
-            const revealIndex = sourceTracks.indexOf(activeTrackData);
-            requestAnimationFrame(() => {
-                if (withTransition) {
-                    requestAnimationFrame(() => commitPreparedDetail(token, revealIndex));
-                } else {
-                    commitPreparedDetail(token, revealIndex, true);
-                }
-            });
+            const revealIndex = isValidSourceIndex(activeTrackIndex)
+                ? activeTrackIndex
+                : sourceTracks.indexOf(activeTrackData);
+            if (withTransition) {
+                await waitForDetailFadeFrame(detail);
+                if (token !== detailFlowToken) return;
+                commitPreparedDetail(token, revealIndex);
+                return;
+            }
+            commitPreparedDetail(token, revealIndex, true);
         };
 
         const prepareDetailForReveal = async (token, descriptionHtml) => {
@@ -1163,7 +1209,12 @@
                 if (token !== detailFlowToken) return;
             }
 
-            await renderDetailHtml(description, descriptionHtml, token);
+            await renderDetailHtml(
+                description,
+                descriptionHtml,
+                token,
+                isValidSourceIndex(activeTrackIndex) ? activeTrackIndex : null
+            );
             if (token !== detailFlowToken) return;
 
             if (cover?.src && !cover.complete) {
@@ -1202,12 +1253,12 @@
                 await prepareDetailForReveal(token, newDescription);
                 if (token !== detailFlowToken) return;
 
-                revealDetail(token);
+                await revealDetail(token);
             } catch (err) {
                 if (token !== detailFlowToken) return;
                 await prepareDetailForReveal(token, newDescription);
                 if (token !== detailFlowToken) return;
-                revealDetail(token);
+                await revealDetail(token);
             }
         };
 
@@ -1236,44 +1287,80 @@
         const base = Math.floor(offset);
         const desiredHead = base - getLeadSlotCount();
 
-        if (poolAssignments.every((v) => v === -1)) {
+        if (!poolInitialized) {
             currentPoolHeadSource = desiredHead;
             for (let i = 0; i < trackPool.length; i++) {
                 bindSlotSourceSync(i, currentPoolHeadSource + i);
             }
+            poolInitialized = true;
             return;
         }
+        if (currentPoolHeadSource === desiredHead) return;
 
         while (currentPoolHeadSource < desiredHead) {
             // 向前滚动时，复用左侧最底部离场槽位（index 0）到末尾
             const firstTrack = trackPool.shift();
             const firstAssign = poolAssignments.shift();
             const firstToken = slotUpdateTokens.shift();
+            const firstPendingSource = slotPendingSourceIndex.shift();
+            const firstPendingToken = slotPendingToken.shift();
+            const firstRenderedSource = slotRenderedSourceIndex.shift();
+            const firstEmptyCard = slotIsEmptyCard.shift();
+            const firstHeight = slotHeights.shift();
+            const firstDirty = slotDirty.shift();
+            const firstRenderedSig = slotRenderedSignature.shift();
             if (!firstTrack || firstAssign === undefined || firstToken === undefined) break;
 
             trackPool.push(firstTrack);
             poolAssignments.push(firstAssign);
             slotUpdateTokens.push(firstToken);
+            slotPendingSourceIndex.push(firstPendingSource);
+            slotPendingToken.push(firstPendingToken);
+            slotRenderedSourceIndex.push(firstRenderedSource);
+            slotIsEmptyCard.push(firstEmptyCard);
+            slotHeights.push(firstHeight);
+            slotDirty.push(firstDirty);
+            slotRenderedSignature.push(firstRenderedSig);
             resetTrackVisualState(firstTrack);
 
             currentPoolHeadSource += 1;
             const tailIndex = trackPool.length - 1;
-            bindSlotSourceAsync(tailIndex, currentPoolHeadSource + tailIndex);
+            poolAssignments[tailIndex] = currentPoolHeadSource + tailIndex;
+            slotUpdateTokens[tailIndex] = (slotUpdateTokens[tailIndex] || 0) + 1;
+            slotDirty[tailIndex] = true;
+            clearSlotPending(tailIndex);
         }
 
         while (currentPoolHeadSource > desiredHead) {
             const lastTrack = trackPool.pop();
             const lastAssign = poolAssignments.pop();
             const lastToken = slotUpdateTokens.pop();
+            const lastPendingSource = slotPendingSourceIndex.pop();
+            const lastPendingToken = slotPendingToken.pop();
+            const lastRenderedSource = slotRenderedSourceIndex.pop();
+            const lastEmptyCard = slotIsEmptyCard.pop();
+            const lastHeight = slotHeights.pop();
+            const lastDirty = slotDirty.pop();
+            const lastRenderedSig = slotRenderedSignature.pop();
             if (!lastTrack || lastAssign === undefined || lastToken === undefined) break;
 
             trackPool.unshift(lastTrack);
             poolAssignments.unshift(lastAssign);
             slotUpdateTokens.unshift(lastToken);
+            slotPendingSourceIndex.unshift(lastPendingSource);
+            slotPendingToken.unshift(lastPendingToken);
+            slotRenderedSourceIndex.unshift(lastRenderedSource);
+            slotIsEmptyCard.unshift(lastEmptyCard);
+            slotHeights.unshift(lastHeight);
+            slotDirty.unshift(lastDirty);
+            slotRenderedSignature.unshift(lastRenderedSig);
             resetTrackVisualState(lastTrack);
 
             currentPoolHeadSource -= 1;
-            bindSlotSourceAsync(0, currentPoolHeadSource);
+            poolAssignments[0] = currentPoolHeadSource;
+            slotUpdateTokens[0] = (slotUpdateTokens[0] || 0) + 1;
+            slotDirty[0] = true;
+            clearSlotPending(0);
         }
     }
 
@@ -1283,8 +1370,11 @@
     function render(deltaSec = 0) {
         if (!getTrackCount() || !trackPool.length) return;
 
+        const frameNow = performance.now();
         const centerY = cachedWheelCenterY || osuWheel.clientHeight / 2;
-        const activeIndex = clampOffset(Math.round(canCommitSelectionWork() ? targetOffset : offset));
+        const computedActiveIndex = clampOffset(Math.round(canCommitSelectionWork() ? targetOffset : offset));
+        const activeIndex = isValidSourceIndex(forcedActiveIndex) ? forcedActiveIndex : computedActiveIndex;
+        const shouldSnapSelectionVisual = frameNow < forceSelectionVisualUntil;
         const base = Math.floor(offset);
         const frac = offset - base;
         const spacing = getSpacing();
@@ -1310,7 +1400,7 @@
             const logicalSlot = (i - frac) - getLeadSlotCount();
             const angle = logicalSlot * spacing;
             const rad = angle * Math.PI / 180;
-            const trackHeight = Number(track.dataset.height) || 0;
+            const trackHeight = slotHeights[i] || 0;
 
             const x = CONFIG.offsetX + Math.cos(rad) * CONFIG.radius - CONFIG.radius;
             const y = centerY - trackHeight / 2 + Math.sin(rad) * CONFIG.radius;
@@ -1320,21 +1410,34 @@
             const isHighlighted = isValidSource && sourceIndex === visualHighlightIndex;
             const scale = isSelected ? 1 : Math.max(0, 1 - Math.abs(sourceDiff) * 0.1) / CONFIG.scaleFactor;
             const shouldRender = isValidSource;
+            const shouldRefreshHere = isSlotInRefreshZone(logicalSlot);
 
             if (shouldRender) {
-                const renderedIndex = Number(track.dataset.trackIndex || '-1');
-                const isEmptyCard = track.dataset.emptyCard === '1';
+                const renderedIndex = slotRenderedSourceIndex[i] ?? -1;
+                const isEmptyCard = Boolean(slotIsEmptyCard[i]);
                 const hasPendingSameSource = slotPendingSourceIndex[i] === sourceIndex;
-                if ((renderedIndex !== sourceIndex || isEmptyCard) && !hasPendingSameSource) {
+                const signatureChanged = (slotRenderedSignature[i] || '') !== (sourceSignatures[sourceIndex] || '');
+                if (renderedIndex !== sourceIndex || isEmptyCard || signatureChanged) {
+                    slotDirty[i] = true;
+                }
+                if (slotDirty[i]) {
+                    track.classList.add('is-content-hidden');
+                }
+                if (slotDirty[i] && shouldRefreshHere && !hasPendingSameSource) {
+                    bindSlotSourceAsync(i, sourceIndex);
+                }
+                // Drain guarantee: when wheel settles, enqueue any remaining dirty slots
+                // even if they are not at opposite trigger point.
+                if (!wheelMoving && slotDirty[i] && !hasPendingSameSource) {
                     bindSlotSourceAsync(i, sourceIndex);
                 }
             }
 
-            track.style.visibility = shouldRender ? 'visible' : 'hidden';
-            track.style.pointerEvents = shouldRender ? 'auto' : 'none';
+            const nextVisibility = shouldRender ? 'visible' : 'hidden';
+            const nextPointerEvents = shouldRender ? 'auto' : 'none';
 
             let visual = trackVisualStates.get(track);
-            if (!visual || track.dataset.visualReset === '1' || !shouldRender) {
+            if (!visual || track.dataset.visualReset === '1' || !shouldRender || shouldSnapSelectionVisual) {
                 visual = { x, y, scale };
                 trackVisualStates.set(track, visual);
                 delete track.dataset.visualReset;
@@ -1344,27 +1447,71 @@
                 visual.scale += (scale - visual.scale) * followFactor;
             }
 
-            track.style.transform = `translate3d(${visual.x}px, ${visual.y}px, 0px) scale(${visual.scale})`;
-            track.classList.toggle('active', isHighlighted);
-            track.style.zIndex = String(CONFIG.activeZIndex - Math.round(Math.abs(sourceDiff)));
+            if (visual.visibility !== nextVisibility) {
+                track.style.visibility = nextVisibility;
+                visual.visibility = nextVisibility;
+            }
+            if (visual.pointerEvents !== nextPointerEvents) {
+                track.style.pointerEvents = nextPointerEvents;
+                visual.pointerEvents = nextPointerEvents;
+            }
+
+            const transformChanged =
+                visual.appliedX !== visual.x ||
+                visual.appliedY !== visual.y ||
+                visual.appliedScale !== visual.scale;
+            if (transformChanged) {
+                const transformValue = `translate3d(${visual.x}px, ${visual.y}px, 0px) scale(${visual.scale})`;
+                track.style.transform = transformValue;
+                visual.appliedX = visual.x;
+                visual.appliedY = visual.y;
+                visual.appliedScale = visual.scale;
+            }
+            if (visual.isHighlighted !== isHighlighted) {
+                track.classList.toggle('active', isHighlighted);
+                visual.isHighlighted = isHighlighted;
+            }
+
+            const nextZIndex = CONFIG.activeZIndex - Math.round(Math.abs(sourceDiff));
+            if (visual.zIndex !== nextZIndex) {
+                track.style.zIndex = String(nextZIndex);
+                visual.zIndex = nextZIndex;
+            }
             // 亮度曲线：中心 1.0，两侧从 0.75 递减到最外侧 0.15（由 :after 控制）
             const distance = Math.abs(logicalSlot);
             const t = clamp((distance - 1) / Math.max(1, halfVisible), 0, 1);
             const brightness = isHighlighted ? 1 : (0.75 - (0.75 - 0.15) * t);
-            track.style.setProperty('--track-brightness', String(brightness));
+            if (visual.brightness !== brightness) {
+                track.style.setProperty('--track-brightness', String(brightness));
+                visual.brightness = brightness;
+            }
 
             // 兜底：只要可见且真实内容已写入，不允许残留 hidden
-            if (shouldRender && track.dataset.emptyCard !== '1' && slotPendingSourceIndex[i] === null) {
+            if (shouldRender && !slotIsEmptyCard[i] && !slotDirty[i] && slotPendingSourceIndex[i] === null) {
                 track.classList.remove('is-content-hidden');
             }
         }
 
-        const nowMs = performance.now();
+        const nowMs = frameNow;
+        if (isValidSourceIndex(forcedActiveIndex) && Math.abs(offset - targetOffset) <= CONFIG.gapThreshold) {
+            setForcedActiveIndex(-1);
+        }
         if (isNavigatingAway) {
             detailReadyForBg = false;
             container.classList.remove('show-bg');
             resetDetailQueueState();
         } else {
+            processSlotRenderQueue(nowMs);
+            // Keep interval-driven queue alive until all dirty slots converge.
+            if (!hasPendingSlotRenders() && hasDirtySlots() && !wheelMoving) {
+                for (let i = 0; i < trackPool.length; i++) {
+                    const sourceIndex = poolAssignments[i];
+                    if (!isValidSourceIndex(sourceIndex)) continue;
+                    if (!slotDirty[i]) continue;
+                    bindSlotSourceAsync(i, sourceIndex);
+                    break;
+                }
+            }
             const snappedIndex = clampOffset(Math.round(targetOffset));
             const shouldQueueUpdate = snappedIndex !== lastActiveIndex || detailNeedsRefreshAfterScroll;
             if (shouldQueueUpdate) {
@@ -1397,6 +1544,7 @@
         e.preventDefault();
         e.stopPropagation();
         if (e.target.closest('.track-detail')) return;
+        setForcedActiveIndex(-1);
 
         const deltaOffset = (e.deltaY / CONFIG.scrollUnit) * CONFIG.scrollDirection;
         const nextOffset = clampOffset(targetOffset + deltaOffset);
@@ -1413,6 +1561,7 @@
         if (e.touches.length !== 1) return;
         e.stopPropagation();
         if (e.target.closest('.track-detail')) return;
+        setForcedActiveIndex(-1);
 
         isTouchDragging = true;
         startY = e.touches[0].clientY;
@@ -1495,29 +1644,32 @@
 
             if (!timelineSlider.dataset.trackSliderBound) {
                 timelineSlider.addEventListener('input', () => {
-                    if (!isSliderDragging) {
-                        const nextOffset = clampOffset(sliderToOffset(timelineSlider.value));
-                        hideDetailIfSwitching(nextOffset);
-                        targetOffset = nextOffset;
-                    }
+                    setForcedActiveIndex(-1);
+                    const nextOffset = clampOffset(sliderToOffset(timelineSlider.value));
+                    if (nextOffset === targetOffset) return;
+                    hideDetailIfSwitching(nextOffset);
+                    targetOffset = nextOffset;
                 });
 
                 timelineSlider.addEventListener('pointerdown', (e) => {
                     e.preventDefault();
                     isSliderDragging = true;
+                    setForcedActiveIndex(-1);
                     sliderPointerId = e.pointerId;
                     timelineSlider.setPointerCapture?.(e.pointerId);
-                    setSliderTargetFromPointer(e.clientX, e.clientY);
+                    const nextOffset = setSliderTargetFromPointer(e.clientX, e.clientY);
+                    if (nextOffset === null) return;
+                    hideDetailIfSwitching(nextOffset);
+                    targetOffset = nextOffset;
                 });
 
                 timelineSlider.addEventListener('pointermove', (e) => {
                     if (!isSliderDragging || (sliderPointerId !== null && e.pointerId !== sliderPointerId)) return;
                     e.preventDefault();
-                    const prevOffset = targetOffset;
-                    setSliderTargetFromPointer(e.clientX, e.clientY);
-                    if (targetOffset !== prevOffset) {
-                        hideDetailIfSwitching(targetOffset);
-                    }
+                    const nextOffset = setSliderTargetFromPointer(e.clientX, e.clientY);
+                    if (nextOffset === null || nextOffset === targetOffset) return;
+                    hideDetailIfSwitching(nextOffset);
+                    targetOffset = nextOffset;
                 });
 
                 timelineSlider.addEventListener('pointerup', (e) => {
