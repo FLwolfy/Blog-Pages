@@ -5075,7 +5075,7 @@ use.stop-animation {
   position: absolute;
   z-index: 1;
   inset: 0;
-  cursor: zoom-out;
+  cursor: default;
 }
 .image-viewer__image {
   position: absolute;
@@ -5086,14 +5086,28 @@ use.stop-animation {
   max-height: calc(100% - 8rem);
   margin: 0;
   object-fit: contain;
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  opacity: 1 !important;
+  filter: none;
   user-select: none;
   cursor: zoom-in;
-  filter: drop-shadow(0 1rem 2.5rem rgba(0,0,0,0.32));
   transition: transform 0.18s ease, opacity 0.18s ease;
   will-change: transform;
 }
-.image-viewer__image.is-zoomed {
-  cursor: grab;
+.image-viewer__image:hover {
+  opacity: 1 !important;
+  box-shadow: none;
+}
+.image-viewer__image.is-shrunk {
+  cursor: zoom-in;
+}
+.image-viewer__image.is-enlarged {
+  cursor: zoom-out;
+}
+.image-viewer__image.is-loading {
+  opacity: 0 !important;
 }
 .image-viewer__image.is-dragging {
   cursor: grabbing;
