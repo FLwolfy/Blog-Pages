@@ -256,6 +256,10 @@
 &lt;li&gt;在查看器打开期间直接拦截遮罩层上的滚轮、触摸和页面滚动快捷键，使背景保持当前位置，同时不改变原页面尺寸。&lt;/li&gt;
 &lt;li&gt;增加移动端安全区域、响应式工具栏和 &lt;code&gt;prefers-reduced-motion&lt;/code&gt; 适配。&lt;/li&gt;
 &lt;li&gt;从主题依赖中彻底移除不再使用的 &lt;code&gt;hana-img-viewer&lt;/code&gt;。&lt;/li&gt;
+&lt;li&gt;修复执行 &lt;code&gt;bash local-build.sh&lt;/code&gt; 后 &lt;code&gt;hana-img-viewer&lt;/code&gt; 被重新写回博客根目录 &lt;code&gt;package.json&lt;/code&gt; 和 &lt;code&gt;pnpm-lock.yaml&lt;/code&gt; 的问题。&lt;/li&gt;
+&lt;li&gt;问题来自构建流程最后调用的 &lt;code&gt;toolbox/hoistdep.mjs&lt;/code&gt;：原逻辑会访问 npm 镜像，读取官方最新版 &lt;code&gt;hexo-theme-shokax&lt;/code&gt; 的依赖，并通过 &lt;code&gt;pnpm add&lt;/code&gt; 将这些依赖提升到博客根目录。由于官方版本仍然依赖 &lt;code&gt;hana-img-viewer&lt;/code&gt;，本地删除会在每次构建后失效。&lt;/li&gt;
+&lt;li&gt;将依赖提升的数据源改为当前 fork 中的 &lt;code&gt;themes/shokaX/package.json&lt;/code&gt;，使构建工具同步本地主题实际声明的依赖，不再受 npm 上官方最新版依赖清单影响。&lt;/li&gt;
+&lt;li&gt;保留原有依赖提升机制，因此本地主题后续新增或移除依赖时，&lt;code&gt;local-build.sh&lt;/code&gt; 仍然能够正常同步到博客根项目。&lt;/li&gt;
 &lt;/ul&gt;
 &lt;blockquote&gt;
 &lt;p&gt;主要 commit：&lt;/p&gt;
@@ -264,11 +268,14 @@
 &lt;li&gt;&lt;code&gt;d0aef81&lt;/code&gt; - Update new changes&lt;/li&gt;
 &lt;li&gt;&lt;code&gt;2c76434&lt;/code&gt; - Update new changes&lt;/li&gt;
 &lt;li&gt;&lt;code&gt;e252095&lt;/code&gt; - Add codeline collapse for Shiki codeblock&lt;/li&gt;
-&lt;li&gt;当前修改（待提交）- Replace Hana image viewer and preserve post layout&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;44ee048&lt;/code&gt; - Reforged imageviewer and get rid of hana-img-viewer&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;ebbf68d&lt;/code&gt; - Polish imageviewer&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;56110b4&lt;/code&gt; - Make dependencies using local package.json&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;相关文件：&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;code&gt;package.json&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;toolbox/lib.mjs&lt;/code&gt;&lt;/li&gt;
 &lt;li&gt;&lt;code&gt;layout/_mixin/sidebar.pug&lt;/code&gt;&lt;/li&gt;
 &lt;li&gt;&lt;code&gt;layout/_partials/post/post.pug&lt;/code&gt;&lt;/li&gt;
 &lt;li&gt;&lt;code&gt;source/js/_app/components/sidebar.ts&lt;/code&gt;&lt;/li&gt;
@@ -971,9 +978,9 @@
 </content>
         <category term="ACG" scheme="https://blog.wolfiora.site/categories/acg/" />
         <category term="攻略" scheme="https://blog.wolfiora.site/categories/acg/guide/" />
+        <category term="攻略" scheme="https://blog.wolfiora.site/tags/tag-27bc88d254f8/" />
         <category term="任斗" scheme="https://blog.wolfiora.site/tags/tag-04d1b3974390/" />
         <category term="宝可梦" scheme="https://blog.wolfiora.site/tags/tag-d1107c563188/" />
-        <category term="攻略" scheme="https://blog.wolfiora.site/tags/tag-27bc88d254f8/" />
         <updated>2025-06-20T16:00:00.000Z</updated>
     </entry>
     <entry>
@@ -1166,8 +1173,8 @@
 </content>
         <category term="其他" scheme="https://blog.wolfiora.site/categories/other/" />
         <category term="公告" scheme="https://blog.wolfiora.site/categories/other/announce/" />
-        <category term="攻略" scheme="https://blog.wolfiora.site/tags/tag-27bc88d254f8/" />
         <category term="公告" scheme="https://blog.wolfiora.site/tags/tag-3f9569532847/" />
+        <category term="攻略" scheme="https://blog.wolfiora.site/tags/tag-27bc88d254f8/" />
         <updated>2025-04-12T16:00:00.000Z</updated>
     </entry>
 </feed>
