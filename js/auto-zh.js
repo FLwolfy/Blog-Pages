@@ -3,7 +3,6 @@
 
   var OPENCC_CDN = 'https://cdn.jsdelivr.net/npm/opencc-js@1.3.0/dist/umd/full.js';
   var IP_TIMEOUT = 1800;
-  var OPENCC_TIMEOUT = 2500;
   var ATTRS = ['title', 'alt', 'placeholder', 'aria-label'];
 
   // ==============================
@@ -55,28 +54,12 @@
   var convertedText = new WeakMap();
   var convertedAttrs = new WeakMap();
 
-  if (!document.getElementById('zh-auto-pending-style')) {
-    var pendingStyle = document.createElement('style');
-    pendingStyle.id = 'zh-auto-pending-style';
-    pendingStyle.textContent = 'html.zh-auto-pending body{visibility:hidden;}';
-    document.head.appendChild(pendingStyle);
-  }
-
   // 在最早阶段先挂起，避免出现“先简后繁”闪烁。
   if (!document.documentElement.classList.contains('zh-auto-pending')) {
     document.documentElement.classList.add('zh-auto-pending');
   }
-  if (!window.__zhAutoRevealTimer) {
-    window.__zhAutoRevealTimer = window.setTimeout(function () {
-      reveal();
-    }, 3200);
-  }
 
   function reveal() {
-    if (window.__zhAutoRevealTimer) {
-      window.clearTimeout(window.__zhAutoRevealTimer);
-      window.__zhAutoRevealTimer = null;
-    }
     document.documentElement.classList.remove('zh-auto-pending');
   }
 
@@ -220,7 +203,7 @@
   function loadOpenCC() {
     if (window.OpenCC && window.OpenCC.Converter) return Promise.resolve();
     if (openCCPromise) return openCCPromise;
-    openCCPromise = withTimeout(new Promise(function (resolve, reject) {
+    openCCPromise = new Promise(function (resolve, reject) {
       var script = document.querySelector('script[data-auto-zh-opencc]');
       if (script) {
         script.addEventListener('load', resolve, { once: true });
@@ -234,7 +217,7 @@
       script.onload = resolve;
       script.onerror = reject;
       document.head.appendChild(script);
-    }), OPENCC_TIMEOUT);
+    });
     return openCCPromise;
   }
 
@@ -354,7 +337,8 @@
 
   function init() {
     if (readyPromise) return readyPromise;
-    readyPromise = decide().then(function (needsConvert) {
+    readyPromise = Promise.all([decide(), loadOpenCC()]).then(function (results) {
+      var needsConvert = results[0];
       if (!needsConvert) {
         document.documentElement.setAttribute('data-zh-auto', 'zh-CN');
         return false;
@@ -365,8 +349,8 @@
     }).then(function (converted) {
       reveal();
       return converted;
-    }).catch(function () {
-      reveal();
+    }).catch(function (error) {
+      console.error('[AutoZh] Initialization failed; page remains hidden.', error);
       return false;
     });
     return readyPromise;
