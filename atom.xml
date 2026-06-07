@@ -978,9 +978,9 @@
 </content>
         <category term="ACG" scheme="https://blog.wolfiora.site/categories/acg/" />
         <category term="攻略" scheme="https://blog.wolfiora.site/categories/acg/guide/" />
-        <category term="攻略" scheme="https://blog.wolfiora.site/tags/tag-27bc88d254f8/" />
         <category term="任斗" scheme="https://blog.wolfiora.site/tags/tag-04d1b3974390/" />
         <category term="宝可梦" scheme="https://blog.wolfiora.site/tags/tag-d1107c563188/" />
+        <category term="攻略" scheme="https://blog.wolfiora.site/tags/tag-27bc88d254f8/" />
         <updated>2025-06-20T16:00:00.000Z</updated>
     </entry>
     <entry>
@@ -1173,8 +1173,8 @@
 </content>
         <category term="其他" scheme="https://blog.wolfiora.site/categories/other/" />
         <category term="公告" scheme="https://blog.wolfiora.site/categories/other/announce/" />
-        <category term="公告" scheme="https://blog.wolfiora.site/tags/tag-3f9569532847/" />
         <category term="攻略" scheme="https://blog.wolfiora.site/tags/tag-27bc88d254f8/" />
+        <category term="公告" scheme="https://blog.wolfiora.site/tags/tag-3f9569532847/" />
         <updated>2025-04-12T16:00:00.000Z</updated>
     </entry>
 </feed>
