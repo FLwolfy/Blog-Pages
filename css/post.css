@@ -2777,27 +2777,35 @@ use.stop-animation {
 #sidebar >.inner {
   position: relative;
   width: 15rem;
+  min-height: 100vh;
+  height: 100vh;
   color: var(--grey-6);
   text-align: center;
   display: flex;
-  justify-content: space-around;
+  flex-direction: column;
+  justify-content: flex-start;
   align-items: flex-start;
-  flex-wrap: wrap;
   z-index: 1;
 }
 .panels {
-  padding: 4.6875rem 0 2rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 3.25rem 0 0.75rem;
   width: 100%;
   overflow: hidden;
-  min-height: 100vh;
 }
 .panels .inner {
-  margin-top: 2.5rem;
+  flex: 1 1 auto;
+  min-height: 0;
+  margin-top: 0.75rem;
   overflow-x: hidden;
   overflow-y: auto;
+  overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
   width: auto;
-  height: calc(100vh - 6.6875rem);
+  height: auto;
   box-shadow: none;
   transition: box-shadow 0.2s ease;
 }
@@ -2813,7 +2821,7 @@ use.stop-animation {
 @media (max-width: 991px) {
   .panels .inner {
     box-shadow: none !important;
-    height: 100vh;
+    height: auto;
     margin-top: 0;
   }
 }
@@ -2962,9 +2970,6 @@ use.stop-animation {
   background-color: rgba(0,0,0,0.1);
   color: inherit;
 }
-.overview .menu .item:hover .submenu {
-  display: block;
-}
 .overview .menu .item .ic {
   margin-right: 0.625rem;
 }
@@ -2980,6 +2985,9 @@ use.stop-animation {
 }
 .overview .menu .item.expand .submenu {
   display: block;
+}
+.overview .menu .item.dropdown > a {
+  cursor: pointer;
 }
 .social {
   margin-top: 0.9375rem;
@@ -3042,16 +3050,15 @@ use.stop-animation {
   transform: scale(1);
 }
 #quick {
-  opacity: 0;
+  opacity: 1;
   display: flex;
   align-items: center;
   flex-wrap: wrap;
+  flex: 0 0 auto;
   width: 15rem;
-  margin: 0;
-  padding: 0;
+  margin: 0.25rem 0 0.75rem;
+  padding: 0 0.625rem;
   transition: opacity 0.3s ease;
-  position: fixed;
-  bottom: 1.125rem;
 }
 #quick li {
   width: 25%;
@@ -3078,10 +3085,6 @@ use.stop-animation {
   #quick {
     display: none;
   }
-}
-#sidebar.affix #quick,
-#sidebar.on #quick {
-  opacity: 1;
 }
 @media screen and (min-width: 768px) and (max-width: 1024px) and (orientation: landscape), screen and (min-width: 768px) and (max-width: 1366px) and (orientation: landscape) and (-webkit-min-device-pixel-ratio: 2), screen and (min-width: 768px) and (max-width: 1440px) and (-webkit-min-device-pixel-ratio: 1) {
   #sidebar {
