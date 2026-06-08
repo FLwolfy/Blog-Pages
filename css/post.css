@@ -2750,7 +2750,8 @@ use.stop-animation {
 #sidebar {
   min-height: 100vh;
   position: static;
-  overflow: scroll;
+  overflow-x: hidden;
+  overflow-y: scroll;
   width: 15rem;
   top: 0;
   bottom: 0;
@@ -2777,6 +2778,8 @@ use.stop-animation {
 #sidebar >.inner {
   position: relative;
   width: 15rem;
+  max-width: 15rem;
+  min-width: 0;
   min-height: 100vh;
   height: 100vh;
   color: var(--grey-6);
@@ -2788,23 +2791,29 @@ use.stop-animation {
   z-index: 1;
 }
 .panels {
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   flex: 1 1 auto;
   min-height: 0;
+  min-width: 0;
   padding: 3.25rem 0 0.75rem;
   width: 100%;
+  max-width: 100%;
   overflow: hidden;
 }
 .panels .inner {
+  box-sizing: border-box;
   flex: 1 1 auto;
   min-height: 0;
+  min-width: 0;
   margin-top: 0.75rem;
   overflow-x: hidden;
   overflow-y: auto;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
-  width: auto;
+  width: 100%;
+  max-width: 100%;
   height: auto;
   box-shadow: none;
   transition: box-shadow 0.2s ease;
@@ -2829,7 +2838,11 @@ use.stop-animation {
   display: none;
 }
 .panels .panel {
+  box-sizing: border-box;
   display: none;
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
   padding: 0.875rem 0.9375rem 2rem;
 }
 .dimmer {
@@ -3134,8 +3147,12 @@ use.stop-animation {
   padding-top: 0.625rem;
 }
 .contents ol {
+  box-sizing: border-box;
+  max-width: 100%;
+  min-width: 0;
   padding: 0 0.125rem 0.3125rem 0.625rem;
   text-align: left;
+  width: 100%;
 }
 .contents ol >ol {
   padding-left: 0;
@@ -3143,12 +3160,27 @@ use.stop-animation {
 .contents .toc-item {
   font-size: 1em;
   line-height: 1.8;
+  max-width: 100%;
+  min-width: 0;
   overflow: hidden;
+}
+.contents .toc-link {
+  box-sizing: border-box;
+  display: block;
+  max-width: none;
+  min-width: 0;
+  overflow: hidden;
+  padding-right: 0.35rem;
   text-overflow: ellipsis;
   white-space: nowrap;
+  width: 100%;
 }
 .contents .toc-child {
+  box-sizing: border-box;
   display: none;
+  max-width: 100%;
+  min-width: 0;
+  width: 100%;
 }
 .contents .active>.toc-child {
   display: block;
