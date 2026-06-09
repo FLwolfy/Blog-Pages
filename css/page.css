@@ -2027,6 +2027,8 @@ main >.inner {
   }
 }
 #main {
+  position: relative;
+  z-index: 9;
   background: linear-gradient(to top, var(--grey-0) 0, var(--grey-1) 20%) no-repeat top;
   box-shadow: 0 1.25rem 1rem 0.3125rem var(--body-bg-shadow);
   width: calc(100% - 15.75rem);
@@ -2792,7 +2794,8 @@ use.stop-animation {
 .panels .inner.scroll-bottom {
   box-shadow: inset 0 -1rem 1rem -1rem var(--box-bg-shadow);
 }
-.panels .inner.scroll-top.scroll-bottom {
+.panels .inner.scroll-top.scroll-bottom,
+.panels .inner.is-native-overscrolling {
   box-shadow: inset 0 1rem 1rem -1rem var(--box-bg-shadow), inset 0 -1rem 1rem -1rem var(--box-bg-shadow);
 }
 @media (max-width: 991px) {
@@ -2800,6 +2803,16 @@ use.stop-animation {
     box-shadow: none !important;
     height: auto;
     margin-top: 0;
+  }
+  .panels .inner.scroll-top {
+    box-shadow: inset 0 1rem 1rem -1rem var(--box-bg-shadow) !important;
+  }
+  .panels .inner.scroll-bottom {
+    box-shadow: inset 0 -1rem 1rem -1rem var(--box-bg-shadow) !important;
+  }
+  .panels .inner.scroll-top.scroll-bottom,
+  .panels .inner.is-native-overscrolling {
+    box-shadow: inset 0 1rem 1rem -1rem var(--box-bg-shadow), inset 0 -1rem 1rem -1rem var(--box-bg-shadow) !important;
   }
 }
 .panels .inner::-webkit-scrollbar {
