@@ -5146,6 +5146,10 @@ use.stop-animation {
 }
 .image-viewer__image.is-dragging {
   cursor: grabbing;
+}
+.image-viewer__image.is-dragging,
+.image-viewer__image.is-pinching,
+.image-viewer__image.is-wheel-zooming {
   transition: none;
 }
 .image-viewer__nav {
