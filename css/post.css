@@ -2769,6 +2769,7 @@ use.stop-animation {
     min-height: 100vh;
     min-height: 100dvh;
     overflow-y: hidden;
+    transition: background-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
     background: var(--grey-1);
     box-shadow: 0 0.375rem 0.9375rem 0.3125rem rgba(0,0,0,0.2);
     z-index: 99;

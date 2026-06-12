@@ -10,8 +10,8 @@
         </author>
         <description>编程、游戏、动漫爱好者！</description>
         <language>zh-CN</language>
-        <pubDate>Mon, 01 Jun 2026 16:00:00 +0000</pubDate>
-        <lastBuildDate>Mon, 01 Jun 2026 16:00:00 +0000</lastBuildDate>
+        <pubDate>Thu, 11 Jun 2026 16:00:00 +0000</pubDate>
+        <lastBuildDate>Thu, 11 Jun 2026 16:00:00 +0000</lastBuildDate>
         <category term="blog" />
         <category term=" 博客" />
         <category term=" programming" />
@@ -20,6 +20,71 @@
         <category term=" 游戏" />
         <category term=" anime" />
         <category term=" 动漫" />
+        <item>
+            <guid isPermalink="true">https://blog.wolfiora.site/compsci/gamedev/gamedev-guidemap/</guid>
+            <title>【游戏开发程序员】学习导览与路线规划</title>
+            <link>https://blog.wolfiora.site/compsci/gamedev/gamedev-guidemap/</link>
+            <category term="编程" scheme="https://blog.wolfiora.site/categories/compsci/" />
+            <category term="游戏开发" scheme="https://blog.wolfiora.site/categories/compsci/gamedev/" />
+            <category term="导览" scheme="https://blog.wolfiora.site/tags/tag-c1a65c27f35e/" />
+            <category term="计划" scheme="https://blog.wolfiora.site/tags/tag-c17bb5de3f8d/" />
+            <pubDate>Thu, 11 Jun 2026 16:00:00 +0000</pubDate>
+            <description><![CDATA[ &lt;h1 id=&#34;前言和申明&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#前言和申明&#34;&gt;#&lt;/a&gt; 前言和申明&lt;/h1&gt;
+&lt;p class=&#34;note warning&#34;&gt;&lt;span class=&#34;pink&#34;&gt;◉&lt;/span&gt; 本学习思路主要是供自己学习计划和记录使用，并不一定完全符合大家的普遍学习思路，仅供参考～&lt;br&gt;&lt;span class=&#34;pink&#34;&gt;◉&lt;/span&gt; 
+本文的「基础学科」和「就业技能」学习思路和建议参考 &lt;em&gt;Bilibili&lt;/em&gt; 上的 &lt;a href=&#34;https://www.bilibili.com/video/BV1ctGR6dEqk&#34;&gt;【唐老狮播客】第三期：游戏程序员的学习路线&lt;/a&gt; 这集博客视频的讲解，非常感谢 Up 主 &lt;em&gt;一唐老狮一&lt;/em&gt; 的建议，欢迎大家也多多去捧场和学习！&lt;br&gt;&lt;span class=&#34;pink&#34;&gt;◉&lt;/span&gt; 
+如果有更好的学习方法，或者各位成功上岸的经历，也麻烦请各位评论区分享啦，谢谢。&lt;/p&gt;
+&lt;h2 id=&#34;引言-intro&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#引言-intro&#34;&gt;#&lt;/a&gt; 引言 | Intro&lt;/h2&gt;
+&lt;p&gt;在具体说明之前，我先简单聊几句。&lt;br /&gt;
+其实具体的每一个计算机基础学科的相关知识的课程，大部分的计算机学生都是学习过的。尽管在大学中可能没能那么系统的教你，又或者零零散散的知识学了一堆忘了一堆 ，但总的来说提到一些关键信息都能够回想起一些相关内容（至少本人很多时候是这个状态）。这个知识的零散程度对于就业肯定是不行的，所以本人在看了 &lt;em&gt;一唐老狮一&lt;/em&gt; 的视频教程后，认为有必要稍微整理一下需要的知识点和学习方向，以便于未来查漏补缺和系统性学习的时候能够有参考。&lt;/p&gt;
+&lt;p&gt;就「游戏程序开发」方向，其实需要的知识并没有那么深，更多其实是广。但“广”也是个很严肃的问题，毕竟学的东西多了，很容易出现两种状况：&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;认为自己学的太多，自信的不得了。&lt;br /&gt;
+认为自己学的太杂，焦虑的不行。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;这两种状态可以都总结为学的「乱」，因为有一说一游戏程序开发所需要的知识真的太多了，引用 &lt;em&gt;一唐老狮一&lt;/em&gt; 说的一句话就是 &lt;code&gt;门门都通，门门都松&lt;/code&gt;。所以本人认为很有必要在这里稍微系统一点的计划一下说需要学的一个方向，以此作为后续笔记记录的一个大纲和目录。&lt;/p&gt;
+&lt;h2 id=&#34;学习路线-guide-map&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#学习路线-guide-map&#34;&gt;#&lt;/a&gt; 学习路线 | Guide Map&lt;/h2&gt;
+&lt;p&gt;游戏程序员学习其实可以分为两块，也就是上面提到过的 &lt;code&gt;基础学科&lt;/code&gt; 和 &lt;code&gt;就业技能&lt;/code&gt;。这两个发的方向和没有轻重之分，更多的区别是类似于一个是“通用的”知识点，另一个是更偏“专业性”的技能。&lt;/p&gt;
+&lt;p&gt;就面试来说，「就业技能」的熟练掌握更能够让你在同样来面试的人中有所突出，它相当于直接是入行游戏开发的敲门砖。很多时候就业技能的掌握与否直接决定了你能不能胜任这个工作。就好比文书工作但你不会 excel，那么你有再多的理论知识也知识空谈，没办法实际做项目。&lt;/p&gt;
+&lt;p&gt;就实操而言，「基础学科」的掌握程度决定了未来在面对复杂问题的时候，能不能真正看懂问题，分析问题，解决问题。这一些看起来基础的东西往往是那些真正决定你能不能走深的部分。这个部分相当于就是理论基础了。只会做不行，没办法融汇贯通，基础学科的扎实掌握能够保你在各种情况下都有应对措施。&lt;/p&gt;
+&lt;h3 id=&#34;基础学科-basics&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#基础学科-basics&#34;&gt;#&lt;/a&gt; 基础学科 | Basics&lt;/h3&gt;
+&lt;hr /&gt;
+&lt;p class=&#34;medium-imgs&#34;&gt;&lt;img loading=&#34;lazy&#34; src=&#34;https://imgs.flwolfy.site/img/post/gamedev-guidemap/Basics.webp&#34; alt=&#34;Basics&#34; /&gt;&lt;/p&gt;
+&lt;hr /&gt;
+&lt;p&gt;「基础学科」可以分成以下几块，各个部分如果有对应文章或者文章分组可以点击前往：&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;计算机基础&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;计算机组成原理&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;操作系统&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;C++&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;编译原理&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;数据结构和算法&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;设计模式&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;计算机网络&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;图形学&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/blockquote&gt;
+&lt;h3 id=&#34;就业技能-professionals&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#就业技能-professionals&#34;&gt;#&lt;/a&gt; 就业技能 | Professionals&lt;/h3&gt;
+&lt;hr /&gt;
+&lt;p class=&#34;medium-imgs&#34;&gt;&lt;img loading=&#34;lazy&#34; src=&#34;https://imgs.flwolfy.site/img/post/gamedev-guidemap/Professionals.webp&#34; alt=&#34;Professionals&#34; /&gt;&lt;/p&gt;
+&lt;hr /&gt;
+&lt;p&gt;「就业技能」可以分成以下几块，各个部分如果有对应文章或者文章分组可以点击前往：&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;游戏引擎&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;UI系统&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;数据持久化&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;热更新&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;框架&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;移动平台&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Shader&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;性能优化&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&#34;小结-conclusion&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#小结-conclusion&#34;&gt;#&lt;/a&gt; 小结 | Conclusion&lt;/h2&gt;
+&lt;p&gt;以上三个方法就是我主要学习框架和思路分享。如果你觉得我的思路不错，或是有更好的方法和看法，请麻烦留下您宝贵的留言和意见，感谢你的阅读～&lt;/p&gt;
+ ]]></description>
+        </item>
         <item>
             <guid isPermalink="true">https://blog.wolfiora.site/acg/pilgrimage/wuwa-2nd/</guid>
             <title>《鸣潮》二周年「于繁花盛放时赴约」线下主题快闪活动</title>
